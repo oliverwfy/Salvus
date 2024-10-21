@@ -4,6 +4,7 @@ import os
 SALVUS_FLOW_SITE_NAME = 'oliver_mac'
 PROJECT_DIR = "/Users/Oliver/Library/CloudStorage/OneDrive-UniversityofBristol/Salvus_project/project"
 
+
 import pathlib
 import numpy as np
 import salvus.namespace as sn
@@ -83,6 +84,7 @@ p.simulations.launch(
     events=p.events.list()[0:1],
     simulation_configuration="my_first_simulation",
 )
+
 
 # check the status of simulation jobs
 p.simulations.query(block=True)
