@@ -1,0 +1,1341 @@
+{
+    "run_statistics": {
+        "salvus_version": "2024.1.1",
+        "runtime_in_seconds": 1.001116,
+        "start_time": "2024-10-23T12:23:06Z",
+        "end_time": "2024-10-23T12:23:07Z",
+        "working_directory": "/Users/Oliver/salvus_data/run_directory/job_2410231323154872_8b2ae4b7a6",
+        "number_of_ranks": 2
+    },
+    "machine_statistics": {
+        "username": "Oliver",
+        "hostname": "Mac",
+        "working_directory": "/Users/Oliver/salvus_data/run_directory/job_2410231323154872_8b2ae4b7a6",
+        "operating_system": "macOS",
+        "compile_time_mpi_version": "3.1",
+        "run_time_mpi_version": "3.1",
+        "cpu_statistics": {
+            "architecture": "X86",
+            "brand_string": "Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz",
+            "family": 6,
+            "model": 158,
+            "stepping": 13,
+            "architecture": "X86",
+            "microarchitecture": "INTEL_CFL",
+            "feature_flags": [
+                "fpu",
+                "tsc",
+                "cx8",
+                "clfsh",
+                "mmx",
+                "aes",
+                "erms",
+                "f16c",
+                "fma3",
+                "bmi1",
+                "bmi2",
+                "rdseed",
+                "clflushopt",
+                "sse",
+                "sse2",
+                "sse3",
+                "ssse3",
+                "sse4_1",
+                "sse4_2",
+                "avx",
+                "avx2",
+                "pclmulqdq",
+                "smx",
+                "sgx",
+                "cx16",
+                "popcnt",
+                "movbe",
+                "rdrnd",
+                "ss",
+                "adx",
+                "lzcnt"
+            ]
+        }
+    },
+    "forward_run_input": {
+        "domain": {
+            "dimension": 2,
+            "geometry": {
+                "filename": "/Users/Oliver/salvus_data/run_directory/job_2410231323154872_8b2ae4b7a6/input/mesh.h5",
+                "format": "hdf5"
+            },
+            "mesh": {
+                "filename": "/Users/Oliver/salvus_data/run_directory/job_2410231323154872_8b2ae4b7a6/input/mesh.h5",
+                "format": "hdf5"
+            },
+            "model": {
+                "filename": "/Users/Oliver/salvus_data/run_directory/job_2410231323154872_8b2ae4b7a6/input/mesh.h5",
+                "format": "hdf5"
+            },
+            "polynomial_order": 4
+        },
+        "hardware": {
+            "gpu": false
+        },
+        "output": {
+            "meta_data": {
+                "meta_json_filename": "/Users/Oliver/salvus_data/run_directory/job_2410231323154872_8b2ae4b7a6/output/meta.json",
+                "progress_json_filename": "/Users/Oliver/salvus_data/run_directory/job_2410231323154872_8b2ae4b7a6/output/progress.json"
+            },
+            "point_data": {
+                "filename": "/Users/Oliver/salvus_data/run_directory/job_2410231323154872_8b2ae4b7a6/output/receivers.h5",
+                "format": "hdf5",
+                "receiver": [
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.0
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_0"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.010000000009996644
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_1"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.02
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_2"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.030000000010006737
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_3"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.04
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_4"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.050000000009996874
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_5"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.06
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_6"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.07000000000999015
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_7"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.08
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_8"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.09000000001001217
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_9"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.1
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_10"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.11000000001000286
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_11"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.12
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_12"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.13000000000999884
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_13"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.14
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_14"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999998,
+                            0.15000000001005728
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_15"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.16
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_16"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.17000000001006407
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_17"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.18
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_18"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9000000000000002,
+                            0.19000000000996953
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_19"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.2
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_20"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999998,
+                            0.21000000000999774
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_21"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.22
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_22"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.23000000001007886
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_23"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.24
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_24"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999998,
+                            0.25000000000999645
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_25"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.26
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_26"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.2700000000100013
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_27"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.28
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_28"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.29000000000999876
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_29"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.30000000000000004
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_30"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.31000000001000133
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_31"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.32
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_32"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.3300000000099207
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_33"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.33999999999999997
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_34"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.3500000000101564
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_35"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.36
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_36"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.3700000000099989
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_37"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.38
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_38"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.39000000001007895
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_39"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.4
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_40"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.41000000000999887
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_41"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.42000000000000004
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_42"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.43000000001000116
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_43"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.44
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_44"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.4500000000098427
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_45"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.45999999999999996
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_46"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.47000000001023406
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_47"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.48
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_48"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.49000000000979627
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_49"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.5
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_50"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.5100000000099998
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_51"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.52
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_52"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.5300000000097964
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_53"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.54
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_54"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.5500000000097969
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_55"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.56
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_56"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.5700000000094054
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_57"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.5800000000000001
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_58"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.5900000000097967
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_59"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.6
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_60"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.6100000000100003
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_61"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.62
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_62"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9000000000000002,
+                            0.630000000009797
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_63"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.64
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_64"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.6500000000097963
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_65"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.66
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_66"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.6700000000099998
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_67"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.68
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_68"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.6900000000101051
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_69"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.7
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_70"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.7100000000099974
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_71"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.72
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_72"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.7300000000100002
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_73"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.74
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_74"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9000000000000002,
+                            0.7500000000104058
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_75"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.76
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_76"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.7700000000097965
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_77"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.78
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_78"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.7900000000097968
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_79"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.8
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_80"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.8100000000095924
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_81"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.8200000000000001
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_82"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.830000000009593
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_83"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.84
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_84"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.8500000000097963
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_85"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.86
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_86"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.8700000000104057
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_87"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.88
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_88"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.8900000000100003
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_89"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.9
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_90"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.9100000000102186
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_91"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.92
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_92"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999998,
+                            0.9300000000097963
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_93"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.94
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_94"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.9500000000099997
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_95"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.96
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_96"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9000000000000002,
+                            0.9700000000091066
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_97"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            0.98
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_98"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.8999999999999999,
+                            0.9900000000102026
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_99"
+                    },
+                    {
+                        "fields": [
+                            "phi"
+                        ],
+                        "location": [
+                            0.9,
+                            1.0
+                        ],
+                        "location_code": "",
+                        "network_code": "XX",
+                        "station_code": "xx_100"
+                    }
+                ],
+                "sampling_interval_in_time_steps": 1
+            },
+            "volume_data": {
+                "fields": [
+                    "phi"
+                ],
+                "filename": "/Users/Oliver/salvus_data/tmp_directory/job_2410231323154872_8b2ae4b7a6/output.h5",
+                "format": "hdf5",
+                "sampling_interval_in_time_steps": 1,
+                "gradient_subsampling_interval": 1
+            }
+        },
+        "physics": {
+            "wave_equation": {
+                "attenuation": false,
+                "courant_number": 0.6,
+                "end_time_in_seconds": 0.001,
+                "point_source": [
+                    {
+                        "location": [
+                            0.1,
+                            0.5
+                        ],
+                        "source_time_function": {
+                            "center_frequency": 10000.0,
+                            "wavelet": "ricker"
+                        },
+                        "spatial_type": "scalar",
+                        "spatial_weights": [
+                            1.0
+                        ]
+                    }
+                ],
+                "time_stepping_scheme": "newmark",
+                "start_time_in_seconds": -0.0001559393602467352,
+                "time_step_in_seconds": 0.0000020715759144206724
+            }
+        }
+    }
+}
