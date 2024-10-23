@@ -1,7 +1,7 @@
 import os
 
 SALVUS_FLOW_SITE_NAME = 'oliver_mac'
-PROJECT_DIR = "/Users/Oliver/Library/CloudStorage/OneDrive-UniversityofBristol/Salvus_project/project"
+PROJECT_DIR = "/Users/Oliver/Library/CloudStorage/OneDrive_UniversityofBristol/Salvus_project/project"
 
 import matplotlib.pyplot as plt
 import numpy as np

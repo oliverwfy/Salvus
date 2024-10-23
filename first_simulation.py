@@ -1,8 +1,8 @@
 import os
 
 # SALVUS_FLOW_SITE_NAME = os.environ.get("SITE_NAME", "local")
-SALVUS_FLOW_SITE_NAME = 'oliver_mac'
-PROJECT_DIR = "/Users/Oliver/Library/CloudStorage/OneDrive-UniversityofBristol/Salvus_project/project"
+SALVUS_FLOW_SITE_NAME = 'oliver_ubuntu'
+PROJECT_DIR = "/home/ho21481/Salvus_project/project"
 
 
 import pathlib
