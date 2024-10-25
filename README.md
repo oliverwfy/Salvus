@@ -1,4 +1,4 @@
 # Salvus
 FE simulation by Salvus.
 
-the installation instructions are in [here] (myLib/installation.pdf).
+the installation instructions are in [here] (installation.pdf).
