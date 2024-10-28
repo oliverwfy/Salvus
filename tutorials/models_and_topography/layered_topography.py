@@ -119,3 +119,86 @@ p = sn.Project.from_domain(
     load_if_exists=True,
 )
 p.viz.nb.domain()
+
+# Location of source (this will snap to the closet side-set).
+loc = [x_max / 2, 2500.0]
+
+# Create the source.
+source = sn.simple_config.source.cartesian.SideSetVectorPoint2D(
+    fx=1,
+    fy=1,
+    point=loc,
+    direction="y",
+    side_set_name="y1",
+)
+
+receivers = (
+    sn.simple_config.receiver.cartesian.SideSetHorizontalPointCollection2D(
+        x=np.linspace(x_min, x_max, 1000),
+        offset=-1.0,
+        side_set_name="y1",
+        station_code="xx",
+        fields=["velocity", "strain"],
+    )
+)
+
+p.add_to_project(
+    sn.Event(event_name="event", sources=source, receivers=receivers)
+)
+
+
+if "sim" not in p.simulations.list():
+    p.add_to_project(
+        sn.UnstructuredMeshSimulationConfiguration(
+            name="sim",
+            unstructured_mesh=mesh,
+            event_configuration=sn.EventConfiguration(
+                wavelet=sn.simple_config.stf.Ricker(
+                    center_frequency=max_frequency / 2
+                ),
+                waveform_simulation_configuration=sn.WaveformSimulationConfiguration(
+                    end_time_in_seconds=2.0
+                ),
+            ),
+        ),
+    )
+
+
+p.viz.nb.simulation_setup("sim", events=["event"])
+
+p.simulations.launch(
+    simulation_configuration="sim",
+    events="event",
+    site_name=SALVUS_FLOW_SITE_NAME,
+    ranks_per_job=4,
+)
+p.simulations.query(block=True)
+
+waveform_data = p.waveforms.get(data_name="sim", events="event")[0]
+
+waveform_data.plot(
+    component="X",
+    receiver_field="velocity",
+    plot_types=["shotgather"],
+)
+waveform_data.plot(
+    component="Y",
+    receiver_field="velocity",
+    plot_types=["shotgather"],
+)
+
+waveform_data.plot(
+    component="0",
+    receiver_field="strain",
+    plot_types=["shotgather"],
+)
+waveform_data.plot(
+    component="1",
+    receiver_field="strain",
+    plot_types=["shotgather"],
+)
+waveform_data.plot(
+    component="2",
+    receiver_field="strain",
+    plot_types=["shotgather"],
+)
