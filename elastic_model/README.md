@@ -31,6 +31,6 @@ The received **displacement fields** in **x** direction:
 
 ![isotropic_2d_waveform_x](image/isotropic_2d_waveforms_component_x.png)
 
-Here is an animation for the full wavefield simulation (**magnitude of displacement field**):
+Here is an animation of the full wavefield simulation (**magnitude of displacement field**):
 
 ![isotropic_2d_animation](image/isotropic_free_surface.gif)
