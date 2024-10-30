@@ -45,12 +45,12 @@ events = []
 #             for x in np.linspace(*x_range, n_srcs)
 #             ]
 
-srcs_pos = [(x_range[0] + x_range[1])/2, y_range[1])]
+srcs_pos = [((x_range[0] + x_range[1])/2, y_range[1])]
 
 
 
 # vector source with weights fx and fy in x and y directions, respectively.
-srcs = [VectorPoint2D(x=s[0],y=s[1], fx=0.0, fy=-1) 
+srcs = [VectorPoint2D(x=s[0],y=s[1], fx=0, fy=-1) 
         for i, s in enumerate(srcs_pos)
         ]
 
@@ -92,7 +92,7 @@ p.viz.nb.domain()
 # model configuration (isotropic elastic model)
 mc = sn.ModelConfiguration(
     background_model=sn.model.background.homogeneous.IsotropicElastic(
-        rho=2200.0, vp=3200.0, vs=1847.5
+        rho=2200.0, vp=6000.0, vs=4000
     )
 )
 
@@ -103,7 +103,7 @@ ec = sn.EventConfiguration(
     wavelet=sn.simple_config.stf.Ricker(center_frequency=f_c),
     waveform_simulation_configuration=sn.WaveformSimulationConfiguration(
         start_time_in_seconds=-0.8*1e-6,
-        end_time_in_seconds=30*1e-6,
+        end_time_in_seconds=15*1e-6,
     )
 )
 
@@ -129,7 +129,7 @@ p.viz.nb.simulation_setup(
 
 # launch simulations
 p.simulations.launch(
-    ranks_per_job=4,
+    ranks_per_job=8,
     site_name=SALVUS_FLOW_SITE_NAME,
     events=p.events.list(),
     simulation_configuration="isometric_simulation",
@@ -142,6 +142,13 @@ p.viz.nb.waveforms("isometric_simulation", receiver_field="displacement")
 # event data
 ed = p.waveforms.get(data_name="isometric_simulation", events=p.events.list())
 
+
+# displacement in y direction
 p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
     component="Y", receiver_field="displacement"
+)
+
+# displacement in x direction
+p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
+    component="X", receiver_field="displacement"
 )
