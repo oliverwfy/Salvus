@@ -8,9 +8,9 @@ The **domain** is defined as a 2D Box with 10mm x 20mm.
 
 Then generate mesh and config event (the spatial information of sources and receives), sources in Salvus initialize the force $\mathbf{f}$ in the strong form of elastodynamics equation.
 
-> ## elastodynamics equation:
-> $$ \rho\mathbf{\ddot{u}} = \nabla \cdot \mathbf{C} (\nabla \mathbf{u}) + \mathbf{f}$$..
->
+> ## Elastodynamics Equation:
+> $$\rho\mathbf{\ddot{u}} = \nabla \cdot \mathbf{C} (\nabla \mathbf{u}) + \mathbf{f}$$ 
+><br />
 
 The default mesh alone with a **vector point source** at (5mm, 20mm) and **11 receivers** at the bottom line (**y=0**) is shown below:
 
