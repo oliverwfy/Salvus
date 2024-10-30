@@ -7,7 +7,10 @@ import numpy as np
 
 from salvus.flow.simple_config.receiver.cartesian import Point2D
 from salvus.flow.simple_config.source.cartesian import VectorPoint2D
-
+from salvus.toolbox.helpers.wavefield_output import (
+    WavefieldOutput,
+    wavefield_output_to_xarray,
+)
 
 
 # SALVUS_FLOW_SITE_NAME = 'oliver_mac'
@@ -78,6 +81,8 @@ for i, src in enumerate(srcs):
 events.append(sn.Event(event_name=f"event_0", sources=srcs, receivers=rxs))
 
 
+
+
 # add the events to Project
 for event in p.events.list():
     p.events.delete(event) 
@@ -91,6 +96,7 @@ p.viz.nb.domain()
 # run a simulation
 # model configuration (isotropic elastic model)
 mc = sn.ModelConfiguration(
+    
     background_model=sn.model.background.homogeneous.IsotropicElastic(
         rho=2200.0, vp=6000.0, vs=4000
     )
@@ -127,12 +133,30 @@ p.viz.nb.simulation_setup(
     simulation_configuration="isometric_simulation", events=p.events.list()
 )
 
-# launch simulations
+# # launch simulations
+# p.simulations.launch(
+#     ranks_per_job=8,
+#     site_name=SALVUS_FLOW_SITE_NAME,
+#     events=p.events.list(),
+#     simulation_configuration="isometric_simulation",
+# )
+
+# simulation with volume data (full wavefield)
 p.simulations.launch(
-    ranks_per_job=8,
+    ranks_per_job=4,
     site_name=SALVUS_FLOW_SITE_NAME,
     events=p.events.list(),
     simulation_configuration="isometric_simulation",
+    extra_output_configuration={
+        "volume_data": {
+            "sampling_interval_in_time_steps": 10,
+            "fields": ["displacement", "gradient-of-displacement"],
+        },
+    },
+    # We have previously simulated the same event but without
+    # extra output. We have to thus overwrite the existing
+    # simulation.
+    delete_conflicting_previous_results=True,
 )
 
 p.simulations.query(block=True)
@@ -152,3 +176,4 @@ p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
 p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
     component="X", receiver_field="displacement"
 )
+
