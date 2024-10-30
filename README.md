@@ -1,4 +1,4 @@
-# Forward Simulations by Salvus
+# Full Wavefield Simulations by Salvus
 
 [![Salvus](https://img.shields.io/badge/Salvus-2014.1.2-blue)](https://mondaic.com/docs/2024.1.2/)
 

@@ -12,12 +12,15 @@ from salvus.toolbox.helpers.wavefield_output import (
     wavefield_output_to_xarray,
 )
 
+from salvus.flow import simple_config
+
 
 # SALVUS_FLOW_SITE_NAME = 'oliver_mac'
 SALVUS_FLOW_SITE_NAME = 'oliver_win'
 PROJECT_DIR = "Project"
 
-from salvus.flow import simple_config
+img_dir = 'image'
+
 
 
 
@@ -31,6 +34,7 @@ y_range = np.array([0., y_length]) * 1e-3
 
 domain = sn.domain.dim2.BoxDomain(x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1])
 domain.plot(return_figure=True)
+plt.savefig(Path(img_dir, 'isotropic_2d_domain.png'))
 
 # create project
 p = sn.Project.from_domain(path=Path(PROJECT_DIR, "isotropic"), 
@@ -90,8 +94,6 @@ for event in events:
     p.add_to_project(event)
 
 
-p.viz.nb.domain()
-
 
 # run a simulation
 # model configuration (isotropic elastic model)
@@ -113,7 +115,9 @@ ec = sn.EventConfiguration(
     )
 )
 
-ec.wavelet.plot()
+fig = ec.wavelet.plot(show=False)
+plt.savefig(Path(img_dir, 'isotropic_2d_Ricker.png'))
+plt.show()
 
 
 # add simulation configuration to Project
@@ -132,6 +136,7 @@ p.add_to_project(
 p.viz.nb.simulation_setup(
     simulation_configuration="isometric_simulation", events=p.events.list()
 )
+
 
 # # launch simulations
 # p.simulations.launch(
@@ -171,6 +176,8 @@ ed = p.waveforms.get(data_name="isometric_simulation", events=p.events.list())
 p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
     component="Y", receiver_field="displacement"
 )
+
+
 
 # displacement in x direction
 p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
