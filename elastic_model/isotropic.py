@@ -5,6 +5,7 @@ import salvus.namespace as sn
 import matplotlib.pyplot as plt 
 import numpy as np
 
+
 from salvus.flow.simple_config.receiver.cartesian import Point2D
 from salvus.flow.simple_config.source.cartesian import VectorPoint2D
 from salvus.toolbox.helpers.wavefield_output import (
