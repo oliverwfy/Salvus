@@ -6,10 +6,12 @@ The **domain** is defined as a 2D Box with 10mm x 20mm.
 
 ![isotropic_2d_domain](image/isotropic_2d_domain.png)
 
-Then generate mesh and config event (the spatial information of sources and receives), sources in Salvus initialize the force f\mathbf{f} in the strong form of elastodynamics equation.
+Then generate mesh and config event (the spatial information of sources and receives), sources in Salvus initialize the force \mathbf{f} in the strong form of elastodynamics equation.
 
 > ## Elastodynamics Equation:
-> ρ¨u=∇⋅C(∇u)+f\rho\mathbf{\ddot{u}} = \nabla \cdot \mathbf{C} (\nabla \mathbf{u}) + \mathbf{f} 
+> ```math
+> \rho\mathbf{\ddot{u}} = \nabla \cdot \mathbf{C} (\nabla \mathbf{u}) + \mathbf{f} 
+> ```
 ><br />
 
 The default mesh alone with a **vector point source** at (5mm, 20mm) and **11 receivers** at the bottom line (**y=0**) is shown below:
