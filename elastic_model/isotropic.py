@@ -2,16 +2,15 @@ import os
 from pathlib import Path
 from salvus.flow import simple_config
 import salvus.namespace as sn
+
 import matplotlib.pyplot as plt 
 import numpy as np
 
 
 from salvus.flow.simple_config.receiver.cartesian import Point2D
 from salvus.flow.simple_config.source.cartesian import VectorPoint2D
-from salvus.toolbox.helpers.wavefield_output import (
-    WavefieldOutput,
-    wavefield_output_to_xarray,
-)
+from salvus.toolbox.helpers.wavefield_output import WavefieldOutput, wavefield_output_to_xarray
+
 
 from salvus.flow import simple_config
 
@@ -179,9 +178,9 @@ p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
 )
 
 
-
 # displacement in x direction
 p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
     component="X", receiver_field="displacement"
 )
+
 
