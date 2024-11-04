@@ -178,9 +178,16 @@ p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
 )
 
 
+
+
 # displacement in x direction
 p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
     component="X", receiver_field="displacement"
 )
+
+
+u_xarr = ed[0].get_waveform_data_xarray('displacement')
+u_arr = ed[0].get_waveform_data_xarray('displacement').to_numpy()
+
 
 
