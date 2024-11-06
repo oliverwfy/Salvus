@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from salvus.flow import simple_config
 import salvus.namespace as sn
@@ -12,16 +11,12 @@ from salvus.flow.simple_config.source.cartesian import VectorPoint2D
 from salvus.toolbox.helpers.wavefield_output import WavefieldOutput, wavefield_output_to_xarray
 
 
-from salvus.flow import simple_config
-
 
 # SALVUS_FLOW_SITE_NAME = 'oliver_mac'
-SALVUS_FLOW_SITE_NAME = 'oliver_win'
+SALVUS_FLOW_SITE_NAME = 'oliver_wsl'
 PROJECT_DIR = "Project"
 
-img_dir = 'image'
-
-
+img_dir = '/home/oliver/workspace/Salvus/elastic_model/absorbing_layer/image'
 
 
 # define 2D box domain
@@ -33,11 +28,9 @@ y_range = np.array([0., y_length]) * 1e-3
 
 
 domain = sn.domain.dim2.BoxDomain(x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1])
-domain.plot(return_figure=True)
-plt.savefig(Path(img_dir, 'isotropic_2d_domain.png'))
 
 # create project
-p = sn.Project.from_domain(path=Path(PROJECT_DIR, "isotropic"), 
+p = sn.Project.from_domain(path=Path(PROJECT_DIR, "absorbing"), 
                            domain=domain, load_if_exists=True)
 
 
@@ -106,6 +99,7 @@ mc = sn.ModelConfiguration(
 
 # center frequency
 f_c = 2*1e6
+
 # event configuration
 ec = sn.EventConfiguration(
     wavelet=sn.simple_config.stf.Ricker(center_frequency=f_c),
@@ -115,26 +109,34 @@ ec = sn.EventConfiguration(
     )
 )
 
-fig = ec.wavelet.plot(show=False)
-plt.savefig(Path(img_dir, 'isotropic_2d_Ricker.png'))
-plt.show()
+
+
+# absorbing boundary parameters 
+abp = sn.AbsorbingBoundaryParameters(
+    reference_velocity=3000.0,
+    number_of_wavelengths=3.5,
+    reference_frequency=f_c,
+    free_surface=['y0', 'y1']
+)
 
 
 # add simulation configuration to Project
 p.add_to_project(
     sn.SimulationConfiguration(
-        name="isometric_simulation",
+        name="isotropic_absorbing_simulation",
         max_frequency_in_hertz=2*f_c,
         elements_per_wavelength=2.0,
         model_configuration=mc,
         event_configuration=ec,
+        absorbing_boundaries=abp,
     ), 
     overwrite=True
 )
 
+
 # visualization of mesh and simulation set-up
 p.viz.nb.simulation_setup(
-    simulation_configuration="isometric_simulation", events=p.events.list()
+    simulation_configuration="isotropic_absorbing_simulation", events=p.events.list()
 )
 
 
@@ -143,7 +145,7 @@ p.viz.nb.simulation_setup(
 #     ranks_per_job=8,
 #     site_name=SALVUS_FLOW_SITE_NAME,
 #     events=p.events.list(),
-#     simulation_configuration="isometric_simulation",
+#     simulation_configuration="isotropic_absorbing_simulation",
 # )
 
 # simulation with volume data (full wavefield)
@@ -151,7 +153,7 @@ p.simulations.launch(
     ranks_per_job=4,
     site_name=SALVUS_FLOW_SITE_NAME,
     events=p.events.list(),
-    simulation_configuration="isometric_simulation",
+    simulation_configuration="isotropic_absorbing_simulation",
     extra_output_configuration={
         "volume_data": {
             "sampling_interval_in_time_steps": 10,
@@ -166,14 +168,14 @@ p.simulations.launch(
 
 p.simulations.query(block=True)
 
-p.viz.nb.waveforms("isometric_simulation", receiver_field="displacement")
+p.viz.nb.waveforms("isotropic_absorbing_simulation", receiver_field="displacement")
 
 # event data
-ed = p.waveforms.get(data_name="isometric_simulation", events=p.events.list())
+ed = p.waveforms.get(data_name="isotropic_absorbing_simulation", events=p.events.list())
 
 
 # displacement in y direction
-p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
+p.waveforms.get(data_name="isotropic_absorbing_simulation", events=["event_0"])[0].plot(
     component="Y", receiver_field="displacement"
 )
 
@@ -181,9 +183,10 @@ p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
 
 
 # displacement in x direction
-p.waveforms.get(data_name="isometric_simulation", events=["event_0"])[0].plot(
+p.waveforms.get(data_name="isotropic_absorbing_simulation", events=["event_0"])[0].plot(
     component="X", receiver_field="displacement"
 )
+
 
 
 u_xarr = ed[0].get_waveform_data_xarray('displacement')
