@@ -157,7 +157,7 @@ p.simulations.launch(
     extra_output_configuration={
         "volume_data": {
             "sampling_interval_in_time_steps": 10,
-            "fields": ["displacement", "gradient-of-displacement"],
+            "fields": ["displacement"],
         },
     },
     # We have previously simulated the same event but without
