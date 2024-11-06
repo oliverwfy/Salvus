@@ -53,7 +53,7 @@ The received **displacement fields** in **y** direction:
 The received **displacement fields** in **x** direction:  
 ![absorbing_waveform_x](absorbing_layer/image/absorbing_waveform_component_x.png)
 
-Here is an [animation]((absorbing_layer/image/absorbing.gif)) of the full wavefield simulation (**magnitude of displacement field**):
+Here is an [animation](absorbing_layer/image/absorbing.gif) of the full wavefield simulation (**magnitude of displacement field**):
 
 ![absorbing_animation](absorbing_layer/image/absorbing.gif)
 
