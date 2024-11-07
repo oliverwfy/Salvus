@@ -1,4 +1,4 @@
-# Full wavefield simulation of Linear Elastic model
+# Full wavefield simulation of linear elastic model
 
 ## Isotropic elastic model
 
@@ -8,10 +8,10 @@ The **domain** is defined as a 2D Box with 10mm x 20mm.
 
 ![isotropic_2d_domain](isotropic/image/isotropic_2d_domain.png)
 
-Then generate mesh and config event (the spatial information of sources and receives), sources in Salvus initialize the force $\mathbf{f}$ in the strong form of elastodynamics equation.
+Then generate mesh and config event (the spatial information of sources and receives), sources in Salvus initialize the force f\mathbf{f} in the strong form of elastodynamics equation.
 
 > ## Elastodynamics Equation:
-> $$ \rho\mathbf{\ddot{u}} = \nabla \cdot \mathbf{C} (\nabla \mathbf{u}) + \mathbf{f} $$
+> ρ¨u=∇⋅C(∇u)+f \rho\mathbf{\ddot{u}} = \nabla \cdot \mathbf{C} (\nabla \mathbf{u}) + \mathbf{f} 
 ><br />
 
 The default mesh alone with a **vector point source** at (5mm, 20mm) and **11 receivers** at the bottom line (**y=0**) is shown below:
@@ -38,7 +38,7 @@ Here is an [animation](isotropic/image/isotropic_free_surface.gif) of the full w
 ![isotropic_2d_animation](isotropic/image/isotropic_free_surface.gif)
 
 
-## absorbing boundary 
+## Absorbing boundary 
 
 The mesh with [**absorbing boundary**](https://pubs.geoscienceworld.org/ssa/bssa/article-abstract/67/6/1529/117727/Absorbing-boundary-conditions-for-acoustic-and) which is highlighted in yellow as shown below:
 
