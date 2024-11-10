@@ -11,7 +11,7 @@ The **domain** is defined as a 2D Box with 10mm x 20mm.
 Then generate mesh and config event (the spatial information of sources and receives), sources in Salvus initialize the force f\mathbf{f} in the strong form of elastodynamics equation.
 
 > ## Elastodynamics Equation:
-> ρ¨u=∇⋅C(∇u)+f \rho\mathbf{\ddot{u}} = \nabla \cdot \mathbf{C} (\nabla \mathbf{u}) + \mathbf{f} 
+> $$\rho\mathbf{\ddot{u}} = \nabla \cdot \mathbf{C} (\nabla \mathbf{u}) + \mathbf{f} $$
 ><br />
 
 The default mesh alone with a **vector point source** at (5mm, 20mm) and **11 receivers** at the bottom line (**y=0**) is shown below:
@@ -56,6 +56,25 @@ The received **displacement fields** in **x** direction:
 Here is an [animation](absorbing_layer/image/absorbing.gif) of the full wavefield simulation (**magnitude of displacement field**):
 
 ![absorbing_animation](absorbing_layer/image/absorbing.gif)
+
+
+
+## Plane wave simulation
+The mesh of the plane wave simulation is illustrated below, with the absorbing boundary highlighted in yellow. The input sources include 32 vector point sources (displayed in purple at the top), and 32 receivers are shown in red along the bottom line.
+
+![plane_wave_mesh](plane_wave/image/plane_wave_mesh.PNG)
+
+
+The (average) received **displacement** in **y** component is plotted as follow:
+
+![plane_wave_mesh](plane_wave/image/u_y.png)
+
+And the [animation](plane_wave/image/wave_plane_animation.gif) of the full wavefield (**magnitude of displacement field**):
+
+![plane_wave_animation](plane_wave/image/wave_plane_animation.gif)
+
+
+
 
 
 

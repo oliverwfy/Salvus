@@ -9,6 +9,8 @@ import numpy as np
 from salvus.flow.simple_config.receiver.cartesian import Point2D
 from salvus.flow.simple_config.source.cartesian import VectorPoint2D
 from salvus.toolbox.helpers.wavefield_output import WavefieldOutput, wavefield_output_to_xarray
+import numpy as np
+from scipy.io import savemat
 
 
 
@@ -17,7 +19,7 @@ SALVUS_FLOW_SITE_NAME = 'oliver_wsl'
 PROJECT_DIR = "Project"
 
 img_dir = '/home/oliver/workspace/Salvus/elastic_model/isotropic/image'
-
+data_dir = '/home/oliver/workspace/Salvus/elastic_model/isotropic/data'
 
 
 
