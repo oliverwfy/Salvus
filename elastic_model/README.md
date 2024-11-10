@@ -69,6 +69,10 @@ The (average) received **displacement** in **y** component is plotted as follow:
 
 ![plane_wave_mesh](plane_wave/image/u_y.png)
 
+The FMC data of first source and all recerivers is shown below：
+
+![FMC_data](array_fmc/image/fmc_first_src.png)
+
 And the [animation](plane_wave/image/wave_plane_animation.gif) of the full wavefield (**magnitude of displacement field**):
 
 ![plane_wave_animation](plane_wave/image/wave_plane_animation.gif)
