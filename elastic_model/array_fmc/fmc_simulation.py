@@ -1,7 +1,7 @@
 from pathlib import Path
 from salvus.flow import simple_config
 import salvus.namespace as sn
-
+from utilities import *
 import matplotlib.pyplot as plt 
 import numpy as np
 
@@ -12,31 +12,41 @@ from salvus.toolbox.helpers.wavefield_output import WavefieldOutput, wavefield_o
 
 
 
-# SALVUS_FLOW_SITE_NAME = 'oliver_mac'
 SALVUS_FLOW_SITE_NAME = 'oliver_wsl'
-PROJECT_DIR = "/home/oliver/workspace/Salvus/Project/array_fmc"
 
-img_dir = '/home/oliver/workspace/Salvus/elastic_model/array_fmc/image'
-data_dir = '/home/oliver/workspace/Salvus/elastic_model/array_fmc/data'
+# Directories in WSL
+PROJECT_DIR = '/home/oliver/workspace/Salvus/Project/array_fmc'
+IMAGE_DIR = '/home/oliver/workspace/Salvus/elastic_model/array_fmc/image'
+DATA_DIR = '/home/oliver/workspace/Salvus/elastic_model/array_fmc/data'
 
-# define 2D box domain
-# length in mm
+# Directories in Windows
+PROJECT_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/array_fmc/Project'
+DATA_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/array_fmc/data'
+IMAGE_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/array_fmc/image'
+
+
+# create dir if it does not exist
+Path(IMAGE_DIR).mkdir(parents=True, exist_ok=True)
+Path(DATA_DIR).mkdir(parents=True, exist_ok=True)
+Path(IMAGE_DIR_WIN).mkdir(parents=True, exist_ok=True)
+Path(DATA_DIR_WIN).mkdir(parents=True, exist_ok=True)
+
+
+
+# define 2D box domain (length in m)
 x_length = 10 * 1e-3
 y_length = 20 * 1e-3
-x_range = np.array([0., x_length]) 
-y_range = np.array([0., y_length]) 
-
+x_range = (0., x_length) 
+y_range = (0., y_length) 
 
 domain = sn.domain.dim2.BoxDomain(x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1])
 
-# create project
-p = sn.Project.from_domain(path=PROJECT_DIR, 
+# create Project 
+p = sn.Project.from_domain(path=PROJECT_DIR_WIN, 
                            domain=domain, load_if_exists=True)
 
 
-
-
-# number of vector sources and receivers.
+# number of point vector sources and receivers.
 n_srcs = 32 
 n_rxs = 32
 
@@ -56,7 +66,7 @@ rxs_pos = [(np.round(x, 5), y_range[0])
 
 # vector source with weights fx and fy in x and y directions, respectively.
 srcs = [VectorPoint2D(x=s[0],y=s[1], fx=0, fy=-1) 
-        for i, s in enumerate(srcs_pos)
+        for s in srcs_pos
         ]
 
 
@@ -77,65 +87,78 @@ for i, src in enumerate(srcs):
     )
 
 
-
 # add the events to Project
-for event in p.events.list():
-    p.events.delete(event) 
-for event in events:
-    p.add_to_project(event)
+add_events_to_Project(p, events)
 
 
 
-# run a simulation
-# model configuration (isotropic elastic model)
-mc = sn.ModelConfiguration(
-    background_model=sn.model.background.homogeneous.IsotropicElastic(
-        rho=2200.0, vp=6000.0, vs=3000
+# model configuration 
+VP = 6000.0
+VS = 3000
+RHO = 2200.0
+
+# background model (isotropic elastic model)
+background_model = sn.model.background.homogeneous.IsotropicElastic(
+    rho=RHO, vp=VP, vs=VS
     )
-)
+
+model_config = sn.ModelConfiguration(background_model=background_model)
 
 
-# center frequency
+
+# wavelet (input source time function) 
 f_c = 2*1e6
+wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c)
 
-# event configuration
-ec = sn.EventConfiguration(
-    wavelet=sn.simple_config.stf.Ricker(center_frequency=f_c),
-    waveform_simulation_configuration=sn.WaveformSimulationConfiguration(
-        start_time_in_seconds=-0.8*1e-6,
-        end_time_in_seconds=15*1e-6,
+# waveform simulation configuration
+start_time = -0.8*1e-6
+end_time = 15*1e-6
+
+waveform_config = sn.WaveformSimulationConfiguration(
+        start_time_in_seconds=start_time,
+        end_time_in_seconds=end_time,
+        )
+
+# event configuaration
+event_config = sn.EventConfiguration(
+    wavelet=wavelet,
+    waveform_simulation_configuration=waveform_config,
     )
-)
-
 
 
 # absorbing boundary parameters 
-abp = sn.AbsorbingBoundaryParameters(
+absorb_bdry = sn.AbsorbingBoundaryParameters(
     reference_velocity=3000.0,
     number_of_wavelengths=3.5,
     reference_frequency=f_c,
     free_surface=['y0', 'y1']
-)
+    )
 
+
+# simulation configuration
+element_per_wavelength = 2.0
+max_freq = 2*f_c
+simulation_name = "fmc_simulation"
+
+sim_config = sn.SimulationConfiguration(
+        name=simulation_name,
+        max_frequency_in_hertz=max_freq,
+        elements_per_wavelength=element_per_wavelength,
+        model_configuration=model_config,
+        event_configuration=event_config,
+        absorbing_boundaries=absorb_bdry, 
+        )
 
 # add simulation configuration to Project
 p.add_to_project(
-    sn.SimulationConfiguration(
-        name="fmc_simulation",
-        max_frequency_in_hertz=2*f_c,
-        elements_per_wavelength=2.0,
-        model_configuration=mc,
-        event_configuration=ec,
-        absorbing_boundaries=abp,
-    ), 
-    overwrite=True
-)
+    sim_config, overwrite=True
+    )
 
 
 # visualization of mesh and simulation set-up
 p.viz.nb.simulation_setup(
     simulation_configuration="fmc_simulation", events=p.events.list()
-)
+    )
 
 
 # launch simulations
@@ -145,7 +168,7 @@ p.simulations.launch(
     events=p.events.list(),
     simulation_configuration="fmc_simulation",
     delete_conflicting_previous_results=True,
-)
+    )
 
 
 # # simulation with volume data (full wavefield)
@@ -167,22 +190,5 @@ p.simulations.launch(
 # )
 
 p.simulations.query(block=True)
-
-# p.viz.nb.waveforms("fmc_simulation", receiver_field="displacement")
-
-# event data
-ed = p.waveforms.get(data_name="fmc_simulation", events=p.events.list())
-
-
-# # displacement in y direction
-# p.waveforms.get(data_name="fmc_simulation", events=["event_0"])[0].plot(
-#     component="Y", receiver_field="displacement"
-# )
-
-
-# # displacement in x direction
-# p.waveforms.get(data_name="fmc_simulation", events=["event_0"])[0].plot(
-#     component="X", receiver_field="displacement"
-# )
 
 
