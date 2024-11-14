@@ -1,5 +1,8 @@
-.DS_Store
+# ignore all files and dirs containing the following string 
 *__pycache__*
-*Project*
-*data*
 
+
+# ignore files and dirs
+data
+Project
+.DS_Store

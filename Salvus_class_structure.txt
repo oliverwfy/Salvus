@@ -1,0 +1,31 @@
+p
+	Event
+		event_name
+			sources
+				x
+				y
+				fx
+				fy
+			receivers
+				Point2D
+				station_code
+				fields
+	sim_config
+		name
+		max_freqency_in_hertz
+		elements_per_wavelength
+		model_configuration
+			background_model
+				rho
+				vp
+				vs
+		event_configuration
+			wavelet (transmitted signal)
+			waveform_simulation_configuration
+				start_time_in_seconds
+				end_time_in_seconds
+		absorbing_boundaries
+			reference_velocity
+			number_of_wavelengths
+			reference_frequency
+			free_surface
