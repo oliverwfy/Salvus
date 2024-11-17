@@ -8,7 +8,7 @@ The **domain** is defined as a 2D Box with 10mm x 20mm.
 
 ![isotropic_2d_domain](isotropic/image/isotropic_2d_domain.png)
 
-Then generate mesh and config event (the spatial information of sources and receives), sources in Salvus initialize the force f\mathbf{f} in the strong form of elastodynamics equation.
+Then generate mesh and config event (the spatial information of sources and receives), sources in Salvus initialize the force $\mathbf{f}$ in the strong form of elastodynamics equation.
 
 > ## Elastodynamics Equation:
 > $$\rho\mathbf{\ddot{u}} = \nabla \cdot \mathbf{C} (\nabla \mathbf{u}) + \mathbf{f} $$

@@ -1,5 +1,5 @@
 import salvus.namespace as sn
-from utilities import * 
+from my_code.utilities import *
 import matplotlib.pyplot as plt
 from pathlib import Path
 from scipy.io import savemat
@@ -22,7 +22,7 @@ Path(DATA_DIR_WIN).mkdir(parents=True, exist_ok=True)
 
 
 print("Opening existing project.")
-p = sn.Project(path=PROJECT_DIR_WIN)
+p = sn.Project(path=PROJECT_DIR)
 
 # p.viz.nb.waveforms("fmc_simulation", receiver_field="displacement")
 
@@ -38,10 +38,10 @@ p = sn.Project(path=PROJECT_DIR_WIN)
 # )
 
 
-
 # get events from project in correct order 
+simulation_name = 'fmc_simulation'
 events_list = reorder_events_list(p.events.list())
-ed = [p.waveforms.get(data_name="fmc_simulation", events=e)[0] for e in events_list]
+ed = [p.waveforms.get(data_name=simulation_name, events=e)[0] for e in events_list]
 
 
 fmc_data, time, rxs_loc, srcs_loc = fmc_data_from_ed(event_data=ed, save_dir=DATA_DIR)

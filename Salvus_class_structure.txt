@@ -1,15 +1,17 @@
-p
-	Event
-		event_name
-			sources
-				x
-				y
-				fx
-				fy
-			receivers
+p (class: sn.Project)
+	events [list]
+		Event (class: sn.Event)  
+			event_name [string]
+			sources [list]
+				VectorPoint2D	
+					x
+					y
+					fx
+					fy
+			receivers [list]
 				Point2D
-				station_code
-				fields
+					station_code
+					fields
 	sim_config
 		name
 		max_freqency_in_hertz

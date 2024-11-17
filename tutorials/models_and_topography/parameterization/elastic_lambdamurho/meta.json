@@ -1,0 +1,122 @@
+{
+    "run_statistics": {
+        "salvus_version": "2024.1.2",
+        "runtime_in_seconds": 2.16713919,
+        "start_time": "2024-11-17T17:56:28Z",
+        "end_time": "2024-11-17T17:56:30Z",
+        "working_directory": "/home/oliver/salvus_data/run_directory/job_2411171756597215_4992ccb882",
+        "number_of_ranks": 4
+    },
+    "machine_statistics": {
+        "username": "oliver",
+        "hostname": "Oliver-PC",
+        "working_directory": "/home/oliver/salvus_data/run_directory/job_2411171756597215_4992ccb882",
+        "operating_system": "Linux",
+        "compile_time_mpi_version": "3.1",
+        "run_time_mpi_version": "3.1",
+        "cpu_statistics": {
+            "architecture": "X86",
+            "brand_string": "AMD Ryzen 9 3900X 12-Core Processor            ",
+            "family": 23,
+            "model": 113,
+            "stepping": 0,
+            "architecture": "X86",
+            "microarchitecture": "AMD_ZEN2",
+            "feature_flags": [
+                "fpu",
+                "tsc",
+                "cx8",
+                "clfsh",
+                "mmx",
+                "aes",
+                "f16c",
+                "fma3",
+                "bmi1",
+                "bmi2",
+                "rdseed",
+                "clflushopt",
+                "clwb",
+                "sse",
+                "sse2",
+                "sse3",
+                "ssse3",
+                "sse4_1",
+                "sse4_2",
+                "sse4a",
+                "avx",
+                "avx2",
+                "pclmulqdq",
+                "cx16",
+                "sha",
+                "popcnt",
+                "movbe",
+                "rdrnd",
+                "adx",
+                "lzcnt"
+            ]
+        }
+    },
+    "forward_run_input": {
+        "domain": {
+            "dimension": 2,
+            "geometry": {
+                "filename": "/home/oliver/salvus_data/run_directory/job_2411171756597215_4992ccb882/input/mesh.h5",
+                "format": "hdf5"
+            },
+            "mesh": {
+                "filename": "/home/oliver/salvus_data/run_directory/job_2411171756597215_4992ccb882/input/mesh.h5",
+                "format": "hdf5"
+            },
+            "model": {
+                "filename": "/home/oliver/salvus_data/run_directory/job_2411171756597215_4992ccb882/input/mesh.h5",
+                "format": "hdf5"
+            },
+            "polynomial_order": 4
+        },
+        "hardware": {
+            "gpu": true
+        },
+        "output": {
+            "meta_data": {
+                "meta_json_filename": "/home/oliver/salvus_data/run_directory/job_2411171756597215_4992ccb882/output/meta.json",
+                "progress_json_filename": "/home/oliver/salvus_data/run_directory/job_2411171756597215_4992ccb882/output/progress.json"
+            },
+            "volume_data": {
+                "fields": [
+                    "displacement"
+                ],
+                "filename": "/home/oliver/salvus_data/tmp_directory/job_2411171756597215_4992ccb882/output.h5",
+                "format": "hdf5",
+                "sampling_interval_in_time_steps": 100,
+                "gradient_subsampling_interval": 1
+            }
+        },
+        "physics": {
+            "wave_equation": {
+                "attenuation": false,
+                "courant_number": 0.6,
+                "point_source": [
+                    {
+                        "location": [
+                            0.0,
+                            0.0
+                        ],
+                        "source_time_function": {
+                            "center_frequency": 5000000.0,
+                            "wavelet": "ricker"
+                        },
+                        "spatial_type": "vector",
+                        "spatial_weights": [
+                            0.0,
+                            1.0
+                        ]
+                    }
+                ],
+                "time_stepping_scheme": "newmark",
+                "start_time_in_seconds": -3.118787204934704e-7,
+                "end_time_in_seconds": 3.118787204934704e-7,
+                "time_step_in_seconds": 2.5669030493289746e-9
+            }
+        }
+    }
+}

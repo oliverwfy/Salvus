@@ -22,7 +22,7 @@ class Austenite:
     self.C = self.tensor()  
     self.params = self.parameters()
     
-  def density():
+  def density(self):
     return self.RHO
 
   def tensor(self, theta=0):
@@ -41,8 +41,14 @@ class Austenite:
     return C
   
   def parameters(self, theta=0):
-    return (self.RHO, self.C11, self.C12, 
-            self.C13, self.C33, self.C44)
+    return {
+    'RHO': self.RHO,
+    'C11': self.C11,
+    'C12': self.C12,
+    'C13': self.C13,
+    'C33': self.C33,
+    'C44': self.C44
+    }
 
 
 def elaTensor_rotation(C, theta=0):
