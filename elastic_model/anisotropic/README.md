@@ -1,6 +1,6 @@
 # Layered TTI
 
-Mesh of 2 layers with orientation angle $\theta_1 = 0$ and  $ \theta_2 = \pi/6$, respectively: 
+Mesh of 2 layers with orientation angle $\theta_1 = 0$ and $\theta_2 = \pi/6$, respectively: 
 
 ![layered_mesh](image/mesh_2layers.png)
 
