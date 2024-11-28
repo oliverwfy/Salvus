@@ -7,6 +7,7 @@ from my_code.utilities import *
 from salvus.flow.simple_config.receiver.cartesian import Point2D
 from salvus.flow.simple_config.source.cartesian import VectorPoint2D
 import salvus.mesh.layered_meshing as lm
+from datetime import datetime
 
 
 # Salvus site name
@@ -20,9 +21,9 @@ IMAGE_DIR = '/home/oliver/workspace/Salvus/elastic_model/anisotropic/image'
 DATA_DIR = '/home/oliver/workspace/Salvus/elastic_model/anisotropic/data'
 
 # Directories in Windows
-PROJECT_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/array_fmc/Project'
-DATA_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/array_fmc/data'
-IMAGE_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/array_fmc/image'
+PROJECT_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/anisotropic/Project'
+DATA_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/anisotropic/data'
+IMAGE_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/anisotropic/image'
 
 
 # create dir if it does not exist
@@ -41,19 +42,21 @@ f_c = 5*1e6             # centre freuency
 x_length = 10 * 1e-3
 y_length = 20 * 1e-3
 x_range = (0., x_length) 
-y_range = (0., y_length) 
+y_range = (-y_length, 0) 
 
 # define 2D box domain
-domain = sn.domain.dim3.BoxDomain(x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1])
+domain = sn.domain.dim2.BoxDomain(x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1])
 
 # create Project from domain
-p = sn.Project.from_domain(path=PROJECT_DIR, 
+p = sn.Project.from_domain(path=PROJECT_DIR_WIN, 
                            domain=domain, load_if_exists=True)
 
 
 # number of point vector sources and receivers.
-n_srcs = 32
-n_rxs = 32
+n_srcs = 64
+n_rxs = 64
+
+
 
 # range of sources and receivers
 srcs_range = np.array([0, 1]) * x_length
@@ -93,35 +96,34 @@ for i, src in enumerate(srcs):
             fields=fileds,)
         for i, r in enumerate(rxs_pos)
         ]
+    
 
-    events.append(
-        sn.Event(event_name=f"event_{i}", sources=src, receivers=rxs)
-    )
+events.append(sn.Event(event_name=f"event_0", sources=srcs, receivers=rxs))
 
 
 # add the events to Project
 add_events_to_Project(p, events)
 
 
-# generate unstructured mesh 
-hex_model = sn.material.from_params(**matl.params)       # hexagonal elastic model
-hex_model.ds        # return xarray of elasticity tensor
-element_per_wavelength = (2.0, 2.0)     # for x,y or [z] respectively             
-model_order = 4     # The polynomial order of the model representation on each element.
+# # generate unstructured mesh 
+# hex_model = sn.material.from_params(**matl.params)       # hexagonal elastic model
+# hex_model.ds        # return xarray of elasticity tensor
+# element_per_wavelength = (2.0, 2.0)     # for x,y or [z] respectively             
+# model_order = 2     # The polynomial order of the model representation on each element.
 
-mesh_resolution = sn.MeshResolution(reference_frequency=2*f_c,
-                                    elements_per_wavelength=element_per_wavelength,
-                                    model_order=model_order)
+# mesh_resolution = sn.MeshResolution(reference_frequency=2*f_c,
+#                                     elements_per_wavelength=element_per_wavelength,
+#                                     model_order=model_order)
 
-mesh = lm.mesh_from_domain(
-    domain=domain,
-    model=hex_model,
-    mesh_resolution=mesh_resolution
-    )
+# mesh = lm.mesh_from_domain(
+#     domain=domain,
+#     model=hex_model,
+#     mesh_resolution=mesh_resolution
+#     )
 
-# shape (m x n x d)  m=#ele, n=(tensor_order+1)^dim d = dim
-mess_nodes = mesh.get_element_nodes()       
-mesh.get_element_nodes().shape
+# # shape (m x n x d)  m=#ele, n=(tensor_order+1)^dim d = dim
+# mess_nodes = mesh.get_element_nodes()       
+# mesh.get_element_nodes().shape
 
 
 
@@ -179,17 +181,40 @@ Simulation configuration:
 """
 
 simulation_name = "anisotropic"
+bm = 'layered_model_ani.bm'
 
-sim_config = sn.UnstructuredMeshSimulationConfiguration(
-    name=simulation_name,                                                
-    unstructured_mesh=mesh,
-    event_configuration=event_config
+model_config = sn.ModelConfiguration(
+        background_model=sn.model.background.one_dimensional.FromBm(
+        filename=bm, reference_datum=0.0
+        ),
     )
+
+
+sim_config = sn.SimulationConfiguration(
+    name=simulation_name,
+    max_frequency_in_hertz=2*f_c,
+    elements_per_wavelength=2.0,
+    tensor_order = 2,
+    model_configuration=model_config,
+    event_configuration=event_config,
+    absorbing_boundaries=absorb_bdry,
+)
+
+# sim_config = sn.UnstructuredMeshSimulationConfiguration(
+#     name=simulation_name,                                                
+#     unstructured_mesh=mesh,
+#     event_configuration=event_config
+#     )
+
+
 
 # add simulation configuration to Project
 p.add_to_project(
     sim_config, overwrite=True
     )
+
+
+
 
 
 # visualization of mesh and simulation set-up
@@ -206,6 +231,10 @@ p.viz.nb.simulation_setup(
 #     simulation_configuration=simulation_name,
 #     delete_conflicting_previous_results=True,
 #     )
+
+
+
+start_time = datetime.now()
 
 
 # simulation with volume data (full wavefield)
@@ -230,4 +259,10 @@ p.simulations.query(block=True)
 
 
 
+end_time = datetime.now()
+execution_time_seconds = (end_time - start_time).total_seconds()
+minutes = int(execution_time_seconds // 60)  # Extract minutes
+seconds = execution_time_seconds % 60  # Extract remaining seconds
+
+print(f"Execution time: {minutes} minutes and {seconds:.2f} seconds")
 

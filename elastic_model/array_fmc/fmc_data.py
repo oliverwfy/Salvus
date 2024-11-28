@@ -62,7 +62,7 @@ mfile_name = 'fmc.mat'
 savemat(Path(DATA_DIR_WIN, mfile_name), fmc)
 
 # get all recerived data from #m transducer
-id_m = 0 
+id_m = 0
 
 plt.imshow(fmc_data[:, id_m:(id_m+1)*len(rxs_loc)].T, aspect='auto', extent=[time[0]*1e6, time[-1]*1e6, 0, len(rxs_loc)], cmap='viridis')
 plt.colorbar(label=r'$u_y$')
@@ -70,7 +70,4 @@ plt.xlabel('Time (us)')
 plt.ylabel('# receiver')
 plt.title(f'FMC Data in #{0} src')
 plt.savefig(Path(IMAGE_DIR, 'fmc_first_src.png'))
-
-
-
 
