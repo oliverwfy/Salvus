@@ -5,15 +5,17 @@ from pathlib import Path
 import numpy as np
 from my_code.utilities import *
 from salvus.flow.simple_config.receiver.cartesian import Point2D
-from salvus.flow.simple_config.source.cartesian import VectorPoint2D
+from salvus.flow.simple_config.source.cartesian import VectorPoint2D, VectorGradientPoint2D
 import salvus.mesh.layered_meshing as lm
 from datetime import datetime
-
+import matplotlib.pyplot as plt
 
 # Salvus site name
 SALVUS_FLOW_SITE_NAME = 'oliver_wsl'
 RANKS_PER_JOB = 4
 
+# Wokring dir
+WORKING_DIR = '/home/oliver/workspace/Salvus/elastic_model/anisotropic/'
 
 # Directories in WSL
 PROJECT_DIR = '/home/oliver/workspace/Salvus/elastic_model/anisotropic/Project'
@@ -39,16 +41,16 @@ f_c = 5*1e6             # centre freuency
 
 
 # 2D box domain parameters (length in m)
-x_length = 10 * 1e-3
+x_length = 20 * 1e-3
 y_length = 20 * 1e-3
 x_range = (0., x_length) 
-y_range = (-y_length, 0) 
+y_range = (0, y_length) 
 
 # define 2D box domain
 domain = sn.domain.dim2.BoxDomain(x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1])
 
 # create Project from domain
-p = sn.Project.from_domain(path=PROJECT_DIR_WIN, 
+p = sn.Project.from_domain(path=Path(PROJECT_DIR_WIN, 'ref_layer'), 
                            domain=domain, load_if_exists=True)
 
 
@@ -57,26 +59,30 @@ n_srcs = 64
 n_rxs = 64
 
 
-
 # range of sources and receivers
 srcs_range = np.array([0, 1]) * x_length
 rxs_range = np.array([0.3, 0.7]) * x_length
 
 
-# positions of srcs and rxs
-srcs_pos = [Vector(np.round(x, 5), y_range[1]) 
-            for x in np.linspace(*srcs_range, n_srcs)
-            ]
-
-rxs_pos = [Vector(np.round(x, 5), y_range[0]) 
-           for x in np.linspace(*rxs_range, n_rxs)
-           ]
-
-
-src_dirw = Vector(0.0, -1)      # weights applied in x, y, z directions respevtively. 
-fileds = ["displacement"]       # received fileds
+# # positions of srcs and rxs
+# srcs_pos = [Vector(np.round(x, 5), y_range[1]) 
+#             for x in np.linspace(*srcs_range, n_srcs)
+#             ]
+# rxs_pos = [Vector(np.round(x, 5), y_range[0]) 
+#            for x in np.linspace(*rxs_range, n_rxs)
+#            ]
 
 
+
+srcs_pos = [Vector(x_length/2, y_range[1])]
+rxs_pos = [Vector(x_length*0.2, y_range[1]),   Vector(x_length/2, y_range[1]),   Vector(x_length*0.8, y_range[1]),
+           Vector(x_length*0.2, y_range[1]/2), Vector(x_length/2, y_range[1]/2), Vector(x_length*0.8, y_range[1]/2),
+           Vector(x_length*0.2, y_range[0]), Vector(x_length/2, y_range[0]), Vector(x_length*0.8, y_range[0]),]
+
+
+
+src_dirw = Vector(0, 2)      # weights applied in x, y, z directions respevtively. 
+fileds = ["displacement", "gradient-of-displacement"]       # received fileds
 
 
 # vector source 2D with weights fx and fy in x and y directions, respectively.
@@ -85,22 +91,41 @@ srcs = [VectorPoint2D(x=s.x,y=s.y, fx=src_dirw.x, fy=src_dirw.y)
         ]
 
 
+# srcs = [VectorGradientPoint2D(x=s.x,y=s.y, gxx=0, gxy=0, gyx=0, gyy=2) 
+#         for s in srcs_pos
+#         ]
+
+
 # create events for simulation
 events = []
 
-# add all receivers to each event of one point source
+# # (array) add all receivers to each event of one point source
+# for i, src in enumerate(srcs):
+#     rxs = [Point2D(x=r.x, y=r.y, 
+#             station_code=f"REC{i + 1}",
+#             # Note that one can specify the desired recording field here.
+#             fields=fileds,)
+#         for i, r in enumerate(rxs_pos)
+#         ]
+
+#     events.append(
+#         sn.Event(event_name=f"event_{i}", sources=src, receivers=rxs)
+#     )
+
+
+# (plane wave) add all receivers to each event of one point source
 for i, src in enumerate(srcs):
     rxs = [Point2D(x=r.x, y=r.y, 
-            station_code=f"REC{i + 1}",
+            station_code=f"REC{i}",
             # Note that one can specify the desired recording field here.
             fields=fileds,)
         for i, r in enumerate(rxs_pos)
         ]
-    
+
+
 
 events.append(sn.Event(event_name=f"event_0", sources=srcs, receivers=rxs))
-
-
+    
 # add the events to Project
 add_events_to_Project(p, events)
 
@@ -126,7 +151,6 @@ add_events_to_Project(p, events)
 # mesh.get_element_nodes().shape
 
 
-
 """
 Temporal configuration:
     source time function
@@ -138,7 +162,7 @@ wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c)
 
 
 # waveform simulation temporal parameters
-start_time = -0.8 * 1e-6
+start_time = -0.3*1e-6
 end_time = 15*1e-6
 
 # waveform simulation configuration
@@ -152,6 +176,10 @@ event_config = sn.EventConfiguration(
     wavelet=wavelet,
     waveform_simulation_configuration=waveform_config,
     )
+
+# # save figure of event config 
+# fig = event_config.wavelet.plot(show=False)
+# plt.savefig(Path(IMAGE_DIR_WIN, 'Ricker.png'))
 
 
 
@@ -180,25 +208,32 @@ Simulation configuration:
         element per wavelength
 """
 
-simulation_name = "anisotropic"
-bm = 'layered_model_ani.bm'
+simulation_name = "anisotropic_ref_layer"
+
+bm_file = 'model_ani_rotated_90.bm'
 
 model_config = sn.ModelConfiguration(
         background_model=sn.model.background.one_dimensional.FromBm(
-        filename=bm, reference_datum=0.0
+        filename=Path(WORKING_DIR,bm_file), reference_datum=0.0
         ),
     )
 
 
+
+
+f_max = 3*f_c
+elements_per_wavelength = 2.0
+tensor_order = 2
+
 sim_config = sn.SimulationConfiguration(
     name=simulation_name,
-    max_frequency_in_hertz=2*f_c,
-    elements_per_wavelength=2.0,
-    tensor_order = 2,
+    max_frequency_in_hertz=f_max,
+    elements_per_wavelength=elements_per_wavelength,
+    tensor_order = tensor_order,
     model_configuration=model_config,
     event_configuration=event_config,
     absorbing_boundaries=absorb_bdry,
-)
+    )
 
 # sim_config = sn.UnstructuredMeshSimulationConfiguration(
 #     name=simulation_name,                                                
@@ -207,14 +242,14 @@ sim_config = sn.SimulationConfiguration(
 #     )
 
 
-
 # add simulation configuration to Project
 p.add_to_project(
     sim_config, overwrite=True
     )
 
 
-
+mesh = p.simulations.get_mesh(simulation_name)
+dofs =  mesh.number_of_nodes
 
 
 # visualization of mesh and simulation set-up
@@ -222,6 +257,11 @@ p.viz.nb.simulation_setup(
     simulation_configuration=simulation_name, events=p.events.list()
     )
 
+
+
+print(f'Start simulation: {simulation_name}')
+print(f'Dofs (number of nodes): {dofs}')
+start_time = datetime.now()
 
 # # launch simulations
 # p.simulations.launch(
@@ -233,8 +273,6 @@ p.viz.nb.simulation_setup(
 #     )
 
 
-
-start_time = datetime.now()
 
 
 # simulation with volume data (full wavefield)
@@ -258,8 +296,9 @@ p.simulations.launch(
 p.simulations.query(block=True)
 
 
-
 end_time = datetime.now()
+
+
 execution_time_seconds = (end_time - start_time).total_seconds()
 minutes = int(execution_time_seconds // 60)  # Extract minutes
 seconds = execution_time_seconds % 60  # Extract remaining seconds

@@ -84,13 +84,10 @@ src_dirw = Vector(0.0, -1)      # weights applied in x, y, z directions respevti
 fileds = ["displacement"]       # received fileds
 
 
-
-
 # vector source 2D with weights fx and fy in x and y directions, respectively.
 srcs = [VectorPoint2D(x=s.x,y=s.y, fx=src_dirw.x, fy=src_dirw.y) 
         for s in srcs_pos
         ]
-
 
 # create events for simulation
 events = []
@@ -135,7 +132,7 @@ wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c)
 
 
 # waveform simulation temporal parameters
-start_time = -0.8 * 1e-6
+start_time = 0
 end_time = 15*1e-6
 
 # waveform simulation configuration
@@ -204,34 +201,34 @@ p.viz.nb.simulation_setup(
     )
 
 
-# launch simulations
-p.simulations.launch(
-    ranks_per_job=RANKS_PER_JOB,
-    site_name=SALVUS_FLOW_SITE_NAME,
-    events=p.events.list(),
-    simulation_configuration=simulation_name,
-    delete_conflicting_previous_results=True,
-    )
-
-
-# # simulation with volume data (full wavefield)
+# # launch simulations
 # p.simulations.launch(
 #     ranks_per_job=RANKS_PER_JOB,
 #     site_name=SALVUS_FLOW_SITE_NAME,
 #     events=p.events.list(),
-#     simulation_configuration="fmc_simulation",
-#     extra_output_configuration={
-#         "volume_data": {
-#             "sampling_interval_in_time_steps": 10,
-#             "fields": ["displacement"],
-#         },
-#     },
-#     # We have previously simulated the same event but without
-#     # extra output. We have to thus overwrite the existing
-#     # simulation.
+#     simulation_configuration=simulation_name,
 #     delete_conflicting_previous_results=True,
-# )
+#     )
 
-p.simulations.query(block=True)
+
+# # # simulation with volume data (full wavefield)
+# # p.simulations.launch(
+# #     ranks_per_job=RANKS_PER_JOB,
+# #     site_name=SALVUS_FLOW_SITE_NAME,
+# #     events=p.events.list(),
+# #     simulation_configuration="fmc_simulation",
+# #     extra_output_configuration={
+# #         "volume_data": {
+# #             "sampling_interval_in_time_steps": 10,
+# #             "fields": ["displacement"],
+# #         },
+# #     },
+# #     # We have previously simulated the same event but without
+# #     # extra output. We have to thus overwrite the existing
+# #     # simulation.
+# #     delete_conflicting_previous_results=True,
+# # )
+
+# p.simulations.query(block=True)
 
 
