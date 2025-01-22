@@ -52,12 +52,15 @@ def fmc_data_from_ed(event_data, save_dir=None):
     time = time.reshape(len(time), -1)
     srcs_loc = source_location(event_data)
     rxs_loc = receriver_location(event_data)
-    fmc_data = np.zeros([len(time), len(srcs_loc)*len(rxs_loc)])
+    fmc_data = np.zeros([len(time), 2,len(srcs_loc)*len(rxs_loc)])
 
     for i, _ in enumerate(event_data):
-        fmc_data[:,i*len(rxs_loc):(i+1)*len(rxs_loc)] = \
-        event_data[i].get_waveform_data_xarray('displacement').sel(components="Y").values.T
-    
+        fmc_data[:, 0,i*len(rxs_loc):(i+1)*len(rxs_loc)] = \
+        event_data[0].get_data_cube(receiver_field='displacement', component='X')[1].T
+
+        fmc_data[:, 1,i*len(rxs_loc):(i+1)*len(rxs_loc)] = \
+        event_data[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
+
     if save_dir:
         np.save(Path(save_dir, "time.npy"), time)
         np.save(Path(save_dir, "fmc_data.npy"), fmc_data)   
@@ -72,4 +75,17 @@ class Vector:
         self.x = x
         self.y = y
         self.z = z
-        
+    
+    def distance(self, other):
+        """Calculates the Euclidean distance to another Vector."""
+        return np.linalg.norm(self.array() - other.array(), ord=2)
+
+    def array(self):
+        """Returns the vector as a NumPy array."""
+        if self.z: 
+            return np.array([self.x, self.y, self.z])
+        else:
+            return np.array([self.x, self.y])
+
+
+

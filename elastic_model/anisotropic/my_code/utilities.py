@@ -89,3 +89,29 @@ class Vector:
 
 
 
+def compute_slowness(C, rho, theta):
+    # Define propagation direction (sin(theta), 0, cos(theta))
+    n3 = np.cos(np.radians(theta))
+    n1 = np.sin(np.radians(theta))
+    # VTI elasticity tensor components
+    C11, C12, C13, C33, C44, C66 = C
+
+    # Construct the Christoffel matrix
+    Gamma = np.array([
+        [C11 * n1**2 + C66 * n3**2, 0, (C13 + C44) * n1 * n3],
+        [0, C66 * n1**2 + C44 * n3**2, 0],
+        [(C13 + C44) * n1 * n3, 0, C33 * n3**2 + C44 * n1**2],
+    ])
+
+    # Solve the eigenvalue problem for phase velocities squared
+    eigenvalues, _ = np.linalg.eig(Gamma)
+    velocities = np.sqrt(eigenvalues / rho)
+
+    # Compute slowness (s = 1/v)
+    slowness = 1 / velocities
+
+    # reorder slowness 
+    sorted_indices = np.argsort(slowness)
+    slowness_ordered = slowness[sorted_indices]
+    
+    return slowness_ordered

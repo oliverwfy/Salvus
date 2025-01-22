@@ -40,6 +40,7 @@ matl = Austenite()      # load material's elasticity tensor
 f_c = 5*1e6             # centre freuency     
 
 
+
 # 2D box domain parameters (length in m)
 x_length = 20 * 1e-3
 y_length = 20 * 1e-3
@@ -75,14 +76,17 @@ rxs_range = np.array([0.3, 0.7]) * x_length
 
 
 srcs_pos = [Vector(x_length/2, y_range[1]/2)]
-rxs_pos = [Vector(x_length*0.2, y_range[1]),   Vector(x_length/2, y_range[1]),   Vector(x_length*0.8, y_range[1]),
-           Vector(x_length*0.2, y_range[1]/2), Vector(x_length/2, y_range[1]/2), Vector(x_length*0.8, y_range[1]/2),
-           Vector(x_length*0.2, y_range[0]), Vector(x_length/2, y_range[0]), Vector(x_length*0.8, y_range[0]),]
+
+
+
+# rxs_pos = [Vector(x_length*0.2, y_range[1]),   Vector(x_length/2, y_range[1]),   Vector(x_length*0.8, y_range[1]),
+#            Vector(x_length*0.2, y_range[1]/2), Vector(x_length/2, y_range[1]/2), Vector(x_length*0.8, y_range[1]/2),
+#            Vector(x_length*0.2, y_range[0]), Vector(x_length/2, y_range[0]), Vector(x_length*0.8, y_range[0]),]
 
 
 
 src_dirw = Vector(0, 2)      # weights applied in x, y, z directions respevtively. 
-fileds = ["displacement", "gradient-of-displacement"]       # received fileds
+fileds = ["displacement"]       # received fileds
 
 
 # vector source 2D with weights fx and fy in x and y directions, respectively.
@@ -91,9 +95,6 @@ srcs = [VectorPoint2D(x=s.x,y=s.y, fx=src_dirw.x, fy=src_dirw.y)
         ]
 
 
-# srcs = [VectorGradientPoint2D(x=s.x,y=s.y, gxx=0, gxy=0, gyx=0, gyy=2) 
-#         for s in srcs_pos
-#         ]
 
 
 # create events for simulation
@@ -113,18 +114,23 @@ events = []
 #     )
 
 
-# (plane wave) add all receivers to each event of one point source
-for i, src in enumerate(srcs):
-    rxs = [Point2D(x=r.x, y=r.y, 
-            station_code=f"REC{i}",
+
+rxs = sn.simple_config.receiver.cartesian.collections.RingPoint2D(
+    x=srcs_pos[0].x, y=srcs_pos[0].y, radius=5.0*1e-3, count= 360, fields=fileds
+)
+
+rxs_pos = srcs_pos
+
+
+rxs_middle = [Point2D(x=r.x, y=r.y, 
+            station_code=f"REC{i + 1}",
             # Note that one can specify the desired recording field here.
             fields=fileds,)
         for i, r in enumerate(rxs_pos)
         ]
 
-
-
 events.append(sn.Event(event_name=f"event_0", sources=srcs, receivers=rxs))
+events.append(sn.Event(event_name=f"event_1", sources=srcs, receivers=rxs_middle))
     
 # add the events to Project
 add_events_to_Project(p, events)
@@ -210,7 +216,7 @@ Simulation configuration:
 
 simulation_name = "anisotropic_ref_layer"
 
-bm_file = 'model_ani.bm'
+bm_file = 'model_iso.bm'
 
 model_config = sn.ModelConfiguration(
         background_model=sn.model.background.one_dimensional.FromBm(
@@ -259,18 +265,18 @@ p.viz.nb.simulation_setup(
 
 
 
-# print(f'Start simulation: {simulation_name}')
-# print(f'Dofs (number of nodes): {dofs}')
-# start_time = datetime.now()
+print(f'Start simulation: {simulation_name}')
+print(f'Dofs (number of nodes): {dofs}')
+start_time = datetime.now()
 
-# # # launch simulations
-# # p.simulations.launch(
-# #     ranks_per_job=RANKS_PER_JOB,
-# #     site_name=SALVUS_FLOW_SITE_NAME,
-# #     events=p.events.list(),
-# #     simulation_configuration=simulation_name,
-# #     delete_conflicting_previous_results=True,
-# #     )
+# launch simulations
+p.simulations.launch(
+    ranks_per_job=RANKS_PER_JOB,
+    site_name=SALVUS_FLOW_SITE_NAME,
+    events=p.events.list(),
+    simulation_configuration=simulation_name,
+    delete_conflicting_previous_results=True,
+    )
 
 
 
@@ -293,15 +299,15 @@ p.viz.nb.simulation_setup(
 #     delete_conflicting_previous_results=True,
 # )
 
-# p.simulations.query(block=True)
+p.simulations.query(block=True)
 
 
-# end_time = datetime.now()
+end_time = datetime.now()
 
 
-# execution_time_seconds = (end_time - start_time).total_seconds()
-# minutes = int(execution_time_seconds // 60)  # Extract minutes
-# seconds = execution_time_seconds % 60  # Extract remaining seconds
+execution_time_seconds = (end_time - start_time).total_seconds()
+minutes = int(execution_time_seconds // 60)  # Extract minutes
+seconds = execution_time_seconds % 60  # Extract remaining seconds
 
-# print(f"Execution time: {minutes} minutes and {seconds:.2f} seconds")
+print(f"Execution time: {minutes} minutes and {seconds:.2f} seconds")
 

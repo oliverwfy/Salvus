@@ -109,7 +109,8 @@ def TTI_velocity_from_tensor(C, rho):
         "ETA": eta
     }    
     
-    
+
+
   
 class Austenite:
     def __init__(self):
@@ -120,6 +121,82 @@ class Austenite:
         self.C33 = 263.2e9  # Stiffness in Pa
         self.C44 = 82.4e9   # Stiffness in Pa
         self.C66 = 128.4e9  # Stiffness in Pa
+
+        # Derived parameters
+        self.C12 = self.C11 - 2 * self.C66  # Derived from the relationship
+        self.C22 = self.C11                # Symmetry in TTI media
+        self.C23 = self.C13                # Symmetry in TTI media
+        self.C55 = self.C44                # Symmetry in TTI media
+        self.ETA = self.calculate_eta()
+        
+        self.C = self.tensor()  
+        self.params = self.parameters()
+
+
+    def calculate_eta(self):
+
+        # Calculate epsilon
+        epsilon = (self.C11 - self.C33) / (2 * self.C33)
+
+        # Calculate delta
+        delta = ((self.C13 + self.C44) ** 2 - (self.C33 - self.C44) ** 2) / (2 * self.C33 * (self.C33 - self.C44))
+
+        # Calculate eta
+        eta = (epsilon - delta) / (1 + 2 * delta)
+        return eta
+    
+
+    def density(self):
+        return self.RHO
+
+    def tensor(self):
+        C = np.zeros((6,6))
+        C[0,0] = self.C11
+        C[0,1] = self.C12
+        C[0,2] = self.C13
+        C[1,1] = self.C22
+        C[1,2] = self.C23
+        C[2,2] = self.C33
+        C[3,3] = self.C44
+        C[4,4] = self.C55
+        C[5,5] = (self.C11 - self.C12) / 2
+        
+        C = (C + C.T) / 2.0
+        return C
+    
+    def rotated_tensor(self, theta):
+        return rotated_elasticityTensor(self.tensor(), theta)
+        
+    def parameters(self, theta=None):
+        if not theta:
+            return {
+            'RHO': self.RHO,
+            'VPV': np.sqrt(self.C33/self.RHO),
+            'VPH': np.sqrt(self.C11/self.RHO),
+            'VSV': np.sqrt(self.C55/self.RHO),
+            'VSH': np.sqrt(self.C66/self.RHO),
+            'ETA': self.ETA}
+
+        else:
+            return TTI_velocity_from_tensor(self.rotated_tensor(theta), self.RHO)
+        
+        
+
+
+
+
+
+
+  
+class Titanium:
+    def __init__(self):
+        # Define parameters
+        self.RHO = 4506  # Density in kg/m^3
+        self.C11 = 162e9  # Stiffness in Pa
+        self.C13 = 69e9  # Stiffness in Pa
+        self.C33 = 180e9  # Stiffness in Pa
+        self.C44 = 47e9   # Stiffness in Pa
+        self.C66 = 35e9  # Stiffness in Pa
 
         # Derived parameters
         self.C12 = self.C11 - 2 * self.C66  # Derived from the relationship

@@ -57,13 +57,13 @@ y_range = (0., y_length)
 domain = sn.domain.dim2.BoxDomain(x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1])
 
 # create Project from domain
-p = sn.Project.from_domain(path=PROJECT_DIR, 
+p = sn.Project.from_domain(path=PROJECT_DIR_WIN, 
                            domain=domain, load_if_exists=True)
 
 
 # number of point vector sources and receivers.
-n_srcs = 32
-n_rxs = 32
+n_srcs = 8
+n_rxs = 8
 
 # range of sources and receivers
 srcs_range = np.array([0, 1]) * x_length
@@ -174,6 +174,7 @@ Simulation configuration:
         element per wavelength
 """
 
+
 simulation_name = "fmc_simulation"
 max_freq = 2*f_c
 element_per_wavelength = 2.0
@@ -189,6 +190,7 @@ sim_config = sn.SimulationConfiguration(
         absorbing_boundaries=absorb_bdry, 
         )
 
+
 # add simulation configuration to Project
 p.add_to_project(
     sim_config, overwrite=True
@@ -201,34 +203,34 @@ p.viz.nb.simulation_setup(
     )
 
 
-# # launch simulations
+# launch simulations
+p.simulations.launch(
+    ranks_per_job=RANKS_PER_JOB,
+    site_name=SALVUS_FLOW_SITE_NAME,
+    events=p.events.list(),
+    simulation_configuration=simulation_name,
+    delete_conflicting_previous_results=True,
+    )
+
+
+# # simulation with volume data (full wavefield)
 # p.simulations.launch(
 #     ranks_per_job=RANKS_PER_JOB,
 #     site_name=SALVUS_FLOW_SITE_NAME,
 #     events=p.events.list(),
-#     simulation_configuration=simulation_name,
+#     simulation_configuration="fmc_simulation",
+#     extra_output_configuration={
+#         "volume_data": {
+#             "sampling_interval_in_time_steps": 10,
+#             "fields": ["displacement"],
+#         },
+#     },
+#     # We have previously simulated the same event but without
+#     # extra output. We have to thus overwrite the existing
+#     # simulation.
 #     delete_conflicting_previous_results=True,
-#     )
+# )
 
-
-# # # simulation with volume data (full wavefield)
-# # p.simulations.launch(
-# #     ranks_per_job=RANKS_PER_JOB,
-# #     site_name=SALVUS_FLOW_SITE_NAME,
-# #     events=p.events.list(),
-# #     simulation_configuration="fmc_simulation",
-# #     extra_output_configuration={
-# #         "volume_data": {
-# #             "sampling_interval_in_time_steps": 10,
-# #             "fields": ["displacement"],
-# #         },
-# #     },
-# #     # We have previously simulated the same event but without
-# #     # extra output. We have to thus overwrite the existing
-# #     # simulation.
-# #     delete_conflicting_previous_results=True,
-# # )
-
-# p.simulations.query(block=True)
+p.simulations.query(block=True)
 
 
