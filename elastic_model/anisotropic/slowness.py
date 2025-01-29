@@ -223,5 +223,5 @@ ax1.set_theta_zero_location('N')
 ax1.set_theta_direction(-1)
 ax1.set_title("qP-wave Velocity Polar Plot")
 ax1.legend(loc="upper right")
-plt.savefig(IMAGE_DIR_WIN, 'comparison_wave_Velocity_Polar_Plot.png')
+plt.savefig(Path(IMAGE_DIR_WIN, 'comparison_wave_Velocity_Polar_Plot_x_dir.png'))
 

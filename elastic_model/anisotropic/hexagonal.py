@@ -259,18 +259,18 @@ p.viz.nb.simulation_setup(
 
 
 
-# print(f'Start simulation: {simulation_name}')
-# print(f'Dofs (number of nodes): {dofs}')
-# start_time = datetime.now()
+print(f'Start simulation: {simulation_name}')
+print(f'Dofs (number of nodes): {dofs}')
+start_time = datetime.now()
 
-# # # launch simulations
-# # p.simulations.launch(
-# #     ranks_per_job=RANKS_PER_JOB,
-# #     site_name=SALVUS_FLOW_SITE_NAME,
-# #     events=p.events.list(),
-# #     simulation_configuration=simulation_name,
-# #     delete_conflicting_previous_results=True,
-# #     )
+# launch simulations
+p.simulations.launch(
+    ranks_per_job=RANKS_PER_JOB,
+    site_name=SALVUS_FLOW_SITE_NAME,
+    events=p.events.list(),
+    simulation_configuration=simulation_name,
+    delete_conflicting_previous_results=True,
+    )
 
 
 
@@ -293,15 +293,15 @@ p.viz.nb.simulation_setup(
 #     delete_conflicting_previous_results=True,
 # )
 
-# p.simulations.query(block=True)
+p.simulations.query(block=True)
 
 
-# end_time = datetime.now()
+end_time = datetime.now()
 
 
-# execution_time_seconds = (end_time - start_time).total_seconds()
-# minutes = int(execution_time_seconds // 60)  # Extract minutes
-# seconds = execution_time_seconds % 60  # Extract remaining seconds
+execution_time_seconds = (end_time - start_time).total_seconds()
+minutes = int(execution_time_seconds // 60)  # Extract minutes
+seconds = execution_time_seconds % 60  # Extract remaining seconds
 
-# print(f"Execution time: {minutes} minutes and {seconds:.2f} seconds")
+print(f"Execution time: {minutes} minutes and {seconds:.2f} seconds")
 

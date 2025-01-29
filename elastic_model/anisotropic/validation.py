@@ -216,7 +216,7 @@ Simulation configuration:
 
 simulation_name = "anisotropic_ref_layer"
 
-bm_file = 'model_iso.bm'
+bm_file = 'model_ani.bm'
 
 model_config = sn.ModelConfiguration(
         background_model=sn.model.background.one_dimensional.FromBm(

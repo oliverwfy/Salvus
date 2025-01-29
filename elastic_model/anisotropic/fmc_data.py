@@ -65,15 +65,46 @@ time = time.reshape(len(time), -1)
 # curl_u = grad_u['2'] - grad_u['1']
 
 
+# u_x = ed[0].get_data_cube(receiver_field='displacement', component='X')[1].T
+
+# u_y = ed[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
+
+# u_mag = np.sqrt(u_x**2 + u_y**2)
+# # find the FOT in the first arriving envolop
+
+# time_start = 0.75*1e-6
+# time_end = 1.25*1e-6
+# d = 5*1e-3 
+
+# start_idx = np.abs(time - time_start).argmin()
+# end_idx = np.abs(time - time_end).argmin()
+
+
+
+# max_idxs = u_mag[start_idx:end_idx,:].argmax(axis=0) + start_idx
+
+# v_estimated = d/time[max_idxs]
+
+
+u_x_mid = ed[1].get_data_cube(receiver_field='displacement', component='X')[1].T
+u_y_mid = ed[1].get_data_cube(receiver_field='displacement', component='Y')[1].T
+u_mag_mid = np.sqrt(u_x_mid**2 + u_y_mid**2)
+
+time_start = -0.3*1e-6
+time_end = 0.3*1e-6
+start_idx = np.abs(time - time_start).argmin()
+end_idx = np.abs(time - time_end).argmin()
+max_idxs = u_mag_mid[start_idx:end_idx,:].argmax(axis=0) + start_idx
+
+first_time = time[max_idxs]
+
 u_x = ed[0].get_data_cube(receiver_field='displacement', component='X')[1].T
-
 u_y = ed[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
-
 u_mag = np.sqrt(u_x**2 + u_y**2)
 # find the FOT in the first arriving envolop
 
-time_start = 0.75*1e-6
-time_end = 1.25*1e-6
+time_start = 0.7*1e-6
+time_end = 1.3*1e-6
 d = 5*1e-3 
 
 start_idx = np.abs(time - time_start).argmin()
@@ -83,9 +114,11 @@ end_idx = np.abs(time - time_end).argmin()
 
 max_idxs = u_mag[start_idx:end_idx,:].argmax(axis=0) + start_idx
 
-v_estimated = d/time[max_idxs]
+v_estimated = d/(time[max_idxs]-first_time)
 
 
+new_order = list(range(270, -1, -45))
+new_order += list(range(315, 270, -45))
 
 for i in range(8):
     plt.figure()
@@ -94,7 +127,7 @@ for i in range(8):
     plt.xlabel('Time (us)')
     plt.ylabel(rf'$\|u\|$')
     plt.legend(['time signal', 'FoT (qP wave)'])
-    plt.savefig(Path(IMAGE_DIR_WIN, fr'ani_mag_u_circle_rxs_{int(i*45)}.png'))
+    plt.savefig(Path(IMAGE_DIR_WIN, fr'ani_mag_u_circle_rxs_{new_order[i]}.png'))
 
 
 
