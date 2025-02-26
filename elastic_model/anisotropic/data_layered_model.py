@@ -28,13 +28,17 @@ Path(DATA_DIR_WIN).mkdir(parents=True, exist_ok=True)
 # project_name = 'ref_layer'
 # simulation_name = "anisotropic_ref_layer"
 
+project_unoriented = 'ref_model'
 
-project_name = 'layered_model'
-simulation_name = "mesh_unoriented"
+simulation_unoriented = "mesh_unoriented"
+
+project_interface = 'layered_model'
+
+simulation_interface = "mesh_interface_60"
 
 
 print("Opening existing project.")
-p = sn.Project(path=Path(PROJECT_DIR_WIN, project_name))
+p = sn.Project(path=Path(PROJECT_DIR_WIN, project_unoriented))
 
 
 
@@ -54,90 +58,78 @@ p = sn.Project(path=Path(PROJECT_DIR_WIN, project_name))
 
 # get events from project in correct order 
 events_list = reorder_events_list(p.events.list())
-ed = [p.waveforms.get(data_name=simulation_name, events=e)[0] for e in events_list]
+ed_unoriented = [p.waveforms.get(data_name=simulation_unoriented, events=e)[0] for e in events_list]
 
 
-time = time_from_ed(ed)
+time = time_from_ed(ed_unoriented)
 time = time.reshape(len(time), -1)
 
+u_y_unoriented = ed_unoriented[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
 
+n_rxs = u_y_unoriented.shape[1]
 
-# grad_u = {
-#     "0": ed[0].get_data_cube(receiver_field='gradient-of-displacement', component='0')[1].T,
-#     "1": ed[0].get_data_cube(receiver_field='gradient-of-displacement', component='1')[1].T,
-#     "2": ed[0].get_data_cube(receiver_field='gradient-of-displacement', component='2')[1].T,
-#     "3": ed[0].get_data_cube(receiver_field='gradient-of-displacement', component='3')[1].T,
-# }
-
-# div_u = grad_u['0'] + grad_u['3']
-# curl_u = grad_u['2'] - grad_u['1']
-
-
-# u_x = ed[0].get_data_cube(receiver_field='displacement', component='X')[1].T
-
-# u_y = ed[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
-
-# u_mag = np.sqrt(u_x**2 + u_y**2)
-# # find the FOT in the first arriving envolop
-
-# time_start = 0.75*1e-6
-# time_end = 1.25*1e-6
-# d = 5*1e-3 
-
-# start_idx = np.abs(time - time_start).argmin()
-# end_idx = np.abs(time - time_end).argmin()
+u_y_unoriented_top = u_y_unoriented[:,:n_rxs//2].mean(axis=1)
+u_y_unoriented_bottom = u_y_unoriented[:,n_rxs//2:].mean(axis=1)
 
 
 
-# max_idxs = u_mag[start_idx:end_idx,:].argmax(axis=0) + start_idx
+print("Opening existing project.")
+p = sn.Project(path=Path(PROJECT_DIR_WIN, project_interface))
 
-# v_estimated = d/time[max_idxs]
+
+ed_interface = [p.waveforms.get(data_name=simulation_interface, events=e)[0] for e in events_list]
 
 
-u_x_mid = ed[1].get_data_cube(receiver_field='displacement', component='X')[1].T
-u_y_mid = ed[1].get_data_cube(receiver_field='displacement', component='Y')[1].T
-u_mag_mid = np.sqrt(u_x_mid**2 + u_y_mid**2)
+time = time_from_ed(ed_interface)
+time = time.reshape(len(time), -1)
 
-time_start = -0.3*1e-6
-time_end = 0.3*1e-6
-start_idx = np.abs(time - time_start).argmin()
-end_idx = np.abs(time - time_end).argmin()
-max_idxs = u_mag_mid[start_idx:end_idx,:].argmax(axis=0) + start_idx
+u_y_interface = ed_interface[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
 
-first_time = time[max_idxs]
+n_rxs = u_y_interface.shape[1]
 
-u_x = ed[0].get_data_cube(receiver_field='displacement', component='X')[1].T
-u_y = ed[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
+u_y_interface_top = u_y_interface[:,:n_rxs//2].mean(axis=1)
+u_y_interface_bottom = u_y_interface[:,n_rxs//2:].mean(axis=1)
 
-u_mag = np.sqrt(u_x**2 + u_y**2)
-# find the FOT in the first arriving envolop
+
+
+
+
+plt.figure()
+
+plt.plot(time*1e6, u_y_unoriented_bottom)
+plt.plot(time*1e6, u_y_interface_bottom)
+plt.ylabel(rf'$u_y$')
+plt.xlabel('Time (us)')
+
+plt.legend(['referece (bottom)', '2 layers (bottom)'])
+plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_bottom_60.png'))
+
+
+plt.figure()
+
+plt.plot(time*1e6, u_y_unoriented_top)
+plt.plot(time*1e6, u_y_interface_top)
+plt.ylabel(rf'$u_y$')
+plt.xlabel('Time (us)')
+
+plt.legend(['referece (top)', '2 layers (top)'])
+plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_top_60.png'))
+
+
 
 time_start = 0.7*1e-6
 time_end = 1.3*1e-6
-d = 4*1e-3 
-
-start_idx = np.abs(time - time_start).argmin()
-end_idx = np.abs(time - time_end).argmin()
 
 
-
-max_idxs = u_mag[start_idx:end_idx,:].argmax(axis=0) + start_idx
-
-v_estimated = d/(time[max_idxs]-first_time)
-
-
-new_order = list(range(270, -1, -45))
-new_order += list(range(315, 270, -45))
-
-for i in range(8):
-    plt.figure()
-    plt.plot(time[:5000]*1e6, u_y[:5000,int(i*45)])
-    plt.axvline(x=d/v_estimated[i*45]*1e6, color='green', linestyle='--', linewidth=1)
-    plt.xlabel('Time (us)')
-    plt.ylabel(rf'$u_y$')
-    plt.legend(['time signal', 'ToF (SH wave)'])
-    plt.show()
-    # plt.savefig(Path(IMAGE_DIR_WIN, fr'ani_u_y_circle_rxs_{i*45}.png'))
+# for i in range(8):
+#     plt.figure()
+#     plt.plot(time[:5000]*1e6, u_y[:5000,int(i*45)])
+#     plt.axvline(x=d/v_estimated[i*45]*1e6, color='green', linestyle='--', linewidth=1)
+#     plt.xlabel('Time (us)')
+#     plt.ylabel(rf'$u_y$')
+#     plt.legend(['time signal', 'ToF (SH wave)'])
+#     plt.show()
+#     # plt.savefig(Path(IMAGE_DIR_WIN, fr'ani_u_y_circle_rxs_{i*45}.png'))
 
 
 

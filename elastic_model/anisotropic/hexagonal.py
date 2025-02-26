@@ -212,6 +212,9 @@ simulation_name = "anisotropic_ref_layer"
 
 bm_file = 'model_ani.bm'
 
+
+
+
 model_config = sn.ModelConfiguration(
         background_model=sn.model.background.one_dimensional.FromBm(
         filename=Path(WORKING_DIR,bm_file), reference_datum=0.0

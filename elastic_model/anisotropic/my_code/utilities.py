@@ -115,3 +115,10 @@ def compute_slowness(C, rho, theta):
     slowness_ordered = slowness[sorted_indices]
     
     return slowness_ordered
+
+
+def phase_velocity_SH(C, rho, theta):
+    C11, C12, C13, C33, C44, C66 = C
+    n3 = np.cos(np.radians(theta))
+    return np.sqrt( (C66*(1-n3**2) + C44*n3**2)/rho )
+

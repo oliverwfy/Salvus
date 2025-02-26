@@ -42,21 +42,22 @@ f_c = 2*1e6             # centre freuency
 
 
 
+
 # 2D box domain parameters (length in m)
 x_length = 10 * 1e-3
 y_length = 10 * 1e-3
 z_length = 10 * 1e-3
 
 x_range = (0., x_length) 
-y_range = (0, y_length) 
-z_range = (0, z_length) 
+y_range = (0., y_length) 
+z_range = (0., z_length) 
 
 # define 2D box domain
 domain = sn.domain.dim3.BoxDomain(x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1], z0=z_range[0], z1=z_range[1])
 
 
 # create Project from domain
-p = sn.Project.from_domain(path=Path(PROJECT_DIR_WIN, 'ref_layer'), 
+p = sn.Project.from_domain(path=Path(PROJECT_DIR_WIN, 'layered_model'), 
                            domain=domain, load_if_exists=True)
 
 
@@ -80,8 +81,13 @@ rxs_range = np.array([0.3, 0.7]) * x_length
 
 
 
-srcs_pos = [Vector(x_length/2, y_range[1]/2, z_range[1]/2)]
 
+
+
+# srcs_pos = [Vector(x_length/2, y, z_range[1]/2) for y in np.linspace(0, y_range[1], 100)]
+
+
+srcs_pos = [Vector(x, y, z_range[1]) for x in np.linspace(0, x_length, 64) for y in np.linspace(0, y_length, 64)]
 
 
 # rxs_pos = [Vector(x_length*0.2, y_range[1]),   Vector(x_length/2, y_range[1]),   Vector(x_length*0.8, y_range[1]),
@@ -136,59 +142,141 @@ z = [z0 + r * np.cos(theta) for theta in theta_ls]
 
 
 
-# rxs = sn.simple_config.receiver.cartesian.collections.RingPoint2D(
-#     x=srcs_pos[0].x, y=srcs_pos[0].y, radius=5.0*1e-3, count= 360, fields=fileds
-# )
-
+# rxs in a ring
 rxs = [ Point3D(x=x0 + r * np.sin(theta), y = y_range[1]/2, z = z0 + r * np.cos(theta),
             station_code=f"REC{i}",
             fields=fileds,) 
        for i, theta in enumerate(theta_ls)]
 
 
+# add rx in the middle 
+rxs_pos_top = [Vector(x, y, z_range[1]) for x in np.linspace(x_length*1/4, x_length*3/4, 32) for y in np.linspace(y_length*1/4, y_length*3/4, 32)]
 
-rxs_pos = srcs_pos
-rxs_middle = [Point3D(x=r.x, y=r.y, z = r.z, 
-            station_code=f"REC{i}",
-            # Note that one can specify the desired recording field here.
-            fields=fileds,)
-        for i, r in enumerate(rxs_pos)
-        ]
+
+# (array) add all receivers to each event of one point source
+rxs_top = [Point3D(x=r.x, y=r.y, z=r.z,
+        station_code=f"REC_TOP_{i + 1}",
+        # Note that one can specify the desired recording field here.
+        fields=fileds,)
+    for i, r in enumerate(rxs_pos_top)
+    ]
+
+
+# add rx in the middle 
+rxs_pos_bottom = [Vector(x, y, z_range[0]) for x in np.linspace(x_length*1/4, x_length*3/4, 32) for y in np.linspace(y_length*1/4, y_length*3/4, 32)]
+
+
+# (array) add all receivers to each event of one point source
+rxs_bottom = [Point3D(x=r.x, y=r.y, z=r.z,
+        station_code=f"REC_BOTTOM_{i + 1}",
+        # Note that one can specify the desired recording field here.
+        fields=fileds,)
+    for i, r in enumerate(rxs_pos_bottom)
+    ]
+
+rxs = rxs_top + rxs_bottom
 
 events.append(sn.Event(event_name=f"event_0", sources=srcs, receivers=rxs))
-events.append(sn.Event(event_name=f"event_1", sources=srcs, receivers=rxs_middle))
 
 
 # add the events to Project
 add_events_to_Project(p, events)
 
 
-# # generate unstructured mesh 
-# hex_model = sn.material.from_params(**matl.params)       # hexagonal elastic model
-# hex_model.ds        # return xarray of elasticity tensor
-# element_per_wavelength = (2.0, 2.0)     # for x,y or [z] respectively             
-# model_order = 2     # The polynomial order of the model representation on each element.
+# material_unoriented = sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0))
 
-# mesh_resolution = sn.MeshResolution(reference_frequency=2*f_c,
-#                                     elements_per_wavelength=element_per_wavelength,
-#                                     model_order=model_order)
+# rotate 45 degree.
+layer_1 = sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0))
+layer_2 = sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(np.pi/3))
+interface = sn.layered_meshing.interface.Hyperplane.at(z_range[1]/2)
 
-# mesh = lm.mesh_from_domain(
+# layered_model = sn.layered_meshing.LayeredModel([layer_1])
+
+# simulation_name = "mesh_unoriented"
+
+
+
+layered_model = sn.layered_meshing.LayeredModel([
+    layer_1,
+    interface,
+    layer_2])
+
+
+simulation_name = "mesh_interface_60"
+
+
+"""
+Absorbing Boundary (free-surface)
+"""
+
+reference_velocity = 3000           # wave velocity in the absorbing boundary layer
+number_of_wavelengths=1           # number of wavelengths to pad the domain by
+reference_frequency = f_c           # reference frequency for the distance calculation
+free_surfaces = ['z0', 'z1']       # free surfaces for absorbing boundary layer
+
+
+layered_model_abs = sn.layered_meshing.MeshingProtocol(
+    layered_model,
+    ab=salvus.mesh.simple_mesh.basic_mesh.AbsorbingBoundaryParameters(
+        free_surface=free_surfaces,
+        number_of_wavelengths=number_of_wavelengths,
+        reference_velocity=reference_velocity,
+        reference_frequency=reference_frequency,
+    ),
+)
+
+
+# Define the mesh resolution using salvus
+mesh_resolution = sn.MeshResolution(
+    reference_frequency=f_c * 2,  # Reference frequency for the mesh
+    elements_per_wavelength= 2,  # Number of elements per wavelength
+    model_order= 2  # Model order for the mesh
+)
+
+
+# Create the mesh for the grains model using the defined domain and mesh resolution
+mesh = sn.layered_meshing.mesh_from_domain(
+    domain=domain,
+    model=layered_model_abs,
+    mesh_resolution=mesh_resolution
+)
+
+
+
+
+
+# layered_model_abs_rotated = sn.layered_meshing.MeshingProtocol(
+#     layered_model_rotated,
+#     ab=salvus.mesh.simple_mesh.basic_mesh.AbsorbingBoundaryParameters(
+#         free_surface=free_surfaces,
+#         number_of_wavelengths=number_of_wavelengths,
+#         reference_velocity=reference_velocity,
+#         reference_frequency=reference_frequency,
+#     ),
+# )
+
+
+# # Create the mesh for the grains model using the defined domain and mesh resolution
+# mesh_rotated = sn.layered_meshing.mesh_from_domain(
 #     domain=domain,
-#     model=hex_model,
+#     model=layered_model_abs_rotated,
 #     mesh_resolution=mesh_resolution
-#     )
+# )
+
+
+
+
 
 # # shape (m x n x d)  m=#ele, n=(tensor_order+1)^dim d = dim
 # mess_nodes = mesh.get_element_nodes()       
 # mesh.get_element_nodes().shape
 
 
-"""
-Temporal configuration:
-    source time function
-    simulation time duration
-"""
+# """
+# Temporal configuration:
+#     source time function
+#     simulation time duration
+# """
 
 # wavelet (input source time function) 
 wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c)
@@ -196,7 +284,7 @@ wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c)
 
 # waveform simulation temporal parameters
 start_time = -0.3*1e-6
-end_time = 15*1e-6
+end_time = 8*1e-6
 
 # waveform simulation configuration
 waveform_config = sn.WaveformSimulationConfiguration(
@@ -210,6 +298,8 @@ event_config = sn.EventConfiguration(
     waveform_simulation_configuration=waveform_config,
     )
 
+
+
 # # save figure of event config 
 # fig = event_config.wavelet.plot(show=False)
 # plt.savefig(Path(IMAGE_DIR_WIN, 'Ricker.png'))
@@ -217,70 +307,16 @@ event_config = sn.EventConfiguration(
 
 
 
-"""
-Simulation configuration:
-    parameters for spectral element methods: 
-        max frequency (at least twice the center frequency)
-        element per wavelength
-"""
-
-simulation_name = "anisotropic_ref_layer"
-
-bm_file = 'model_ani.bm'
-
-model_config = sn.ModelConfiguration(
-        background_model=sn.model.background.one_dimensional.FromBm(
-        filename=Path(WORKING_DIR,bm_file), reference_datum=0.0
-        ),
-    )
 
 
 
 
-"""
-Absorbing Boundary (free-surface)
-"""
 
-reference_velocity = 3000           # wave velocity in the absorbing boundary layer
-number_of_wavelengths=1.5           # number of wavelengths to pad the domain by
-reference_frequency = f_c           # reference frequency for the distance calculation
-free_surfaces = ['z0', 'z1']       # free surfaces for absorbing boundary layer
-
-# absorbing boundary parameters 
-absorb_bdry = sn.AbsorbingBoundaryParameters(
-    reference_velocity=reference_velocity,
-    number_of_wavelengths=number_of_wavelengths,
-    reference_frequency=f_c,
-    free_surface=free_surfaces
-    )
-
-
-
-
-# f_max = 2*f_c
-# elements_per_wavelength = 2.0
-# tensor_order = 2
-
-f_max = 2*f_c
-elements_per_wavelength = 1.5
-tensor_order = 2
-
-
-sim_config = sn.SimulationConfiguration(
+sim_config = sn.UnstructuredMeshSimulationConfiguration(
+    unstructured_mesh=mesh,
     name=simulation_name,
-    max_frequency_in_hertz=f_max,
-    elements_per_wavelength=elements_per_wavelength,
-    tensor_order = tensor_order,
-    model_configuration=model_config,
     event_configuration=event_config,
-    # absorbing_boundaries=absorb_bdry,
-
     )
-
-
-
-
-
 
 
 
@@ -290,8 +326,6 @@ p.add_to_project(
     )
 
 
-mesh = p.simulations.get_mesh(simulation_name)
-dofs =  mesh.number_of_nodes
 
 # visualization of mesh and simulation set-up
 p.viz.nb.simulation_setup(
@@ -299,7 +333,7 @@ p.viz.nb.simulation_setup(
     )
 
 
-
+dofs =  mesh.number_of_nodes
 print(f'Start simulation: {simulation_name}')
 print(f'Dofs (number of nodes): {dofs}')
 
