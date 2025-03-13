@@ -38,21 +38,33 @@ Path(DATA_DIR_WIN).mkdir(parents=True, exist_ok=True)
 
 
 
-project_name = 'layered_model'
-# project_name = 'ref_model'
 
+# number of random layers
+n_layer = 0
 
+project_name = fr'random_layer_{n_layer}'
+# project_name = 'random_layer'
 
 matl = Austenite()      # load material's elasticity tensor
-f_c = 2*1e6             # centre freuency     
+f_c = 3*1e6             # centre freuency     
 
 
+# generate layer thickness l_i ~ exp()
+l_mean = 1 *1e-3
+l_ls = np.random.normal(l_mean, l_mean/2, n_layer).round(6)
 
+# orientation ~ \theta_i ~ Normal(0, \pi/2)
+theta_ls = np.random.normal(0, np.pi/2, n_layer).round(6)
+
+
+# thickness of referecen layer with no orientation
+ref_layer = 5 * 1e-3
 
 # 2D box domain parameters (length in m)
-x_length = 10 * 1e-3
+x_length = 5 * 1e-3
 y_length = 2 * 1e-3
-z_length = 10 * 1e-3
+z_length = ref_layer + l_ls.sum()
+
 
 x_range = (0., x_length) 
 y_range = (0., y_length) 
@@ -90,10 +102,9 @@ p = sn.Project.from_domain(path=Path(PROJECT_DIR_WIN, project_name),
 
 
 
-# srcs_pos = [Vector(x_length/2, y, z_range[1]/2) for y in np.linspace(0, y_range[1], 100)]
 
 
-n_srcs = 1000
+n_srcs = 1001
 
 srcs_pos = [Vector(x, y_range[1]/2, z_range[1]) for x in np.linspace(0, x_length, n_srcs)]
 
@@ -106,6 +117,7 @@ srcs_pos = [Vector(x, y_range[1]/2, z_range[1]) for x in np.linspace(0, x_length
 
 src_dirw = Vector(0, 2, 0)      # weights applied in x, y, z directions respevtively. 
 fileds = ["displacement"]       # received fileds
+
 
 
 # vector source 3D with weights fx and fy in x and y directions, respectively.
@@ -132,32 +144,14 @@ events = []
 #         sn.Event(event_name=f"event_{i}", sources=src, receivers=rxs)
 #     )
 
+ 
+n_rxs = 101
+rxs_pos_top = [Vector(x, y_range[1]/2, z_range[1]) for x in np.linspace(0, x_length, n_rxs)]
+rxs_pos_interface = [Vector(x, y_range[1]/2, z_range[1]-ref_layer) for x in np.linspace(0, x_length, n_rxs)]
+rxs_pos_bottom = [Vector(x, y_range[1]/2, z_range[0]) for x in np.linspace(0, x_length, n_rxs)]
 
 
-
-# Define parameters for the circle
-x0, z0 = x_length/2, z_range[1]/2  # Center of the circle
-r = 4.0*1e-3  # Radius of the circle
-
-
-# Generate theta values
-
-theta_ls = np.linspace(0, 2 * np.pi, 360)
-
-# Compute x and z coordinates
-x = [x0 + r * np.sin(theta) for theta in theta_ls]
-z = [z0 + r * np.cos(theta) for theta in theta_ls]
-
-
-
-n_rxs = 1000
-
-rxs_plane = [z for z in np.linspace(0, z_length, 5)]
-rxs_pos = []
-
-for z in rxs_plane:
-    rxs_pos += [Vector(x, y_range[1]/2, z) for x in np.linspace(0, x_length, n_rxs)]
-
+rxs_pos = rxs_pos_top + rxs_pos_interface
 
 # (array) add all receivers to each event of one point source
 rxs = [Point3D(x=r.x, y=r.y, z=r.z,
@@ -175,12 +169,21 @@ events.append(sn.Event(event_name=f"event_0", sources=srcs, receivers=rxs))
 add_events_to_Project(p, events)
 
 
-# material_unoriented = sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0))
 
-# rotate 45 degree.
-layer_1 = sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0))
-layer_2 = sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(np.pi/3))
-interface = sn.layered_meshing.interface.Hyperplane.at(z_range[1]/2)
+
+# define layered model
+layer_ls = []
+interface_ls = np.cumsum(l_ls[::-1])[::-1]
+
+# add reference layer
+layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0))
+)
+
+for i,l in enumerate(l_ls):
+    layer_ls.append(sn.layered_meshing.interface.Hyperplane.at(interface_ls[i]))
+    layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(theta_ls[i])))
+
+
 
 # layered_model = sn.layered_meshing.LayeredModel([layer_1])
 
@@ -188,13 +191,10 @@ interface = sn.layered_meshing.interface.Hyperplane.at(z_range[1]/2)
 
 
 
-layered_model = sn.layered_meshing.LayeredModel([
-    layer_1,
-    interface,
-    layer_2])
+layered_model = sn.layered_meshing.LayeredModel(layer_ls)
 
 
-simulation_name = "mesh_interface_60"
+simulation_name = "random_layer"
 
 
 """
@@ -204,7 +204,7 @@ Absorbing Boundary (free-surface)
 reference_velocity = 3000           # wave velocity in the absorbing boundary layer
 number_of_wavelengths=1           # number of wavelengths to pad the domain by
 reference_frequency = f_c           # reference frequency for the distance calculation
-free_surfaces = ['z0', 'z1']       # free surfaces for absorbing boundary layer
+free_surfaces = ['z0','z1']       # free surfaces for absorbing boundary layer
 
 
 layered_model_abs = sn.layered_meshing.MeshingProtocol(
@@ -221,7 +221,7 @@ layered_model_abs = sn.layered_meshing.MeshingProtocol(
 # Define the mesh resolution using salvus
 mesh_resolution = sn.MeshResolution(
     reference_frequency=f_c * 2,  # Reference frequency for the mesh
-    elements_per_wavelength= 2,  # Number of elements per wavelength
+    elements_per_wavelength= 3,  # Number of elements per wavelength
     model_order= 2  # Model order for the mesh
 )
 
@@ -276,7 +276,7 @@ wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c)
 
 # waveform simulation temporal parameters
 start_time = -0.3*1e-6
-end_time = 8*1e-6
+end_time = 10*1e-6
 
 # waveform simulation configuration
 waveform_config = sn.WaveformSimulationConfiguration(
@@ -333,9 +333,6 @@ print(f'Dofs (number of nodes): {dofs}')
 start_time = datetime.now()
 
 
-
-
-
 # launch simulations
 p.simulations.launch(
     ranks_per_job=RANKS_PER_JOB,
@@ -356,7 +353,7 @@ p.simulations.launch(
 #     simulation_configuration=simulation_name,
 #     extra_output_configuration={
 #         "volume_data": {
-#             "sampling_interval_in_time_steps": 100,
+#             "sampling_interval_in_time_steps": 20,
 #             "fields": ["displacement"],
 #         },
 #     },
@@ -377,4 +374,3 @@ minutes = int(execution_time_seconds // 60)  # Extract minutes
 seconds = execution_time_seconds % 60  # Extract remaining seconds
 
 print(f"Execution time: {minutes} minutes and {seconds:.2f} seconds")
-

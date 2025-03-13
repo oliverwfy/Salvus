@@ -23,7 +23,10 @@ Path(IMAGE_DIR_WIN).mkdir(parents=True, exist_ok=True)
 Path(DATA_DIR_WIN).mkdir(parents=True, exist_ok=True)
 
 
-
+# 2D box domain parameters (length in m)
+x_length = 10 * 1e-3
+y_length = 2 * 1e-3
+z_length = 10 * 1e-3
 
 matl = Austenite() 
 rho = matl.RHO
@@ -36,301 +39,246 @@ v_ref = np.sqrt(c44_ref/rho)
 v_rotated= np.sqrt(c44_rotated/rho)
 
 
+project_name_ref = 'random_layer_ref'
+simulation_name_ref = "random_layer"
 
-d = 10e-3
+project_name = 'random_layer_10'
+simulation_name = "random_layer"
 
-# project_name = 'ref_layer'
-# simulation_name = "anisotropic_ref_layer"
+project_name_20 = 'random_layer_20'
+simulation_name = "random_layer"
 
 
 
-project_unoriented = 'ref_model'
 
-simulation_unoriented = "mesh_unoriented"
+n_rxs = 101
 
-project_interface = 'layered_model'
-
-simulation_interface = "mesh_interface_60"
 
 
 print("Opening existing project.")
-p = sn.Project(path=Path(PROJECT_DIR_WIN, project_unoriented))
-
-
-
-# p.viz.nb.waveforms("fmc_simulation", receiver_field="displacement")
-
-# # displacement in y direction
-# p.waveforms.get(data_name="fmc_simulation", events=["event_0"])[0].plot(
-#     component="Y", receiver_field="displacement"
-# )
-
-
-# # displacement in x direction
-# p.waveforms.get(data_name="fmc_simulation", events=["event_0"])[0].plot(
-#     component="X", receiver_field="displacement"
-# )
-
-
-# get events from project in correct order 
+p = sn.Project(path=Path(PROJECT_DIR_WIN, project_name_ref))
 events_list = reorder_events_list(p.events.list())
-ed_unoriented = [p.waveforms.get(data_name=simulation_unoriented, events=e)[0] for e in events_list]
+ed_ref = [p.waveforms.get(data_name=simulation_name_ref, events=e)[0] for e in events_list]
+
+time_ref = time_from_ed(ed_ref)
+time_ref = time_ref.reshape(len(time_ref), -1)
 
 
-time = time_from_ed(ed_unoriented)
+
+u_y_ref = ed_ref[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
+
+
+p = sn.Project(path=Path(PROJECT_DIR_WIN, project_name))
+events_list = reorder_events_list(p.events.list())
+ed = [p.waveforms.get(data_name=simulation_name, events=e)[0] for e in events_list]
+time = time_from_ed(ed)
 time = time.reshape(len(time), -1)
 
-u_y_unoriented = ed_unoriented[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
+u_y = ed[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
 
+p = sn.Project(path=Path(PROJECT_DIR_WIN, project_name_20))
+events_list = reorder_events_list(p.events.list())
+ed_20 = [p.waveforms.get(data_name=simulation_name, events=e)[0] for e in events_list]
+time_20 = time_from_ed(ed_20)
+time_20 = time_20.reshape(len(time_20), -1)
 
+u_y_20 = ed_20[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
 
-
-n_rxs = 1000
-
-u_y_unoriented_mean = [u_y_unoriented[:,i*n_rxs:(i+1)*n_rxs].mean(axis=1) for i in range(5)]
-
-
-
-print("Opening existing project.")
-p = sn.Project(path=Path(PROJECT_DIR_WIN, project_interface))
-
-
-ed_interface = [p.waveforms.get(data_name=simulation_interface, events=e)[0] for e in events_list]
-
-
-time = time_from_ed(ed_interface)
-time = time.reshape(len(time), -1)
-
-u_y_interface = ed_interface[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
-
-
-u_y_interface_mean = [u_y_interface[:,i*n_rxs:(i+1)*n_rxs].mean(axis=1) for i in range(5)]
-
-
-
-
-
-
-for i in range(5):
-    plt.figure()
-
-    plt.plot(time*1e6, u_y_unoriented_mean[i])
-    plt.plot(time*1e6, u_y_interface_mean[i])
-    plt.ylabel(rf'$u_2$')
-    plt.xlabel('Time (us)')
-
-    plt.legend(['referece', '2 layers'])
-    plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-    plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm.png'))
-    # plt.show()
-
-
-
-
-
-u_mag = np.abs(u_y_unoriented[:,4*n_rxs + int(n_rxs//2)]).reshape(-1,1)
-time_start = -0.2*1e-6
-time_end = 0.2*1e-6
-start_idx = np.abs(time - time_start).argmin()
-end_idx = np.abs(time - time_end).argmin()
-max_idxs = u_mag[start_idx:end_idx,:].argmax(axis=0) + start_idx
-first_time = time[max_idxs].squeeze()
-
-
-
-u_y_unoriented_mean_abs = np.abs(u_y_unoriented_mean)
-u_y_interface_mean_abs = np.abs(u_y_interface_mean)
-
-
-i = 4
-plt.figure()
-plt.plot(time*1e6, u_y_unoriented_mean[i])
-plt.plot(time*1e6, u_y_interface_mean[i])
-plt.axvline(x = (first_time)*1e6, color='g', linestyle='--', linewidth=1)
-plt.axvline(x = (d/v_ref- first_time)*1e6, color='gray', linestyle='--', linewidth=1)
-plt.axvline(x = (d/v_ref + d/v_rotated - first_time)*1e6, color='r', linestyle='--', linewidth=1)
-plt.axvline(x = (2*d/v_ref - first_time)*1e6, color='b', linestyle='--', linewidth=1)
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([rf'referece', rf'2 layers'])
-plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF.png'))
-
-
-
-
-i = 3
-plt.figure()
-plt.plot(time*1e6, u_y_unoriented_mean[i])
-plt.plot(time*1e6, u_y_interface_mean[i])
-plt.axvline(x = (d/4/v_ref-first_time)*1e6, color='g', linestyle='--', linewidth=1)
-plt.axvline(x = (d/2/v_ref + d/v_rotated + d/4/v_ref - first_time)*1e6, color='r', linestyle='--', linewidth=1)
-plt.axvline(x = (7*d/4/v_ref - first_time)*1e6, color='b', linestyle='--', linewidth=1)
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([rf'referece', rf'2 layers'])
-plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF.png'))
-    
-i = 2
-plt.figure()
-plt.plot(time*1e6, u_y_unoriented_mean[i])
-plt.plot(time*1e6, u_y_interface_mean[i])
-plt.axvline(x = (d/2/v_ref  - first_time)*1e6, color='g', linestyle='--', linewidth=1)
-plt.axvline(x = (d/2/v_ref + d/v_rotated - first_time)*1e6, color='r', linestyle='--', linewidth=1)
-plt.axvline(x = (3*d/2/v_ref - first_time)*1e6, color='b', linestyle='--', linewidth=1)
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([rf'referece', rf'2 layers'])
-plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF.png'))
-
-i = 1
-plt.figure()
-plt.plot(time*1e6, u_y_unoriented_mean[i])
-plt.plot(time*1e6, u_y_interface_mean[i])
-plt.axvline(x = (d/2/v_ref + d/4/v_rotated  - first_time)*1e6, color='g', linestyle='--', linewidth=1)
-plt.axvline(x = (d/2/v_ref + d/4/v_ref  - first_time)*1e6, color='gray', linestyle='--', linewidth=1)
-
-plt.axvline(x = (d/2/v_ref + 3*d/4/v_rotated - first_time)*1e6, color='r', linestyle='--', linewidth=1)
-
-
-plt.axvline(x = (5*d/4/v_ref - first_time)*1e6, color='b', linestyle='--', linewidth=1)
-
-
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([rf'referece', rf'2 layers'])
-plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF.png'))
-
-
-
-
-i = 0
 
 
 plt.figure()
-plt.plot(time*1e6, u_y_unoriented_mean[i])
-plt.plot(time*1e6, u_y_interface_mean[i])
-plt.axvline(x = (d/2/v_ref + d/2/v_rotated  - first_time)*1e6, color='g', linestyle='--', linewidth=1)
-plt.axvline(x = (d/2/v_ref + d/2/v_ref  - first_time)*1e6, color='gray', linestyle='--', linewidth=1)
-
+plt.plot(time_ref*1e6, u_y_ref[:,50])
+plt.plot(time*1e6, u_y[:,50])
+plt.plot(time_20*1e6, u_y_20[:,50])
 
 
 plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([rf'referece', rf'2 layers'])
-plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF.png'))
+plt.xlabel('time (us)')
+plt.legend(['reference', '10 layers', '20 layers'])
+plt.savefig(Path(IMAGE_DIR_WIN, 'random_layer_top_rx_ref.png'))
 
 
 
-
-
-
-
-
-
-
-
-i = 4
 plt.figure()
-plt.plot(time*1e6, u_y_unoriented[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
-plt.axvline(x = (first_time)*1e6, color='g', linestyle='--', linewidth=1)
-plt.axvline(x = (d/v_ref- first_time)*1e6, color='gray', linestyle='--', linewidth=1)
-plt.axvline(x = (d/v_ref + d/v_rotated - first_time)*1e6, color='r', linestyle='--', linewidth=1)
-plt.axvline(x = (2*d/v_ref - first_time)*1e6, color='b', linestyle='--', linewidth=1)
+plt.plot(time[1000:]*1e6, u_y[1000:,50], '--')
+
+plt.plot(time_20[1000:]*1e6, u_y_20[1000:,50], 'r--')
+
 plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([rf'referece', rf'2 layers'])
-plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF_point_rxs.png'))
+
+plt.xlabel('time (us)')
+
+plt.legend(['10 layers', '20 layers'])
+plt.savefig(Path(IMAGE_DIR_WIN, 'random_layer_top_rx.png'))
 
 
 
 
-i = 3
 plt.figure()
-plt.plot(time*1e6, u_y_unoriented[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
-plt.axvline(x = (d/4/v_ref-first_time)*1e6, color='g', linestyle='--', linewidth=1)
-plt.axvline(x = (d/2/v_ref + d/v_rotated + d/4/v_ref - first_time)*1e6, color='r', linestyle='--', linewidth=1)
-plt.axvline(x = (7*d/4/v_ref - first_time)*1e6, color='b', linestyle='--', linewidth=1)
+plt.plot(time_ref*1e6, u_y_ref[:,150])
+plt.plot(time*1e6, u_y[:,150])
+plt.plot(time_20*1e6, u_y_20[:,150])
+
+
 plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([rf'referece', rf'2 layers'])
-plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF_point_rxs.png'))
-    
-i = 2
+plt.xlabel('time (us)')
+plt.legend(['reference', '10 layers', '20 layers'])
+plt.savefig(Path(IMAGE_DIR_WIN, 'random_layer_int_rx_ref.png'))
+
+
+
 plt.figure()
-plt.plot(time*1e6, u_y_unoriented[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
-plt.axvline(x = (d/2/v_ref  - first_time)*1e6, color='g', linestyle='--', linewidth=1)
-plt.axvline(x = (d/2/v_ref + d/v_rotated - first_time)*1e6, color='r', linestyle='--', linewidth=1)
-plt.axvline(x = (3*d/2/v_ref - first_time)*1e6, color='b', linestyle='--', linewidth=1)
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([rf'referece', rf'2 layers'])
-plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF_point_rxs.png'))
+plt.plot(time[:]*1e6, u_y[:,150], '--')
 
-i = 1
-plt.figure()
-plt.plot(time*1e6, u_y_unoriented[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
-plt.axvline(x = (d/2/v_ref + d/4/v_rotated  - first_time)*1e6, color='g', linestyle='--', linewidth=1)
-plt.axvline(x = (d/2/v_ref + d/4/v_ref  - first_time)*1e6, color='gray', linestyle='--', linewidth=1)
-
-plt.axvline(x = (d/2/v_ref + 3*d/4/v_rotated - first_time)*1e6, color='r', linestyle='--', linewidth=1)
-
-
-plt.axvline(x = (5*d/4/v_ref - first_time)*1e6, color='b', linestyle='--', linewidth=1)
-
+plt.plot(time_20[:]*1e6, u_y_20[:,150], 'r--')
 
 plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([rf'referece', rf'2 layers'])
-plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF_point_rxs.png'))
 
+plt.xlabel('time (us)')
 
-
-
-i = 0
-plt.figure()
-plt.plot(time*1e6, u_y_unoriented[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
-plt.axvline(x = (d/2/v_ref + d/2/v_rotated  - first_time)*1e6, color='g', linestyle='--', linewidth=1)
-plt.axvline(x = (d/2/v_ref + d/2/v_ref  - first_time)*1e6, color='gray', linestyle='--', linewidth=1)
-
-
-
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([rf'referece', rf'2 layers'])
-plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF_point_rxs.png'))
+plt.legend(['10 layers', '20 layers'])
+plt.savefig(Path(IMAGE_DIR_WIN, 'random_layer_int_rx.png'))
 
 
 
 
 
 
-# plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_bottom_60.png'))
+
+
+# u_2_max = np.max(u_y,axis=0)
+
+
+# time_start = -0.2*1e-6
+# time_end = 3.3*1e-6
+# start_idx = np.abs(time - time_start).argmin()
+# end_idx = np.abs(time - time_end).argmin()
+
+# max_idxs = u_y_interface[start_idx:end_idx,:].argmax(axis=0) + start_idx
+# first_time = time[max_idxs].squeeze()
+
+# dt = first_time[1:] - first_time[:-1]
+
+
+# v = dz/dt[:-20]
+# plt.figure()
+# plt.plot(z_ls[1:-20], v)
+# plt.legend(['dz/dt'])
+# # plt.savefig(Path(IMAGE_DIR_WIN, 'inhom_dz_dt.png'))
+
+# plt.figure()
+# plt.plot(z_ls[1:-20], v)
+# plt.axhline(y=np.median(v[:40]), color='r', linestyle='--', label="median")
+# plt.axhline(y=np.median(v[40:]), color='r', linestyle='--', label="median")
+
+# plt.legend(['dz/dt', rf'median(dz/dt) = {np.round(np.median(v[:40]),2)}', rf'median(dz/dt) = {np.round(np.median(v[40:]),2)}'])
+
+# # plt.savefig(Path(IMAGE_DIR_WIN, 'inhom_dz_dt_median.png'))
+
+
+
+
+# coeffs_1 = np.polyfit(z_ls[20:50], first_time[20:50], deg=1, rcond=None, full=False, w=None, cov=False)
+
+# v_1 = 1/coeffs_1[0]
+# coeffs_2 = np.polyfit(z_ls[50:80], first_time[50:80], deg=1, rcond=None, full=False, w=None, cov=False)
+
+# v_2 = 1/coeffs_2[0]
+# p_1 = np.poly1d(coeffs_1)
+# p_2 = np.poly1d(coeffs_2)
+# y_fit_1 = p_1(z_ls[:50])
+# y_fit_2 = p_2(z_ls[50:])
+
+
 
 
 # plt.figure()
+# # plt.plot(z_ls, u_2_max)
+# plt.plot(z_ls, first_time)
 
-# plt.plot(time*1e6, u_y_unoriented_top)
-# plt.plot(time*1e6, u_y_interface_top)
-# plt.ylabel(rf'$u_y$')
+# # plt.savefig(Path(IMAGE_DIR_WIN, fr'max_time_idx_alone_d_inhom.png'))
+
+
+
+
+
+# plt.figure()
+# # plt.plot(z_ls, u_2_max)
+# plt.plot(z_ls, first_time)
+# plt.plot(z_ls[:50], y_fit_1, 'g--')
+# plt.plot(z_ls[50:], y_fit_2, 'r--')
+# plt.legend([rf'$\arg\max_t |u_2|$',rf'fitted line with slope $(1/{np.round(v_1,2)})$',rf'fitted line with slope $(1/{np.round(v_2,2)})$'])
+
+# # plt.savefig(Path(IMAGE_DIR_WIN, fr'fitted_line_inhom.png'))
+
+
+
+
+
+
+# coeffs = np.polyfit(z_ls[20:80], first_time[20:80], deg=1, rcond=None, full=False, w=None, cov=False)
+# v = 1/coeffs[0]
+
+# p = np.poly1d(coeffs)
+# y_fit = p(z_ls)
+
+
+# plt.figure()
+# plt.plot(z_ls*1e3, u_2_max)
+
+
+# plt.ylabel(rf'max$|u_2|$')
+# plt.xlabel('d (mm)')
+# # plt.savefig(Path(IMAGE_DIR_WIN, fr'max_u2_alone_d.png'))
+
+
+
+
+# plt.figure()
+# # plt.plot(z_ls, u_2_max)
+# plt.plot(z_ls, first_time)
+# plt.plot(z_ls, y_fit, '--')
+
+# plt.ylabel(rf'$\arg\max_t |u_2|$')
+# plt.xlabel('d (mm)')
+# plt.legend([rf'$\arg\max_t |u_2|$',rf'fitted line with slope $(1/{np.round(v,2)})$'])
+# # plt.savefig(Path(IMAGE_DIR_WIN, fr'fitted_line_homogeneous.png'))
+
+
+
+
+
+
+# a2 = np.round(max(u_y_interface.mean(axis=1))**2 / max(u_y_interface[:,int(n_rxs//2)])**2 *100,2)
+# a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))**2 / max(u_y_interface[:,int(n_rxs//2)])**2 * 100 ,2)
+
+
+# plt.figure()
+# plt.plot(time*1e6, u_y_interface.mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+# plt.ylabel(rf'$u_2$')
 # plt.xlabel('Time (us)')
+# plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'point_source.png'))
 
-# plt.legend(['referece (top)', '2 layers (top)'])
-# plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_top_60.png'))
+
+# i = 0
+# plt.figure()
+# plt.plot(time*1e6, u_y_interface_mean[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,i*n_rxs + int(1/4*n_rxs):i*n_rxs + int(3/4*n_rxs)].mean(axis=1))
+# plt.axvline(x = (d/2/v_ref + d/2/v_rotated  - first_time)*1e6, color='g', linestyle='--', linewidth=1)
+# plt.axvline(x = (d/2/v_ref + d/2/v_ref  - first_time)*1e6, color='gray', linestyle='--', linewidth=1)
+
+
+
+# plt.ylabel(rf'$u_2$')
+# plt.xlabel('Time (us)')
+# plt.legend([rf'referece', rf'2 layers'])
+# plt.title(fr'Rxs plane $x_3$ ={np.round(10/4*i, 2)} mm')
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'com_layered_model_with_interface_x3_{int(10/4*i)}mm_TOF_point_rxs.png'))
+
+
 
 
 
