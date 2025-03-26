@@ -56,42 +56,33 @@ dir = (0, 1, 0)         # (a1, a2, a3) means weights for different directions
 
 
 # Thickness of referecen layer with no orientation
-ref_layer = 5 * 1e-3
-
-# Random layer parameters
-n_layer = 10         # number of random layers
-l_mean = 1 *1e-3    # mean thickness of layer
-L = 20 *1e-3        # total length of random layers
-
-# generate random layers with random orientation angles
-seed = 212  
-l_ls, theta_ls = generate_random_layer(L, l_mean, n_layer, seed)
+ref_layer = 10 * 1e-3
 
 
 # Project name
-project_name = fr'random_layer_{n_layer}'
+project_name = fr'absorbing'
 
 
 # 3D box domain parameters (in meter)
 x_length = 5 * 1e-3
 y_length = 2 * 1e-3
-z_length = ref_layer + L
+z_length = 2 * ref_layer
 
 
 
 
 # mesh parameters 
 reference_frequency = f_c * 2
-elements_per_wavelength = 3
+elements_per_wavelength = 4
 model_order = 2
 
 
 
 # absorbing boundary parameters
 reference_velocity = 3000           # wave velocity in the absorbing boundary layer
-number_of_wavelengths=1             # number of wavelengths to pad the domain by
+number_of_wavelengths=2           # number of wavelengths to pad the domain by
 reference_frequency = f_c           # reference frequency for the distance calculation
-free_surfaces = ['z0','z1']         # free surfaces, absorbing boundaries are applied for the rest
+free_surfaces = ['z0']         # free surfaces, absorbing boundaries are applied for the rest
 
 
 
@@ -134,7 +125,7 @@ src_gap = 5 * 1e-5  # gap between two adjacent sources (in meter)
 
 n_srcs_x = int(x_length/src_gap) + 1
 
-srcs_pos = [Vector(x, y_range[1]/2, z_range[1]) for x in np.linspace(0, x_length, n_srcs_x)]
+srcs_pos = [Vector(x, y_range[1]/2, z_range[1]-1/4*ref_layer) for x in np.linspace(0, x_length, n_srcs_x)]
 
 
 # rxs_pos = [Vector(x_length*0.2, y_range[1]),   Vector(x_length/2, y_range[1]),   Vector(x_length*0.8, y_range[1]),
@@ -162,15 +153,20 @@ events = []
 # Recerivers
 n_rxs = 101
 
-rxs_pos_top = [Vector(x, y_range[1]/2, z_range[1]) for x in np.linspace(0, x_length, n_rxs)]
-rxs_pos_interface = [Vector(x, y_range[1]/2, z_range[1]-ref_layer) for x in np.linspace(0, x_length, n_rxs)]
-rxs_pos_bottom = [Vector(x, y_range[1]/2, z_range[0]) for x in np.linspace(0, x_length, n_rxs)]
+
+rxs_pos_above_half = [Vector(x, y_range[1]/2, ref_layer + 1/2*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
+
+rxs_pos_above = [Vector(x, y_range[1]/2, ref_layer + 1/5*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
+rxs_pos_below = [Vector(x, y_range[1]/2, ref_layer - 1/5*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
+rxs_pos_below_half = [Vector(x, y_range[1]/2, ref_layer - 1/2*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
+
+
 
 fileds = ["displacement"]     # received fileds
 
 
 
-rxs_pos = rxs_pos_top + rxs_pos_interface + rxs_pos_bottom
+rxs_pos = rxs_pos_above_half + rxs_pos_above + rxs_pos_below + rxs_pos_below_half
 
 # (array) add all receivers to each event of one point source
 rxs = [Point3D(x=r.x, y=r.y, z=r.z,
@@ -190,8 +186,7 @@ add_events_to_Project(p, events)
 
 
 # Temporal configuration:
-
-end_time = 20*1e-6          # waveform simulation temporal parameters
+max_time = 10*1e-6          # waveform simulation temporal parameters
 wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c)     # wavelet (input source time function) 
 
 
@@ -206,35 +201,24 @@ Random layers Generation
 
 """
 
+angle = np.pi/3
 
-# Define random layers
-layer_ls = []
-interface_ls = np.cumsum(l_ls[::-1])[::-1]
 
 # add reference layer
-layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0)))
-
-# add random layers
-for i,l in enumerate(l_ls):
-    layer_ls.append(sn.layered_meshing.interface.Hyperplane.at(interface_ls[i]))
-    layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(theta_ls[i])))
-
-
-
-# layered_model = sn.layered_meshing.LayeredModel([layer_1])
-
-# simulation_name = "mesh_unoriented"
-
-
-
-layered_model = sn.layered_meshing.LayeredModel(layer_ls)
-simulation_name = "random_layer"
+layer_1 = sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0))
+layer_2 = sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_VTI_approx(angle))
 
 
 
 
 
+layered_model = sn.layered_meshing.LayeredModel(
+    [layer_1,
+    sn.layered_meshing.interface.Hyperplane.at(ref_layer),
+    layer_2
+    ])
 
+simulation_name = rf"absorbing"
 
 
 
@@ -286,7 +270,7 @@ Configuration from parameters
 # waveform simulation configuration
 waveform_config = sn.WaveformSimulationConfiguration(
         # start_time_in_seconds=start_time,
-        end_time_in_seconds=end_time,
+        end_time_in_seconds=max_time,
         )
 
 # event configuaration
@@ -340,34 +324,34 @@ Launch simulations
 start_time = datetime.now()
 
 
-p.simulations.launch(
-    ranks_per_job=RANKS_PER_JOB,
-    site_name=SALVUS_FLOW_SITE_NAME,
-    events=p.events.list(),
-    simulation_configuration=simulation_name,
-    delete_conflicting_previous_results=True,
-    )
-
-
-
-
-# # simulation with volume data (full wavefield)
 # p.simulations.launch(
 #     ranks_per_job=RANKS_PER_JOB,
 #     site_name=SALVUS_FLOW_SITE_NAME,
 #     events=p.events.list(),
 #     simulation_configuration=simulation_name,
-#     extra_output_configuration={
-#         "volume_data": {
-#             "sampling_interval_in_time_steps": 20,
-#             "fields": ["displacement"],
-#         },
-#     },
-#     # We have previously simulated the same event but without
-#     # extra output. We have to thus overwrite the existing
-#     # simulation.
 #     delete_conflicting_previous_results=True,
-# )
+#     )
+
+
+
+
+# simulation with volume data (full wavefield)
+p.simulations.launch(
+    ranks_per_job=RANKS_PER_JOB,
+    site_name=SALVUS_FLOW_SITE_NAME,
+    events=p.events.list(),
+    simulation_configuration=simulation_name,
+    extra_output_configuration={
+        "volume_data": {
+            "sampling_interval_in_time_steps": 100,
+            "fields": ["displacement"],
+        },
+    },
+    # We have previously simulated the same event but without
+    # extra output. We have to thus overwrite the existing
+    # simulation.
+    delete_conflicting_previous_results=True,
+)
 
 p.simulations.query(block=True)
 

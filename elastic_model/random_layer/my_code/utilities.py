@@ -122,3 +122,14 @@ def phase_velocity_SH(C, rho, theta):
     n3 = np.cos(np.radians(theta))
     return np.sqrt( (C66*(1-n3**2) + C44*n3**2)/rho )
 
+
+
+def generate_random_layer(L, l_mean, n_layer, seed=None):
+    np.random.seed(seed)  # Set the random seed
+    l_ls = np.random.normal(l_mean, l_mean / 2, n_layer)  # Generate normally distributed values
+    l_ls = np.abs(l_ls)  # Ensure all values are positive
+    l_ls = L * l_ls / l_ls.sum()  # Normalize to sum to L
+    
+    theta_ls = np.random.normal(0, np.pi/2, n_layer).round(6)  # generate random orientation angles
+
+    return np.round(l_ls, 6), theta_ls

@@ -239,8 +239,15 @@ angles_radians = np.radians(angles_full)  # Convert angles to radians for polar 
 
 v_sh = np.array([phase_velocity_SH(C,rho, theta) for theta in angles_full])
 
-rotate_angle = 60
+rotate_angle = 90
 v_sh_rotated = np.concatenate( (v_sh[-rotate_angle:],v_sh[:-rotate_angle]) ) 
+
+rotated_para = matl.rotated_parameters(np.radians(rotate_angle))
+
+a = rotated_para['c44']
+b = rotated_para['c66']
+
+v_rot = np.sqrt( (a*np.cos(angles_radians)**2 + b*np.sin(angles_radians)**2)/rho )
 
 
 # Plot qP-wave velocity map in polar coordinates
@@ -249,11 +256,24 @@ ax1 = plt.subplot(111, projection='polar')
 ax1.plot(angles_radians, v_sh_rotated, label="SH Velocity map", color='blue')
 ax1.set_theta_zero_location('N')
 ax1.set_theta_direction(-1)
-ax1.plot(angles_radians, v_estimated, label="Estimated Group Velocity", color='red')
+ax1.plot(angles_radians, v_rot, 'r--', label="Approximation")
 ax1.set_title("SH wave Velocity Polar Plot")
 ax1.legend(loc="upper right")
-# plt.show()
-plt.savefig(Path(IMAGE_DIR_WIN, f'comparison_SH_Velocity_Polar_Plot_y_dir_rotate_{rotate_angle}.png'))
+plt.savefig(Path(IMAGE_DIR_WIN, f'approxiamtion_SH_Velocity_Polar_Plot_y_dir_rotate_{rotate_angle}.png'))
+
+
+
+# # Plot qP-wave velocity map in polar coordinates
+# plt.figure(figsize=(8, 8))
+# ax1 = plt.subplot(111, projection='polar')
+# ax1.plot(angles_radians, v_sh_rotated, label="SH Velocity map", color='blue')
+# ax1.set_theta_zero_location('N')
+# ax1.set_theta_direction(-1)
+# ax1.plot(angles_radians, v_estimated, label="Estimated Group Velocity", color='red')
+# ax1.set_title("SH wave Velocity Polar Plot")
+# ax1.legend(loc="upper right")
+# # plt.show()
+# plt.savefig(Path(IMAGE_DIR_WIN, f'approxiamtion_SH_Velocity_Polar_Plot_y_dir_rotate_{rotate_angle}.png'))
 
 
 

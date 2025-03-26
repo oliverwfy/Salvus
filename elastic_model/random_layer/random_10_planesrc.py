@@ -69,7 +69,7 @@ l_ls, theta_ls = generate_random_layer(L, l_mean, n_layer, seed)
 
 
 # Project name
-project_name = fr'random_layer_{n_layer}'
+project_name = fr'random_layer_{n_layer}_planesrc'
 
 
 # 3D box domain parameters (in meter)
@@ -133,8 +133,10 @@ Source and receivers
 src_gap = 5 * 1e-5  # gap between two adjacent sources (in meter) 
 
 n_srcs_x = int(x_length/src_gap) + 1
+n_srcs_y = int(y_length/src_gap) + 1
 
-srcs_pos = [Vector(x, y_range[1]/2, z_range[1]) for x in np.linspace(0, x_length, n_srcs_x)]
+
+srcs_pos = [Vector(x, y_range[1]/2, z_range[1]) for x in np.linspace(0, x_length, n_srcs_x) for y in np.linspace(0, y_length, n_srcs_y)]
 
 
 # rxs_pos = [Vector(x_length*0.2, y_range[1]),   Vector(x_length/2, y_range[1]),   Vector(x_length*0.8, y_range[1]),

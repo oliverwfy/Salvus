@@ -61,7 +61,7 @@ def rotated_elasticityTensor(C, theta):
     Q = rotation_matrix_y(theta)  # Compute the rotation matrix
     T = transformation_T(Q)      # Compute the transformation matrix (6x6)
     C_rotated = T @ C @ T.T       # Perform the tensor rotation in Voigt notation
-    return C_rotated
+    return np.rint(C_rotated)
 
 
   
@@ -130,23 +130,9 @@ class Austenite:
         self.C22 = self.C11                # Symmetry in TTI media
         self.C23 = self.C13                # Symmetry in TTI media
         self.C55 = self.C44                # Symmetry in TTI media
-        self.ETA = self.calculate_eta()
         
         self.C = self.tensor()  
-        self.params = self.parameters()
 
-
-    def calculate_eta(self):
-
-        # Calculate epsilon
-        epsilon = (self.C11 - self.C33) / (2 * self.C33)
-
-        # Calculate delta
-        delta = ((self.C13 + self.C44) ** 2 - (self.C33 - self.C44) ** 2) / (2 * self.C33 * (self.C33 - self.C44))
-
-        # Calculate eta
-        eta = (epsilon - delta) / (1 + 2 * delta)
-        return eta
     
 
     def density(self):
@@ -170,20 +156,33 @@ class Austenite:
     def rotated_tensor(self, theta):
         return rotated_elasticityTensor(self.tensor(), theta)
         
-    def parameters(self, theta=None):
-        if not theta:
-            return {
-            'RHO': self.RHO,
-            'VPV': np.sqrt(self.C33/self.RHO),
-            'VPH': np.sqrt(self.C11/self.RHO),
-            'VSV': np.sqrt(self.C55/self.RHO),
-            'VSH': np.sqrt(self.C66/self.RHO),
-            'ETA': self.ETA}
-
-        else:
-            return TTI_velocity_from_tensor(self.rotated_tensor(theta), self.RHO)
-        
-        
+    def rotated_VTI_approx(self, theta):
+        rotated_C = self.rotated_tensor(theta)
+        params = {
+            "rho": self.RHO, 
+            "c11": rotated_C[0, 0],
+            "c12": rotated_C[0, 0] - 2 * rotated_C[5, 5],
+            "c13": rotated_C[0, 2],
+            "c14": 0,
+            "c15": 0,
+            "c16": 0,
+            "c22": rotated_C[0, 0],
+            "c23": rotated_C[0, 2],
+            "c24": 0,
+            "c25": 0,
+            "c26": 0,
+            "c33": rotated_C[2, 2],
+            "c34": 0,
+            "c35": 0,
+            "c36": 0,
+            "c44": rotated_C[3, 3],
+            "c45": 0,
+            "c46": 0.0,
+            "c55": rotated_C[3, 3],
+            "c56": 0,
+            "c66": rotated_C[5, 5],
+        }
+        return params
 
     def rotated_parameters(self, theta):
         rotated_C = self.rotated_tensor(theta)
