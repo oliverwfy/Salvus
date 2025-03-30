@@ -70,125 +70,212 @@ u_y_planesrc = ed_planesrc[0].get_data_cube(receiver_field='displacement', compo
 
 
 
-plt.figure()
-plt.plot(time*1e6, u_y[:,50])
-plt.plot(time*1e6, u_y_planesrc[:,50])
 
-
-plt.ylabel(rf'$u_2$')
-plt.xlabel('time (us)')
-plt.legend(['10 layers', '20 layers'])
-# plt.savefig(Path(IMAGE_DIR_WIN, 'random_layer_top_rx_ref.png'))
-
-
-
-
-
-
-
-
+# top 
 u_y_interface = u_y[:, :n_rxs]
-
-a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
-a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
+u_y_interface_planesrc = u_y_planesrc[:, :n_rxs]
 
 plt.figure()
-plt.plot(time*1e6, u_y_interface.mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+
+plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max(), 'r--')
+plt.plot(time*1e6, u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max(), 'g--')
+
+
 plt.ylabel(rf'$u_2$')
 plt.xlabel('Time (us)')
-plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+plt.legend([fr'middle-point rx(line source)', fr'middle-point rx(plane source)'])
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'line_source_top.png'))
-
-
+plt.savefig(Path(IMAGE_DIR_WIN, fr'line_plane_source_top.png'))
 
 
+plt.figure()
+
+plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max() -u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max())
+
+
+
+plt.ylabel(rf'$u_2$')
+plt.xlabel('Time (us)')
+plt.legend([fr'middle-point rx (diff)'])
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'diff_top.png'))
+
+
+
+
+# interface
 u_y_interface = u_y[:, n_rxs:2*n_rxs]
-
-a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
-a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
+u_y_interface_planesrc = u_y_planesrc[:, n_rxs:2*n_rxs]
 
 plt.figure()
-plt.plot(time*1e6, u_y_interface.mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+
+plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max(), 'r--')
+plt.plot(time*1e6, u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max(), 'g--')
+
+
 plt.ylabel(rf'$u_2$')
 plt.xlabel('Time (us)')
-plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+plt.legend([fr'middle-point rx(line source)', fr'middle-point rx(plane source)'])
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'line_source_interface.png'))
+plt.savefig(Path(IMAGE_DIR_WIN, fr'line_plane_source_interface.png'))
+
+
+plt.figure()
+
+plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max() -u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max())
 
 
 
+plt.ylabel(rf'$u_2$')
+plt.xlabel('Time (us)')
+plt.legend([fr'middle-point rx (diff)'])
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'diff_interface.png'))
+
+
+
+
+# bottom
 u_y_interface = u_y[:, 2*n_rxs:]
-
-a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
-a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
+u_y_interface_planesrc = u_y_planesrc[:, 2*n_rxs:]
 
 plt.figure()
-plt.plot(time*1e6, u_y_interface.mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+
+plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max(), 'r--')
+plt.plot(time*1e6, u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max(), 'g--')
+
+
 plt.ylabel(rf'$u_2$')
 plt.xlabel('Time (us)')
-plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+plt.legend([fr'middle-point rx(line source)', fr'middle-point rx(plane source)'])
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'line_source_bottom.png'))
-
-
-
-
-u_y_interface = u_y_planesrc[:, :n_rxs]
-a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
-a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
-
-plt.figure()
-plt.plot(time*1e6, u_y_interface.mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'plane_source_top.png'))
-
-
-
-
-u_y_interface = u_y_planesrc[:, n_rxs:2*n_rxs]
-
-a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
-a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
-
-plt.figure()
-plt.plot(time*1e6, u_y_interface.mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'plane_source_interface.png'))
-
-
-
-u_y_interface = u_y_planesrc[:, 2*n_rxs:]
-
-a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
-a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
+plt.savefig(Path(IMAGE_DIR_WIN, fr'line_plane_source_bottom.png'))
 
 
 plt.figure()
-plt.plot(time*1e6, u_y_interface.mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+
+plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max() -u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max())
+
+
+
 plt.ylabel(rf'$u_2$')
 plt.xlabel('Time (us)')
-plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+plt.legend([fr'middle-point rx (diff)'])
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'plane_source_bottom.png'))
+plt.savefig(Path(IMAGE_DIR_WIN, fr'diff_bottom.png'))
+
+
+
+
+
+
+
+
+# u_y_interface = u_y[:, :n_rxs]
+
+# a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
+# a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
+
+# plt.figure()
+# plt.plot(time*1e6, u_y_interface.mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+# plt.ylabel(rf'$u_2$')
+# plt.xlabel('Time (us)')
+# plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'line_source_top.png'))
+
+
+
+
+# u_y_interface = u_y[:, n_rxs:2*n_rxs]
+
+# a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
+# a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
+
+
+# u_y_interface = u_y[:, n_rxs:2*n_rxs]
+
+# plt.figure()
+# plt.plot(time*1e6, u_y_interface.mean(axis=1) / u_y_interface.max())
+# plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+# plt.ylabel(rf'$u_2$')
+# plt.xlabel('Time (us)')
+# plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'line_source_interface.png'))
+
+
+
+# u_y_interface = u_y[:, 2*n_rxs:]
+
+# a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
+# a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
+
+# plt.figure()
+# plt.plot(time*1e6, u_y_interface.mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+# plt.ylabel(rf'$u_2$')
+# plt.xlabel('Time (us)')
+# plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'line_source_bottom.png'))
+
+
+
+
+# u_y_interface = u_y_planesrc[:, :n_rxs]
+# a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
+# a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
+
+# plt.figure()
+# plt.plot(time*1e6, u_y_interface.mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+# plt.ylabel(rf'$u_2$')
+# plt.xlabel('Time (us)')
+# plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'plane_source_top.png'))
+
+
+
+
+# u_y_interface = u_y_planesrc[:, n_rxs:2*n_rxs]
+
+# a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
+# a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
+
+# plt.figure()
+# plt.plot(time*1e6, u_y_interface.mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+# plt.ylabel(rf'$u_2$')
+# plt.xlabel('Time (us)')
+# plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'plane_source_interface.png'))
+
+
+
+# u_y_interface = u_y_planesrc[:, 2*n_rxs:]
+
+# a2 = np.round(max(u_y_interface.mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)])*100,2)
+# a1 = np.round(max(u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1)) / max(u_y_interface[:,int(n_rxs//2)]) * 100 ,2)
+
+
+# plt.figure()
+# plt.plot(time*1e6, u_y_interface.mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(1/4*n_rxs):int(3/4*n_rxs)].mean(axis=1))
+# plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+# plt.ylabel(rf'$u_2$')
+# plt.xlabel('Time (us)')
+# plt.legend([fr'avg of all rxs({a2}%)', fr'avg of middle-half rxs({a1})', fr'middle-point rx(100%)'])
+
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'plane_source_bottom.png'))
 
 
 
