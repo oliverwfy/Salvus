@@ -39,13 +39,7 @@ v_ref = np.sqrt(c44_ref/rho)
 v_rotated= np.sqrt(c44_rotated/rho)
 
 
-project_name_ref = 'random_layer_ref'
-simulation_name_ref = "random_layer"
-
-project_name = 'random_layer_10'
-simulation_name = "random_layer"
-
-project_name_20 = 'random_layer_20'
+project_name = 'random_layer_20'
 simulation_name = "random_layer"
 
 

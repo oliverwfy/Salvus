@@ -54,14 +54,13 @@ dir = (0, 1, 0)         # (a1, a2, a3) means weights for different directions
 
 
 
-
 # Thickness of referecen layer with no orientation
-ref_layer = 5 * 1e-3
+ref_layer = 20 * 1e-3
 
 # Random layer parameters
-n_layer = 20         # number of random layers
+n_layer = 30        # number of random layers
 l_mean = 1 *1e-3    # mean thickness of layer
-L = 20 *1e-3        # total length of random layers
+L = 30 *1e-3        # total length of random layers
 
 # generate random layers with random orientation angles
 seed = 212  
@@ -90,7 +89,7 @@ model_order = 2
 
 # absorbing boundary parameters
 reference_velocity = 3000           # wave velocity in the absorbing boundary layer
-number_of_wavelengths=1.5            # number of wavelengths to pad the domain by
+number_of_wavelengths=2            # number of wavelengths to pad the domain by
 reference_frequency = f_c           # reference frequency for the distance calculation
 free_surfaces = False       # free surfaces, absorbing boundaries are applied for the rest
 
@@ -164,8 +163,8 @@ events = []
 n_rxs = 101
 
 rxs_pos_top = [Vector(x, y_range[1]/2, z_range[1]-1/4*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
-rxs_pos_above = [Vector(x, y_range[1]/2, z_range[1]-1/2*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
-rxs_pos_bottom = [Vector(x, y_range[1]/2, z_range[0] + 1/2*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
+rxs_pos_above = [Vector(x, y_range[1]/2, z_range[1]-3/4*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
+rxs_pos_bottom = [Vector(x, y_range[1]/2, z_range[0] + 3/4*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
 
 fileds = ["displacement"]     # received fileds
 
@@ -346,34 +345,34 @@ Launch simulations
 start_time = datetime.now()
 
 
-# p.simulations.launch(
-#     ranks_per_job=RANKS_PER_JOB,
-#     site_name=SALVUS_FLOW_SITE_NAME,
-#     events=p.events.list(),
-#     simulation_configuration=simulation_name,
-#     delete_conflicting_previous_results=True,
-#     )
-
-
-
-
-# simulation with volume data (full wavefield)
 p.simulations.launch(
     ranks_per_job=RANKS_PER_JOB,
     site_name=SALVUS_FLOW_SITE_NAME,
     events=p.events.list(),
     simulation_configuration=simulation_name,
-    extra_output_configuration={
-        "volume_data": {
-            "sampling_interval_in_time_steps": 100,
-            "fields": ["displacement"],
-        },
-    },
-    # We have previously simulated the same event but without
-    # extra output. We have to thus overwrite the existing
-    # simulation.
     delete_conflicting_previous_results=True,
-)
+    )
+
+
+
+
+# # simulation with volume data (full wavefield)
+# p.simulations.launch(
+#     ranks_per_job=RANKS_PER_JOB,
+#     site_name=SALVUS_FLOW_SITE_NAME,
+#     events=p.events.list(),
+#     simulation_configuration=simulation_name,
+#     extra_output_configuration={
+#         "volume_data": {
+#             "sampling_interval_in_time_steps": 100,
+#             "fields": ["displacement"],
+#         },
+#     },
+#     # We have previously simulated the same event but without
+#     # extra output. We have to thus overwrite the existing
+#     # simulation.
+#     delete_conflicting_previous_results=True,
+# )
 
 p.simulations.query(block=True)
 

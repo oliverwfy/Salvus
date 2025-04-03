@@ -27,19 +27,23 @@ Path(DATA_DIR_WIN).mkdir(parents=True, exist_ok=True)
 matl = Austenite() 
 rho = matl.RHO
 
+
+f_c = 3*1e6             # centre freuency     
+
+
 v_ref = np.sqrt(matl.C44/matl.RHO)
 
-ref_layer = 40 * 1e-3
-t_first = (ref_layer - 1/4*ref_layer) / v_ref
-t_reflected = (ref_layer + 1/4*ref_layer) / v_ref
+ref_layer = 30 * 1e-3
+t_prop_1 = (3/4*ref_layer * 2 ) / v_ref
+t_prop_2 = (1/4*ref_layer * 2 ) / v_ref
 
 
-project_name = 'random_layer_30'
+
+project_name = 'random_layer_20_planesrc'
 simulation_name = "random_layer"
 
 
-
-project_name_planesrc = 'random_layer_30_planesrc'
+project_name_ref = 'random_layer_20_planesrc_ref'
 simulation_name = "random_layer"
 
 
@@ -59,116 +63,191 @@ time = time.reshape(len(time), -1)
 
 u_y = ed[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
 
+dt = time[1] - time[0]
 
 
 
 
-p_planesrc = sn.Project(path=Path(PROJECT_DIR_WIN, project_name_planesrc))
-events_list = reorder_events_list(p_planesrc.events.list())
-ed_planesrc = [p_planesrc.waveforms.get(data_name=simulation_name, events=e)[0] for e in events_list]
-time_planesrc = time_from_ed(ed_planesrc)
-time_planesrc = time_planesrc.reshape(len(time_planesrc), -1)
-
-u_y_planesrc = ed_planesrc[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
-
-
-
-
-
-# top 
+# top
 u_y_interface = u_y[:, :n_rxs]
-u_y_interface_planesrc = u_y_planesrc[:, :n_rxs]
 
-plt.figure()
+t_idx_max = np.argmax(u_y_interface[:,int(n_rxs//2)])
+t_idx_reflected = np.argmin(np.abs(time - t_prop_1 + time[t_idx_max]))
 
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max(), 'r--')
-plt.plot(time*1e6, u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max(), 'g--')
+t_idx_trunc = t_idx_reflected - 4*int(1/(f_c*dt))
 
-
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([fr'middle-point rx(line source)', fr'middle-point rx(plane source)'])
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'line_plane_source_top.png'))
 
 
 plt.figure()
+plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)])
+plt.axvline(x = time[t_idx_max]*1e6, color='r', linestyle='--',)
 
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max() -u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max())
+plt.axvline(x = time[t_idx_reflected]*1e6, color='g', linestyle='--',)
+
 
 
 
 plt.ylabel(rf'$u_2$')
 plt.xlabel('Time (us)')
-plt.legend([fr'middle-point rx (diff)'])
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'diff_top.png'))
+plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
 
 
+plt.savefig(Path(IMAGE_DIR_WIN, fr'truncate_top_quater_20.png'))
 
 
-# interface
-u_y_interface = u_y[:, n_rxs:2*n_rxs]
-u_y_interface_planesrc = u_y_planesrc[:, n_rxs:2*n_rxs]
 
-plt.figure()
-
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max(), 'r--')
-plt.plot(time*1e6, u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max(), 'g--')
-
-
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([fr'middle-point rx(line source)', fr'middle-point rx(plane source)'])
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'line_plane_source_interface.png'))
 
 
 plt.figure()
+plt.plot(time[t_idx_trunc:]*1e6, u_y_interface[t_idx_trunc:,int(n_rxs//2)])
 
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max() -u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max())
+plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+
 
 
 
 plt.ylabel(rf'$u_2$')
 plt.xlabel('Time (us)')
-plt.legend([fr'middle-point rx (diff)'])
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'diff_interface.png'))
+plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
 
 
+plt.savefig(Path(IMAGE_DIR_WIN, fr'truncated_top_quater_20.png'))
 
 
-# bottom
-u_y_interface = u_y[:, 2*n_rxs:]
-u_y_interface_planesrc = u_y_planesrc[:, 2*n_rxs:]
+
+
+
+# below
+u_y_interface = u_y[:,n_rxs:2*n_rxs]
+
+t_idx_max = np.argmax(u_y_interface[:,int(n_rxs//2)])
+t_idx_reflected = np.argmin(np.abs(time - t_prop_1 + time[t_idx_max]))
+
+t_idx_trunc = t_idx_reflected - 6*int(1/(f_c*dt))
+
+
 
 plt.figure()
+plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)])
+plt.axvline(x = time[t_idx_max]*1e6, color='r', linestyle='--',)
 
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max(), 'r--')
-plt.plot(time*1e6, u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max(), 'g--')
+plt.axvline(x = time[t_idx_reflected]*1e6, color='g', linestyle='--',)
+
+
 
 
 plt.ylabel(rf'$u_2$')
 plt.xlabel('Time (us)')
-plt.legend([fr'middle-point rx(line source)', fr'middle-point rx(plane source)'])
+plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'line_plane_source_bottom.png'))
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'truncate_below_quater_20.png'))
+
+
+
 
 
 plt.figure()
+plt.plot(time[t_idx_trunc:]*1e6, u_y_interface[t_idx_trunc:,int(n_rxs//2)])
 
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] / u_y_interface[:,int(n_rxs//2)].max() -u_y_interface_planesrc[:,int(n_rxs//2)] / u_y_interface_planesrc[:,int(n_rxs//2)].max())
+plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+
 
 
 
 plt.ylabel(rf'$u_2$')
 plt.xlabel('Time (us)')
-plt.legend([fr'middle-point rx (diff)'])
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'diff_bottom.png'))
+plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
 
 
+
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'truncated_below_quater_20.png'))
+
+
+
+
+
+
+
+
+
+
+p_ref = sn.Project(path=Path(PROJECT_DIR_WIN, project_name_ref))
+events_list_ref = reorder_events_list(p_ref.events.list())
+ed_ref = [p_ref.waveforms.get(data_name=simulation_name, events=e)[0] for e in events_list_ref]
+
+time_ref = time_from_ed(ed_ref)
+time_ref = time_ref.reshape(len(time_ref), -1)
+
+u_y_ref = ed_ref[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
+
+dt_ref = time_ref[1] - time_ref[0]
+
+
+
+# top
+u_y_interface = u_y[:, :n_rxs]
+
+u_y_interface_ref = u_y_ref[:, :n_rxs]
+
+
+plt.figure()
+plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)], '--')
+plt.plot(time_ref*1e6, u_y_interface_ref[:,int(n_rxs//2)], '--')
+
+plt.ylabel(rf'$u_2$')
+plt.xlabel('Time (us)')
+plt.legend([fr'raw A scan', fr'reference A scan'])
+
+
+# # below 
+# u_y_interface = u_y[:, n_rxs:2*n_rxs]
+
+# plt.figure()
+
+# plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)] )
+
+
+# plt.ylabel(rf'$u_2$')
+# plt.xlabel('Time (us)')
+# plt.legend([fr'middle-point rx(line source)', fr'middle-point rx(plane source)'])
+
+
+
+
+
+
+
+
+
+# # top 
+# u_y_interface = u_y[:, n_rxs:2*n_rxs]
+# t_idx_max = np.argmax(u_y_interface[:,int(n_rxs//2)])
+
+# plt.figure()
+
+# plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)])
+
+
+# plt.axvline(x = time[t_idx_max]*1e6, color='r', linestyle='--',)
+
+
+
+
+
+
+
+
+
+
+
+# plt.ylabel(rf'$u_2$')
+# plt.xlabel('Time (us)')
+# plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
+
+
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'truncate.png'))
 
 
 
