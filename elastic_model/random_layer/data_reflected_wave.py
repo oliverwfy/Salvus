@@ -40,7 +40,7 @@ t_prop_2 = (1/4*ref_layer * 2 ) / v_ref
 
 
 project_name = 'random_layer_20_planesrc'
-simulation_name = "random_layer"
+simulation_name = "random_layer_0"
 
 
 # project_name_ref = 'random_layer_30_planesrc_ref'
