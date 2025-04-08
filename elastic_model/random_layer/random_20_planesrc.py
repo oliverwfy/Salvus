@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 # Salvus site name
 SALVUS_FLOW_SITE_NAME = 'oliver_wsl'
-RANKS_PER_JOB = 4
+RANKS_PER_JOB = 8
 
 # Wokring dir
 WORKING_DIR = '/home/oliver/workspace/Salvus/elastic_model/anisotropic/'
@@ -50,18 +50,21 @@ matl = Austenite()      # load material's elasticity tensor
 
 # Source term parameters
 f_c = 3*1e6             # centre freuency     
+end_time = 50*1e-6      # waveform simulation temporal parameters
 dir = (0, 1, 0)         # (a1, a2, a3) means weights for different directions 
 
 
 
 
 # Thickness of referecen layer with no orientation
-ref_layer = 30 * 1e-3
+ref_layer_top = 20 * 1e-3
+ref_layer_bottom = 20 * 1e-3
 
 # Random layer parameters
-n_layer = 20         # number of random layers
+n_layer = 20        # number of random layers
 l_mean = 1 *1e-3    # mean thickness of layer
 L = 20 *1e-3        # total length of random layers
+
 
 # generate random layers with random orientation angles
 seed = 212  
@@ -76,7 +79,7 @@ project_name = fr'random_layer_{n_layer}_planesrc'
 # 3D box domain parameters (in meter)
 x_length = 5 * 1e-3
 y_length = 2 * 1e-3
-z_length = 2 * ref_layer + L
+z_length = ref_layer_bottom + ref_layer_top + L
 
 
 
@@ -136,7 +139,7 @@ src_gap = 5 * 1e-5  # gap between two adjacent sources (in meter)
 n_srcs_x = int(x_length/src_gap) + 1
 n_srcs_y = int(y_length/src_gap) + 1
 
-srcs_pos = [Vector(x, y, z_range[1]-1/4*ref_layer) for x in np.linspace(0, x_length, n_srcs_x) for y in np.linspace(0, y_length, n_srcs_y)]
+srcs_pos = [Vector(x, y, z_range[1]-1/4*ref_layer_top) for x in np.linspace(0, x_length, n_srcs_x) for y in np.linspace(0, y_length, n_srcs_y)]
 
 
 # rxs_pos = [Vector(x_length*0.2, y_range[1]),   Vector(x_length/2, y_range[1]),   Vector(x_length*0.8, y_range[1]),
@@ -164,15 +167,15 @@ events = []
 # Recerivers
 n_rxs = 101
 
-rxs_pos_top = [Vector(x, y_range[1]/2, z_range[1]-1/4*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
-rxs_pos_above = [Vector(x, y_range[1]/2, z_range[1]-3/4*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
-rxs_pos_bottom = [Vector(x, y_range[1]/2, z_range[0] + 3/4*ref_layer) for x in np.linspace(0, x_length, n_rxs)]
+rxs_pos_top = [Vector(x, y_range[1]/2, z_range[1]-1/4*ref_layer_top) for x in np.linspace(0, x_length, n_rxs)]
+rxs_pos_above = [Vector(x, y_range[1]/2, z_range[1]-3/4*ref_layer_top) for x in np.linspace(0, x_length, n_rxs)]
+# rxs_pos_bottom = [Vector(x, y_range[1]/2, z_range[0] + 3/4*ref_layer_bottom) for x in np.linspace(0, x_length, n_rxs)]
 
 fileds = ["displacement"]     # received fileds
 
 
 
-rxs_pos = rxs_pos_top + rxs_pos_above + rxs_pos_bottom
+rxs_pos = rxs_pos_top + rxs_pos_above
 
 # (array) add all receivers to each event of one point source
 rxs = [Point3D(x=r.x, y=r.y, z=r.z,
@@ -193,7 +196,6 @@ add_events_to_Project(p, events)
 
 # Temporal configuration:
 
-end_time = 50*1e-6          # waveform simulation temporal parameters
 wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c)     # wavelet (input source time function) 
 
 
@@ -213,7 +215,7 @@ Random layers Generation
 layer_ls = []
 interface_ls = np.cumsum(l_ls[::-1])[::-1] 
 
-interface_ls += ref_layer
+interface_ls += ref_layer_bottom
 
 # add reference layer
 layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0)))
@@ -224,7 +226,7 @@ for i,l in enumerate(l_ls):
     layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(theta_ls[i])))
 
 # add reference layer
-layer_ls.append(sn.layered_meshing.interface.Hyperplane.at(ref_layer))
+layer_ls.append(sn.layered_meshing.interface.Hyperplane.at(ref_layer_bottom))
 layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0)))
 
 

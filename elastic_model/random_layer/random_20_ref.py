@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 # Salvus site name
 SALVUS_FLOW_SITE_NAME = 'oliver_wsl'
-RANKS_PER_JOB = 4
+RANKS_PER_JOB = 8
 
 # Wokring dir
 WORKING_DIR = '/home/oliver/workspace/Salvus/elastic_model/anisotropic/'
@@ -50,6 +50,8 @@ matl = Austenite()      # load material's elasticity tensor
 
 # Source term parameters
 f_c = 3*1e6             # centre freuency     
+end_time = 50*1e-6          # waveform simulation temporal parameters
+
 dir = (0, 1, 0)         # (a1, a2, a3) means weights for different directions 
 
 
@@ -59,14 +61,13 @@ dir = (0, 1, 0)         # (a1, a2, a3) means weights for different directions
 ref_layer = 30 * 1e-3
 
 # Random layer parameters
-n_layer = 20         # number of random layers
+n_layer = 30        # number of random layers
 l_mean = 1 *1e-3    # mean thickness of layer
-L = 20 *1e-3        # total length of random layers
+L = 30 *1e-3        # total length of random layers
 
 # generate random layers with random orientation angles
 seed = 212  
 l_ls, theta_ls = generate_random_layer(L, l_mean, n_layer, seed)
-
 
 
 # Project name
@@ -93,7 +94,6 @@ reference_velocity = 3000           # wave velocity in the absorbing boundary la
 number_of_wavelengths=2           # number of wavelengths to pad the domain by
 reference_frequency = f_c           # reference frequency for the distance calculation
 free_surfaces = False       # free surfaces, absorbing boundaries are applied for the rest
-
 
 
 
@@ -193,7 +193,6 @@ add_events_to_Project(p, events)
 
 # Temporal configuration:
 
-end_time = 50*1e-6          # waveform simulation temporal parameters
 wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c)     # wavelet (input source time function) 
 
 
@@ -224,8 +223,8 @@ for i,l in enumerate(l_ls):
     layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0)))
 
 # add reference layer
-layer_ls.append(sn.layered_meshing.interface.Hyperplane.at(ref_layer))
-layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0)))
+layer_ls.append(sn.layered_meshing.interface.Hyperplane.at(ref_layer/5))
+layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(np.pi/18)))
 
 
 # layered_model = sn.layered_meshing.LayeredModel([layer_1])
