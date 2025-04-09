@@ -54,8 +54,6 @@ end_time = 50*1e-6      # waveform simulation temporal parameters
 dir = (0, 1, 0)         # (a1, a2, a3) means weights for different directions 
 
 
-
-
 # Thickness of referecen layer with no orientation
 ref_layer_top = 20 * 1e-3
 ref_layer_bottom = 20 * 1e-3
@@ -69,12 +67,12 @@ L = 20 *1e-3        # total length of random layers
 # generate random layers with random orientation angles
 seed = None  
 
-N = 1  # number of realizations
+N = 10  # number of realizations
 
 
 
 # Project name
-project_name = fr'random_layer_{n_layer}_planesrc'
+project_name = fr'random_layer_{n_layer}_10_runs'
 
 
 # 3D box domain parameters (in meter)

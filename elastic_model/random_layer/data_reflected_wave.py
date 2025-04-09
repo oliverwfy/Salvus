@@ -29,7 +29,7 @@ rho = matl.RHO
 
 
 f_c = 3*1e6             # centre freuency     
-
+end_time = 50*1e-6
 
 v_ref = np.sqrt(matl.C44/matl.RHO)
 
@@ -39,90 +39,127 @@ t_prop_2 = (1/4*ref_layer * 2 ) / v_ref
 
 
 
-project_name = 'random_layer_20_planesrc'
-simulation_name = "random_layer_0"
+# project_name = 'random_layer_20_planesrc'
+project_name = 'random_layer_20_10_runs'
+
+rx_ls = []
+
+for i in range(9):
+    simulation_name = fr"random_layer_{i}"
 
 
-# project_name_ref = 'random_layer_30_planesrc_ref'
-# simulation_name = "random_layer"
-
-
-
-
-n_rxs = 101
-
-
-
-
-p = sn.Project(path=Path(PROJECT_DIR_WIN, project_name))
-events_list = reorder_events_list(p.events.list())
-ed = [p.waveforms.get(data_name=simulation_name, events=e)[0] for e in events_list]
-
-time = time_from_ed(ed)
-time = time.reshape(len(time), -1)
-
-u_y = ed[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
-
-dt = time[1] - time[0]
+    # project_name_ref = 'random_layer_30_planesrc_ref'
+    # simulation_name = "random_layer"
 
 
 
 
-# top
-u_y_interface = u_y[:, :n_rxs]
+    n_rxs = 101
 
-t_idx_max = np.argmax(u_y_interface[:,int(n_rxs//2)])
-t_idx_reflected = np.argmin(np.abs(time - t_prop_1 + time[t_idx_max]))
 
-t_idx_trunc = t_idx_reflected - 4*int(1/(f_c*dt))
+
+
+    p = sn.Project(path=Path(PROJECT_DIR_WIN, project_name))
+    events_list = reorder_events_list(p.events.list())
+    ed = [p.waveforms.get(data_name=simulation_name, events=e)[0] for e in events_list]
+    ed[0].set_temporal_interpolation(
+    start_time_in_seconds=0.0, sampling_rate_in_hertz=f_c*10, npts=1500)
+    time = time_from_ed(ed)
+    time = time.reshape(len(time), -1)
+
+    u_y = ed[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
+
+    dt = time[1] - time[0]
+
+
+    print(dt)
+
+    # top
+    u_y_interface = u_y[:, :n_rxs]
+
+    t_idx_max = np.argmax(u_y_interface[:,int(n_rxs//2)])
+    t_idx_reflected = np.argmin(np.abs(time - t_prop_1 + time[t_idx_max]))
+
+    t_idx_trunc = t_idx_reflected - 4*int(1/(f_c*dt))
+    print(t_idx_trunc)
+
+
+    plt.figure()
+    plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)])
+    plt.axvline(x = time[t_idx_max]*1e6, color='r', linestyle='--',)
+
+    plt.axvline(x = time[t_idx_reflected]*1e6, color='g', linestyle='--',)
+
+
+
+
+    plt.ylabel(rf'$u_2$')
+    plt.xlabel('Time (us)')
+    plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
+
+
+    plt.savefig(Path(IMAGE_DIR_WIN, fr'truncate_top_quater_20.png'))
+
+
+
+
+
+    plt.figure()
+    plt.plot(time[t_idx_trunc:]*1e6, u_y_interface[t_idx_trunc:,int(n_rxs//2)])
+
+    plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+
+
+
+
+    plt.ylabel(rf'$u_2$')
+    plt.xlabel('Time (us)')
+    plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
+
+
+
+    plt.savefig(Path(IMAGE_DIR_WIN, fr'truncated_top_quater_20.png'))
+
+    plt.figure()
+    plt.plot(time[t_idx_trunc:t_idx_trunc*3]*1e6, u_y_interface[t_idx_trunc:t_idx_trunc*3,int(n_rxs//2)]**2)
+
+
+    plt.ylabel(rf'$|u_2|^2$')
+    plt.xlabel('Time (us)')
+    plt.legend([fr'$|u_2|^2$'])
+
+    plt.savefig(Path(IMAGE_DIR_WIN, fr'truncated_top_quater_20_power.png'))
+
+    rx_ls.append(u_y_interface[240:241*3-2, :])
+
+
+
+
+data = np.array(rx_ls)
+data_power = data**2
+
+
+plt.figure()
+data_point = data_power[:,:,int(n_rxs//2)]
+data_mean = data_point.mean(axis=0)
+plt.ylabel(rf'mean')
+plt.xlabel('Time (us)')
+plt.plot(time[240:241*3-2],data_mean)
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'mean_point_rxs_20.png'))
 
 
 
 plt.figure()
-plt.plot(time*1e6, u_y_interface[:,int(n_rxs//2)])
-plt.axvline(x = time[t_idx_max]*1e6, color='r', linestyle='--',)
-
-plt.axvline(x = time[t_idx_reflected]*1e6, color='g', linestyle='--',)
-
-
-
-
-plt.ylabel(rf'$u_2$')
+data_point = data_power[:,:,int(n_rxs//2)]
+data_var = data_point.var(axis=0)
+plt.ylabel(rf'std')
 plt.xlabel('Time (us)')
-plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
+plt.plot(time[240:241*3-2],data_var)
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'var_point_rxs_20.png'))
 
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'truncate_top_quater_20.png'))
-
-
-
-
-
-plt.figure()
-plt.plot(time[t_idx_trunc:]*1e6, u_y_interface[t_idx_trunc:,int(n_rxs//2)])
-
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
-
-
-
-
-plt.ylabel(rf'$u_2$')
-plt.xlabel('Time (us)')
-plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
-
-
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'truncated_top_quater_20.png'))
-
-plt.figure()
-plt.plot(time[t_idx_trunc:t_idx_trunc*3]*1e6, u_y_interface[t_idx_trunc:t_idx_trunc*3,int(n_rxs//2)]**2)
-
-
-plt.ylabel(rf'$|u_2|^2$')
-plt.xlabel('Time (us)')
-plt.legend([fr'$|u_2|^2$'])
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'truncated_top_quater_20_power.png'))
 
 
 

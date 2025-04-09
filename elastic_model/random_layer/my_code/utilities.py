@@ -124,9 +124,22 @@ def phase_velocity_SH(C, rho, theta):
 
 
 
+def generate_within_std(mean, std, size):
+
+
+    values = np.random.normal(mean, std, size)
+    lower = mean / 10
+
+    # Keep regenerating only the invalid entries
+    while np.any((values < lower)):
+        mask = (values < lower)
+        values[mask] = np.random.normal(mean, std, np.sum(mask))
+    
+    return values
+
 def generate_random_layer(L, l_mean, n_layer, seed=None):
     np.random.seed(seed)  # Set the random seed
-    l_ls = np.random.normal(l_mean, l_mean / 2, n_layer)  # Generate normally distributed values
+    l_ls = generate_within_std(l_mean, l_mean / 2, n_layer)  # Generate normally distributed values
     l_ls = np.abs(l_ls)  # Ensure all values are positive
     l_ls = L * l_ls / l_ls.sum()  # Normalize to sum to L
     
