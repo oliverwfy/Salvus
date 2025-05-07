@@ -31,21 +31,15 @@ rho = matl.RHO
 f_c = 3*1e6             # centre freuency     
 end_time = 40*1e-6      # waveform simulation temporal parameters
 
+v_ref = np.sqrt(matl.C44/matl.RHO)
 
 ref_layer = 20 * 1e-3
-t_prop_1 = (3/4*ref_layer * 2 ) / np.sqrt(matl.C11/matl.RHO)
-t_prop_2 = (3/4*ref_layer * 2 ) /np.sqrt(matl.C44/matl.RHO)
-t_prop_3 = (3/4*ref_layer * 2 ) / np.sqrt(matl.C66/matl.RHO)
-t_prop_4 = (3/4*ref_layer ) / np.sqrt(matl.C44/matl.RHO) +  (3/4*ref_layer ) /np.sqrt(matl.C11/matl.RHO)
-t_prop_5 = (3/4*ref_layer ) / np.sqrt(matl.C66/matl.RHO) +  (3/4*ref_layer ) /np.sqrt(matl.C11/matl.RHO)
+t_prop_1 = (3/4*ref_layer * 2 ) / v_ref
 
 n_rxs = 101
 
-N = 10
-n_layer = 20
-# project_name = 'random_layer_20_planesrc'
-project_name = fr'layers_20_realization_200_angle_30_ref_0_2wavelength_pwave'
-
+N = 139
+project_name = fr'layers_20_realization_{N}_angle_30_ref_0_2wavelength_pwave'
 
 
 simulation_name_ref = 'ref_model'
@@ -56,27 +50,37 @@ events_list = reorder_events_list(p.events.list())
 ed = [p.waveforms.get(data_name=simulation_name_ref, events=e)[0] for e in events_list]
 ed[0].set_temporal_interpolation(
 start_time_in_seconds=0.0, sampling_rate_in_hertz=f_c*10, npts=1500)
-
 time = time_from_ed(ed)
 time = time.reshape(len(time), -1)
 
-u_y = ed[0].get_data_cube(receiver_field='displacement', component='Z')[1].T
-
-
-u_ref = u_y[:, :n_rxs]
-
-
+u_x = ed[0].get_data_cube(receiver_field='displacement', component='X')[1].T
+u_y = ed[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
+u_z = ed[0].get_data_cube(receiver_field='displacement', component='Z')[1].T   
 
 
 
-plt.figure()
-plt.ylabel(rf'$u_y$')
-plt.xlabel('Time (us)')
-plt.plot(time[240:241*3-2],u_ref[240:241*3-2])
+u_x_ref = u_x[120:540, :]
+u_y_ref = u_y[120:540, :]
+u_z_ref = u_z[120:540, :]
+
+
+np.save(Path(DATA_DIR_WIN, 'p_wave','time'), time[120:540])
 
 
 
-rx_ls = []
+f_c = 3*1e6             # centre freuency     
+end_time = 40*1e-6      # waveform simulation temporal parameters
+
+
+ref_layer = 20 * 1e-3
+t_prop_1 = (3/4*ref_layer * 2 ) / np.sqrt(matl.C11/matl.RHO)
+
+
+
+
+rx_u1_ls = []
+rx_u2_ls = []
+rx_u3_ls = []
 
 for i in range(N):
     simulation_name = fr"random_layer_{i}"
@@ -93,205 +97,138 @@ for i in range(N):
     time = time_from_ed(ed)
     time = time.reshape(len(time), -1)
 
-    u_y = ed[0].get_data_cube(receiver_field='displacement', component='Z')[1].T
+    u_x = ed[0].get_data_cube(receiver_field='displacement', component='X')[1].T
+    u_y = ed[0].get_data_cube(receiver_field='displacement', component='Y')[1].T
+    u_z = ed[0].get_data_cube(receiver_field='displacement', component='Z')[1].T   
 
     dt = time[1] - time[0]
 
 
-    # top
-    u_y_interface = u_y
-
-    t_idx_max = np.argmax(u_y_interface[:,:])
+    t_idx_max = np.argmax(u_z[:,:])
     t_idx_reflected = np.argmin(np.abs(time - t_prop_1 + time[t_idx_max]))
 
-    t_idx_trunc = t_idx_reflected - 5*int(1/(f_c*dt))
+    t_idx_trunc = t_idx_reflected - 4*int(1/(f_c*dt))
 
 
-    plt.figure()
-    plt.plot(time*1e6, u_y_interface[:,:])
-    plt.axvline(x = time[t_idx_max]*1e6, color='r', linestyle='--',)
 
-    plt.axvline(x = time[t_idx_reflected]*1e6, color='g', linestyle='--',)
 
+    rx_u1_ls.append(u_x[120:540, :] - u_x_ref)
+    rx_u2_ls.append(u_y[120:540, :] - u_y_ref)
+    rx_u3_ls.append(u_z[120:540, :] - u_z_ref)
 
 
-
-    plt.ylabel(rf'$u_2$')
-    plt.xlabel('Time (us)')
-    plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
-
-
-    plt.savefig(Path(IMAGE_DIR_WIN, fr'truncate_top_quater_20.png'))
-
-
-
-
-
-    plt.figure()
-    plt.plot(time[t_idx_trunc:]*1e6, u_y_interface[t_idx_trunc:,:])
-
-    plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
-
-
-
-
-    plt.ylabel(rf'$u_2$')
-    plt.xlabel('Time (us)')
-    plt.legend([fr'middle-point rx(plane source)', fr't_argmax'])
-
-
-
-    plt.savefig(Path(IMAGE_DIR_WIN, fr'truncated_top_quater_20.png'))
-
-    plt.figure()
-    plt.plot(time[t_idx_trunc:t_idx_trunc*4]*1e6, u_y_interface[t_idx_trunc:t_idx_trunc*4,:]**2)
-
-
-    plt.ylabel(rf'$|u_2|^2$')
-    plt.xlabel('Time (us)')
-    plt.legend([fr'$|u_2|^2$'])
-
-    plt.savefig(Path(IMAGE_DIR_WIN, fr'truncated_top_quater_20_power.png'))
-
-
-
-    rx_ls.append(u_y_interface[120:540, :] - u_ref[120:540])
-    # rx_ls.append(u_y_interface[240:360] - u_ref[240:360])
-
-
-
-
-
-
-# plt.figure()
-# plt.plot(time[240:360]*1e6,u_ref[240:360])
-
-
-# plt.ylabel(rf'$u_2$')
-# plt.xlabel('Time (us)')
-# plt.savefig(Path(IMAGE_DIR_WIN, fr'ref.png'))
-
-
-
-# plt.figure()
-# plt.plot(time[240:360]*1e6,u_y_interface[240:360])
-# plt.axvline(x = time[t_idx_reflected]*1e6, color='r', linestyle='--',)
-
-
-
-
-
-# plt.ylabel(rf'$u_2$')
-# plt.xlabel('Time (us)')
-
-# plt.savefig(Path(IMAGE_DIR_WIN, fr'realization.png'))
-
-
-
-
-# plt.figure()
-# plt.plot(time[240:360]*1e6,u_y_interface[240:360] - u_ref[240:360])
-
-# plt.axvline(x = time[t_idx_reflected]*1e6, color='r', linestyle='--',)
-
-# plt.savefig(Path(IMAGE_DIR_WIN, fr'residual.png'))
-
-
-
-
-
-# data = np.array(rx_ls)
-# data_power = (data  )**2
-
-
-# plt.figure()
-# data_point = data_power[:,:,:]
-# data_mean = data_point.mean(axis=0)
-# plt.ylabel(rf'mean')
-# plt.xlabel('Time (us)')
-# plt.plot(time[240:360]*1e6, data_mean)
-
-# plt.savefig(Path(IMAGE_DIR_WIN, fr'mean_point_rxs_20.png'))
-
-
-
-# plt.figure()
-# data_point = data_power[:,:,:]
-# data_var = data_point.var(axis=0)
-# plt.ylabel(rf'Variance')
-# plt.xlabel('Time (us)')
-# plt.plot(time[240:360]*1e6, data_var)
-
-# plt.savefig(Path(IMAGE_DIR_WIN, fr'var_point_rxs_20.png'))
-
-
-
-# plt.figure()
-
-# plt.ylabel(rf'ralative fluctuation')
-# plt.xlabel('Time (us)')
-# plt.plot(time[240:360]*1e6, np.where(data_mean != 0, data_var / data_mean, 0))
-
-# plt.savefig(Path(IMAGE_DIR_WIN, fr'ralative_point_rxs_20.png'))
-
-
+t_prop_1 = (3/4*ref_layer) / np.sqrt(matl.C33/matl.RHO) + (3/4*ref_layer) / np.sqrt(matl.C44/matl.RHO)
+t_prop_2 = (3/4*ref_layer) / np.sqrt(matl.C33/matl.RHO) + (3/4*ref_layer) / np.sqrt(matl.C33/matl.RHO)
+t_idx_reflected = np.argmin(np.abs(time - t_prop_1 + time[t_idx_max]))
 t_idx_reflected_2 = np.argmin(np.abs(time - t_prop_2 + time[t_idx_max]))
-t_idx_reflected_3 = np.argmin(np.abs(time - t_prop_3 + time[t_idx_max]))
-t_idx_reflected_4 = np.argmin(np.abs(time - t_prop_4 + time[t_idx_max]))
 
 
 
+data_x = np.array(rx_u1_ls)
+data_y = np.array(rx_u2_ls)
+data_z = np.array(rx_u3_ls)
 
-data = np.array(rx_ls)
+
+data = np.concatenate((data_x, data_y, data_z), axis=-1)
+
+np.save(Path(DATA_DIR_WIN, 'p_wave', project_name), data)
+
+data_mag = np.linalg.norm(data, axis=-1)
+
 data_power = (data  )**2
-
+data_point = data_power[:,:,-1]
 
 plt.figure()
-data_point = data_power[:,:,:]
 data_mean = data_point.mean(axis=0)
 plt.ylabel(rf'mean')
 plt.xlabel('Time (us)')
-plt.plot(time[120:540]*1e6, data_mean)
+plt.plot(time[120:540]*1e6,data_mean)
 plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
 plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
 
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'mean_point_rxs_20.png'))
+plt.savefig(Path(IMAGE_DIR_WIN, fr'mean_u3.png'))
 
 
 
 plt.figure()
-data_point = data_power[:,:,:]
 data_var = data_point.var(axis=0)
 plt.ylabel(rf'Variance')
 plt.xlabel('Time (us)')
-plt.plot(time[120:540]*1e6, data_var)
+plt.plot(time[120:540]*1e6,data_var)
 plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
 plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
 
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'var_point_rxs_20.png'))
+plt.savefig(Path(IMAGE_DIR_WIN, fr'var_u3.png'))
 
 
 
 plt.figure()
 
-plt.ylabel(rf'ralative fluctuation')
+plt.ylabel(rf'relative fluctuation')
 plt.xlabel('Time (us)')
-plt.plot(time[120:540]*1e6, data_var/data_mean)
+plt.plot(time[120:540]*1e6, np.where(data_mean != 0, data_var / data_mean, 0))
 plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
 plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
 
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'ralative_point_rxs_20.png'))
+plt.savefig(Path(IMAGE_DIR_WIN, fr'relative_u3.png'))
 
 
+
+
+
+data_point = data_mag
+
+plt.figure()
+data_mean = data_point.mean(axis=0)
+plt.ylabel(rf'mean')
+plt.xlabel('Time (us)')
+plt.plot(time[120:540]*1e6,data_mean)
+plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
+
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'mean_u_mag.png'))
+
+
+
+plt.figure()
+data_var = data_point.var(axis=0)
+plt.ylabel(rf'Variance')
+plt.xlabel('Time (us)')
+plt.plot(time[120:540]*1e6,data_var)
+plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
+
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'var_u_mag.png'))
+
+
+
+plt.figure()
+
+plt.ylabel(rf'relative fluctuation')
+plt.xlabel('Time (us)')
+plt.plot(time[120:540]*1e6, np.where(data_mean != 0, data_var / data_mean, 0))
+plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
+
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'relative_u_mag.png'))
 
 
 

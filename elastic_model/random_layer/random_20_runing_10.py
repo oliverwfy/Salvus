@@ -36,10 +36,6 @@ Path(IMAGE_DIR_WIN).mkdir(parents=True, exist_ok=True)
 Path(DATA_DIR_WIN).mkdir(parents=True, exist_ok=True)
 
 
-
-
-
-
 """
 Parameters Definition
 
@@ -49,37 +45,41 @@ Parameters Definition
 matl = Austenite()      # load material's elasticity tensor
 
 # Source term parameters
-f_c = 3*1e6             # centre freuency     
-end_time = 50*1e-6      # waveform simulation temporal parameters
-dir = (0, 1, 0)         # (a1, a2, a3) means weights for different directions 
+f_c = 3*1e6 / 2         # centre freuency     
+f_c_src = f_c
+end_time = 30*1e-6      # waveform simulation temporal parameters
+dir = (0, 0, 1)         # (a1, a2, a3) means weights for different directions 
 
 
 # Thickness of referecen layer with no orientation
-ref_layer_top = 20 * 1e-3
-ref_layer_bottom = 20 * 1e-3
+ref_layer_top = 40 * 1e-3
+ref_layer_bottom = 10 * 1e-3
+
 
 # Random layer parameters
 n_layer = 20        # number of random layers
 l_mean = 1 *1e-3    # mean thickness of layer
-L = 20 *1e-3        # total length of random layers
+L = n_layer *1e-3        # total length of random layers
+theta_ref = 0
 
 
 # generate random layers with random orientation angles
 seed = None  
 
-N = 10  # number of realizations
 
+# number of realizations
+N = 1  
 
 
 # Project name
-project_name = fr'random_layer_{n_layer}_10_runs'
+project_name = fr'animation_zdir'
+
 
 
 # 3D box domain parameters (in meter)
 x_length = 5 * 1e-3
 y_length = 2 * 1e-3
 z_length = ref_layer_bottom + ref_layer_top + L
-
 
 
 
@@ -138,8 +138,11 @@ src_gap = 5 * 1e-5  # gap between two adjacent sources (in meter)
 n_srcs_x = int(x_length/src_gap) + 1
 n_srcs_y = int(y_length/src_gap) + 1
 
+# planesrc
 # srcs_pos = [Vector(x, y, z_range[1]-1/4*ref_layer_top) for x in np.linspace(0, x_length, n_srcs_x) for y in np.linspace(0, y_length, n_srcs_y)]
 
+
+# linesrc
 srcs_pos = [Vector(x, y_range[1]/2, z_range[1]-1/4*ref_layer_top) for x in np.linspace(0, x_length, n_srcs_x)]
 
 # rxs_pos = [Vector(x_length*0.2, y_range[1]),   Vector(x_length/2, y_range[1]),   Vector(x_length*0.8, y_range[1]),
@@ -167,7 +170,14 @@ events = []
 # Recerivers
 n_rxs = 101
 
+# linerxs
 rxs_pos_top = [Vector(x, y_range[1]/2, z_range[1]-1/4*ref_layer_top) for x in np.linspace(0, x_length, n_rxs)]
+
+
+# # pointrx
+# rxs_pos_top = [Vector(x_range[1]/2, y_range[1]/2, z_range[1]-1/4*ref_layer_top)]
+
+
 # rxs_pos_above = [Vector(x, y_range[1]/2, z_range[1]-3/4*ref_layer_top) for x in np.linspace(0, x_length, n_rxs)]
 # rxs_pos_bottom = [Vector(x, y_range[1]/2, z_range[0] + 3/4*ref_layer_bottom) for x in np.linspace(0, x_length, n_rxs)]
 
@@ -195,10 +205,185 @@ add_events_to_Project(p, events)
 
 
 # Temporal configuration:
-wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c)     # wavelet (input source time function) 
+wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c_src)     # wavelet (input source time function) 
 
 
 
+# Reference model 
+simulation_name = fr"ref_model"
+
+
+# Define random layers
+layer_ls = []
+l_ls, theta_ls = generate_random_layer(L, l_mean, n_layer, seed=seed)
+
+interface_ls = np.cumsum(l_ls[::-1])[::-1] 
+
+interface_ls += ref_layer_bottom
+
+# add reference layer
+layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0)))
+
+# add random layers
+for i,l in enumerate(l_ls):
+    layer_ls.append(sn.layered_meshing.interface.Hyperplane.at(interface_ls[i]))
+    layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0)))
+
+# add reference layer
+layer_ls.append(sn.layered_meshing.interface.Hyperplane.at(ref_layer_bottom))
+layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0)))
+
+
+# layered_model = sn.layered_meshing.LayeredModel([layer_1])
+
+# simulation_name = "mesh_unoriented"
+layered_model = sn.layered_meshing.LayeredModel(layer_ls)
+
+
+"""
+Mesh Generation with abs boundaries
+
+"""
+
+# define absorbing bnoundary
+layered_model_abs = sn.layered_meshing.MeshingProtocol(
+    layered_model,
+    ab=salvus.mesh.simple_mesh.basic_mesh.AbsorbingBoundaryParameters(
+        free_surface=free_surfaces,
+        number_of_wavelengths=number_of_wavelengths,
+        reference_velocity=reference_velocity,
+        reference_frequency=reference_frequency,
+    ),
+)
+
+
+# Define the mesh resolution using salvus
+mesh_resolution = sn.MeshResolution(
+    reference_frequency=reference_frequency,  # Reference frequency for the mesh
+    elements_per_wavelength= elements_per_wavelength,  # Number of elements per wavelength
+    model_order= model_order  # Model order for the mesh
+)
+
+
+# Create the mesh for the grains model using the defined domain and mesh resolution
+mesh = sn.layered_meshing.mesh_from_domain(
+    domain=domain,
+    model=layered_model_abs,
+    mesh_resolution=mesh_resolution
+)
+
+
+# # shape (m x n x d)  m=#ele, n=(tensor_order+1)^dim d = dim
+# mess_nodes = mesh.get_element_nodes()       
+# mesh.get_element_nodes().shape
+
+
+
+"""
+Configuration from parameters
+
+"""
+
+
+# waveform simulation configuration
+waveform_config = sn.WaveformSimulationConfiguration(
+        # start_time_in_seconds=start_time,
+        end_time_in_seconds=end_time,
+        )
+
+# event configuaration
+event_config = sn.EventConfiguration(
+    wavelet=wavelet,
+    waveform_simulation_configuration=waveform_config,
+    )
+
+# # save figure of event config 
+# fig = event_config.wavelet.plot(show=False)
+# plt.savefig(Path(IMAGE_DIR_WIN, 'Ricker.png'))
+
+
+
+
+sim_config = sn.UnstructuredMeshSimulationConfiguration(
+    unstructured_mesh=mesh,
+    name=simulation_name,
+    event_configuration=event_config,
+    )
+
+
+
+# add simulation configuration to Project
+p.add_to_project(
+    sim_config, overwrite=True
+    )
+
+
+
+# # visualization of mesh and simulation set-up
+# p.viz.nb.simulation_setup(
+#     simulation_configuration=simulation_name, events=p.events.list()
+#     )
+
+
+dofs =  mesh.number_of_nodes
+print(f'Start simulation: {simulation_name}')
+print(f'Dofs (number of nodes): {dofs}')
+
+
+
+
+
+
+"""
+Launch simulations
+
+"""
+
+start_time = datetime.now()
+
+
+# p.simulations.launch(
+#     ranks_per_job=RANKS_PER_JOB,
+#     site_name=SALVUS_FLOW_SITE_NAME,
+#     events=p.events.list(),
+#     simulation_configuration=simulation_name,
+#     delete_conflicting_previous_results=True,
+#     )
+
+
+
+
+# simulation with volume data (full wavefield)
+p.simulations.launch(
+    ranks_per_job=RANKS_PER_JOB,
+    site_name=SALVUS_FLOW_SITE_NAME,
+    events=p.events.list(),
+    simulation_configuration=simulation_name,
+    extra_output_configuration={
+        "volume_data": {
+            "sampling_interval_in_time_steps": 50,
+            "fields": ["displacement"],
+        },
+    },
+    # We have previously simulated the same event but without
+    # extra output. We have to thus overwrite the existing
+    # simulation.
+    delete_conflicting_previous_results=True,
+)
+
+
+
+p.simulations.query(block=True)
+
+
+time_end = datetime.now()
+
+
+execution_time_seconds = (time_end - start_time).total_seconds()
+minutes = int(execution_time_seconds // 60)  # Extract minutes
+seconds = execution_time_seconds % 60  # Extract remaining seconds
+
+print(f"Execution time: {minutes} minutes and {seconds:.2f} seconds")
 
 
 
@@ -222,7 +407,7 @@ for i in range(N):
     interface_ls += ref_layer_bottom
 
     # add reference layer
-    layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0)))
+    layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(np.deg2rad(theta_ref))))
 
     # add random layers
     for i,l in enumerate(l_ls):
@@ -231,23 +416,13 @@ for i in range(N):
 
     # add reference layer
     layer_ls.append(sn.layered_meshing.interface.Hyperplane.at(ref_layer_bottom))
-    layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(0)))
+    layer_ls.append(sn.material.elastic.triclinic.TensorComponents.from_params(**matl.rotated_parameters(np.deg2rad(theta_ref))))
 
 
     # layered_model = sn.layered_meshing.LayeredModel([layer_1])
 
     # simulation_name = "mesh_unoriented"
-
-
-
     layered_model = sn.layered_meshing.LayeredModel(layer_ls)
-
-
-
-
-
-
-
 
 
     """
@@ -352,34 +527,34 @@ for i in range(N):
     start_time = datetime.now()
 
 
-    p.simulations.launch(
-        ranks_per_job=RANKS_PER_JOB,
-        site_name=SALVUS_FLOW_SITE_NAME,
-        events=p.events.list(),
-        simulation_configuration=simulation_name,
-        delete_conflicting_previous_results=True,
-        )
-
-
-
-
-    # # simulation with volume data (full wavefield)
     # p.simulations.launch(
     #     ranks_per_job=RANKS_PER_JOB,
     #     site_name=SALVUS_FLOW_SITE_NAME,
     #     events=p.events.list(),
     #     simulation_configuration=simulation_name,
-    #     extra_output_configuration={
-    #         "volume_data": {
-    #             "sampling_interval_in_time_steps": 100,
-    #             "fields": ["displacement"],
-    #         },
-    #     },
-    #     # We have previously simulated the same event but without
-    #     # extra output. We have to thus overwrite the existing
-    #     # simulation.
     #     delete_conflicting_previous_results=True,
-    # )
+    #     )
+
+
+
+
+    # simulation with volume data (full wavefield)
+    p.simulations.launch(
+        ranks_per_job=RANKS_PER_JOB,
+        site_name=SALVUS_FLOW_SITE_NAME,
+        events=p.events.list(),
+        simulation_configuration=simulation_name,
+        extra_output_configuration={
+            "volume_data": {
+                "sampling_interval_in_time_steps": 50,
+                "fields": ["displacement"],
+            },
+        },
+        # We have previously simulated the same event but without
+        # extra output. We have to thus overwrite the existing
+        # simulation.
+        delete_conflicting_previous_results=True,
+    )
 
 
 

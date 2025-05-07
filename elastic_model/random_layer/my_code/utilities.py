@@ -127,22 +127,50 @@ def phase_velocity_SH(C, rho, theta):
 def generate_within_std(mean, std, size):
 
 
-    values = np.random.normal(mean, std, size)
+    values = np.random.exponential(mean, size)
     lower = mean / 10
 
     # Keep regenerating only the invalid entries
     while np.any((values < lower)):
         mask = (values < lower)
-        values[mask] = np.random.normal(mean, std, np.sum(mask))
+        values[mask] = np.random.exponential(mean, np.sum(mask))
     
     return values
 
+
+
+
 def generate_random_layer(L, l_mean, n_layer, seed=None):
     np.random.seed(seed)  # Set the random seed
-    l_ls = generate_within_std(l_mean, l_mean / 2, n_layer)  # Generate normally distributed values
+    l_ls = generate_within_std(l_mean, l_mean / 2, n_layer).round(6)  # Generate normally distributed values
     l_ls = np.abs(l_ls)  # Ensure all values are positive
     l_ls = L * l_ls / l_ls.sum()  # Normalize to sum to L
     
-    theta_ls = np.random.normal(0, np.pi/2, n_layer).round(6)  # generate random orientation angles
+    # generate random orientation angles
+    theta_ls = np.random.uniform(low=-np.pi/6, high=np.pi/6, size=n_layer).round(6)  
 
     return np.round(l_ls, 6), theta_ls
+
+
+
+
+def generate_random_layer_v2(L, l_mean, n_layer, seed=None, orientation=np.pi/6):
+    np.random.seed(seed)  # Set the random seed
+    l_ls = generate_within_std(l_mean, l_mean / 2, n_layer).round(6)  # Generate normally distributed values
+    l_ls = np.abs(l_ls)  # Ensure all values are positive
+    l_ls = L * l_ls / l_ls.sum()  # Normalize to sum to L
+    
+    # generate random orientation angles
+    # Generate data for a normal distribution
+    x = np.linspace(-3, 3, n_layer)
+
+    mean = 0
+    std_dev = 1
+    y = (1 / (std_dev * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x - mean) / std_dev) ** 2)
+    y = y/y.max()
+    
+    
+    theta_ls = [ np.round( np.random.uniform(low=-orientation*w, high=orientation*w), 6) for w in y]
+
+    return np.round(l_ls, 6), theta_ls
+
