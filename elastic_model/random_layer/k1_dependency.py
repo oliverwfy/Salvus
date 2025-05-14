@@ -75,40 +75,9 @@ def Wp_simplified(w,k1,tau,p):
     th = tau/(L*phi(w, k1)) 
     return 1/(L) * ( 2*p*th**(p-1) / (2+th)**(p+1) )
 
-def smooth_curve(x, y, s_factor=5e-3):
-    spline = UnivariateSpline(x, y, s=s_factor)
-    return spline(x)
 
-import numpy as np
-
-def smooth_curve_poly(x, y, degree=8):
-    """
-    Smooth a 1D curve using polynomial fitting.
-
-    Parameters:
-        x (array-like): 1D array of x-values.
-        y (array-like): 1D array of y-values (same length as x).
-        degree (int): Degree of the fitting polynomial.
-
-    Returns:
-        np.ndarray: Smoothed y-values evaluated at x.
-    """
-    x = np.asarray(x).flatten()
-    y = np.asarray(y).flatten()
-
-    if x.shape != y.shape:
-        raise ValueError(f"x and y must have the same shape, got {x.shape} and {y.shape}")
-
-    if degree >= len(x):
-        raise ValueError(f"Polynomial degree ({degree}) must be less than number of data points ({len(x)}).")
-
-    coeffs = np.polyfit(x, y, degree)
-    y_smooth = np.polyval(coeffs, x)
-
-    return y_smooth
-# Example: Plot Wp vs tau
 w_ref = 3e6
-lam_ls = [1,1.5,2]
+lam_ls = [1,1.5, 2, 4]
 plt.figure()
 for lam_to_l in lam_ls:
     w = w_ref/lam_to_l
@@ -119,16 +88,14 @@ for lam_to_l in lam_ls:
     tau_vals = np.arange(0, 10e-6, 1e-8)
     wp_values = [Wp(w, k1, tau, p) for tau in tau_vals]
 
-    wp_values_smooth = smooth_curve(tau_vals, wp_values)
-    wp_values_smooth = smooth_curve_poly(tau_vals, wp_values)
     # Plotting
-    plt.plot(range(len(wp_values)), wp_values_smooth, label=rf'$\lambda = {lam_to_l} \ell$')
+    plt.plot(range(len(wp_values)), wp_values, label=rf'$\lambda = {lam_to_l} \ell$')
     plt.xlabel(rf'$\tau$')
     plt.ylabel(rf'$W^\infty_{p}(w, k1, \tau)$')
     plt.title(rf'$W^\infty_{p}$ vs $\tau$')
     plt.legend()
 
-# plt.savefig(Path(IMAGE_DIR_WIN, fr'smooth_wavelength_dependence_first_moment.png'))
+plt.savefig(Path(IMAGE_DIR_WIN, fr'wavelength_dependence_first_moment.png'))
 
 plt.figure()
 for lam_to_l in lam_ls:
@@ -140,17 +107,14 @@ for lam_to_l in lam_ls:
     tau_vals = np.arange(0, 10e-6, 1e-8)
     wp_values = [Wp(w, k1, tau, p) for tau in tau_vals]
 
-    wp_values_smooth = smooth_curve(tau_vals, wp_values)
-    wp_values_smooth = smooth_curve_poly(tau_vals, wp_values)
-
     # Plotting
-    plt.plot(range(len(wp_values)), wp_values_smooth, label=rf'$\lambda = {lam_to_l} \ell$')
+    plt.plot(range(len(wp_values)), wp_values, label=rf'$\lambda = {lam_to_l} \ell$')
     plt.xlabel(rf'$\tau$')
     plt.ylabel(rf'$W^\infty_{p}(w, k1, \tau)$')
     plt.title(rf'$W^\infty_{p}$ vs $\tau$')
     plt.legend()
 
-# plt.savefig(Path(IMAGE_DIR_WIN, fr'smooth_wavelength_dependence_second_moment.png'))
+plt.savefig(Path(IMAGE_DIR_WIN, fr'wavelength_dependence_second_moment.png'))
 
 
 
