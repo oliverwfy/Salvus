@@ -52,7 +52,7 @@ dir = (0, 0, 1)         # (a1, a2, a3) means weights for different directions
 
 
 # Thickness of referecen layer with no orientation
-ref_layer_top = 40 * 1e-3
+ref_layer_top = 20 * 1e-3
 ref_layer_bottom = 10 * 1e-3
 
 
@@ -68,11 +68,11 @@ seed = None
 
 
 # number of realizations
-N = 1  
+N = 5
 
 
 # Project name
-project_name = fr'animation_zdir'
+project_name = fr'layers_20_realization_{N}_pwave'
 
 
 
@@ -171,11 +171,11 @@ events = []
 n_rxs = 101
 
 # linerxs
-rxs_pos_top = [Vector(x, y_range[1]/2, z_range[1]-1/4*ref_layer_top) for x in np.linspace(0, x_length, n_rxs)]
+# rxs_pos_top = [Vector(x, y_range[1]/2, z_range[1]-1/4*ref_layer_top) for x in np.linspace(0, x_length, n_rxs)]
 
 
 # # pointrx
-# rxs_pos_top = [Vector(x_range[1]/2, y_range[1]/2, z_range[1]-1/4*ref_layer_top)]
+rxs_pos_top = [Vector(x_range[1]/2, y_range[1]/2, z_range[1]-1/4*ref_layer_top)]
 
 
 # rxs_pos_above = [Vector(x, y_range[1]/2, z_range[1]-3/4*ref_layer_top) for x in np.linspace(0, x_length, n_rxs)]
@@ -342,34 +342,34 @@ Launch simulations
 start_time = datetime.now()
 
 
-# p.simulations.launch(
-#     ranks_per_job=RANKS_PER_JOB,
-#     site_name=SALVUS_FLOW_SITE_NAME,
-#     events=p.events.list(),
-#     simulation_configuration=simulation_name,
-#     delete_conflicting_previous_results=True,
-#     )
-
-
-
-
-# simulation with volume data (full wavefield)
 p.simulations.launch(
     ranks_per_job=RANKS_PER_JOB,
     site_name=SALVUS_FLOW_SITE_NAME,
     events=p.events.list(),
     simulation_configuration=simulation_name,
-    extra_output_configuration={
-        "volume_data": {
-            "sampling_interval_in_time_steps": 50,
-            "fields": ["displacement"],
-        },
-    },
-    # We have previously simulated the same event but without
-    # extra output. We have to thus overwrite the existing
-    # simulation.
     delete_conflicting_previous_results=True,
-)
+    )
+
+
+
+
+# # simulation with volume data (full wavefield)
+# p.simulations.launch(
+#     ranks_per_job=RANKS_PER_JOB,
+#     site_name=SALVUS_FLOW_SITE_NAME,
+#     events=p.events.list(),
+#     simulation_configuration=simulation_name,
+#     extra_output_configuration={
+#         "volume_data": {
+#             "sampling_interval_in_time_steps": 50,
+#             "fields": ["displacement"],
+#         },
+#     },
+#     # We have previously simulated the same event but without
+#     # extra output. We have to thus overwrite the existing
+#     # simulation.
+#     delete_conflicting_previous_results=True,
+# )
 
 
 
@@ -527,34 +527,34 @@ for i in range(N):
     start_time = datetime.now()
 
 
-    # p.simulations.launch(
-    #     ranks_per_job=RANKS_PER_JOB,
-    #     site_name=SALVUS_FLOW_SITE_NAME,
-    #     events=p.events.list(),
-    #     simulation_configuration=simulation_name,
-    #     delete_conflicting_previous_results=True,
-    #     )
-
-
-
-
-    # simulation with volume data (full wavefield)
     p.simulations.launch(
         ranks_per_job=RANKS_PER_JOB,
         site_name=SALVUS_FLOW_SITE_NAME,
         events=p.events.list(),
         simulation_configuration=simulation_name,
-        extra_output_configuration={
-            "volume_data": {
-                "sampling_interval_in_time_steps": 50,
-                "fields": ["displacement"],
-            },
-        },
-        # We have previously simulated the same event but without
-        # extra output. We have to thus overwrite the existing
-        # simulation.
         delete_conflicting_previous_results=True,
-    )
+        )
+
+
+
+
+    # # simulation with volume data (full wavefield)
+    # p.simulations.launch(
+    #     ranks_per_job=RANKS_PER_JOB,
+    #     site_name=SALVUS_FLOW_SITE_NAME,
+    #     events=p.events.list(),
+    #     simulation_configuration=simulation_name,
+    #     extra_output_configuration={
+    #         "volume_data": {
+    #             "sampling_interval_in_time_steps": 50,
+    #             "fields": ["displacement"],
+    #         },
+    #     },
+    #     # We have previously simulated the same event but without
+    #     # extra output. We have to thus overwrite the existing
+    #     # simulation.
+    #     delete_conflicting_previous_results=True,
+    # )
 
 
 

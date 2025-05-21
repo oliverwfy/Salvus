@@ -38,8 +38,8 @@ t_prop_1 = (3/4*ref_layer * 2 ) / v_ref
 
 n_rxs = 101
 
-N = 139
-project_name = fr'layers_20_realization_{N}_angle_30_ref_0_2wavelength_pwave'
+N = 5
+project_name = fr'layers_20_realization_{N}_pwave'
 
 
 simulation_name_ref = 'ref_model'
@@ -133,102 +133,102 @@ data = np.concatenate((data_x, data_y, data_z), axis=-1)
 
 np.save(Path(DATA_DIR_WIN, 'p_wave', project_name), data)
 
-data_mag = np.linalg.norm(data, axis=-1)
+# data_mag = np.linalg.norm(data, axis=-1)
 
-data_power = (data  )**2
-data_point = data_power[:,:,-1]
+# data_power = (data  )**2
+# data_point = data_power[:,:,-1]
 
-plt.figure()
-data_mean = data_point.mean(axis=0)
-plt.ylabel(rf'mean')
-plt.xlabel('Time (us)')
-plt.plot(time[120:540]*1e6,data_mean)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
+# plt.figure()
+# data_mean = data_point.mean(axis=0)
+# plt.ylabel(rf'mean')
+# plt.xlabel('Time (us)')
+# plt.plot(time[120:540]*1e6,data_mean)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
 
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'mean_u3.png'))
-
-
-
-plt.figure()
-data_var = data_point.var(axis=0)
-plt.ylabel(rf'Variance')
-plt.xlabel('Time (us)')
-plt.plot(time[120:540]*1e6,data_var)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
-
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'var_u3.png'))
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'mean_u3.png'))
 
 
 
-plt.figure()
+# plt.figure()
+# data_var = data_point.var(axis=0)
+# plt.ylabel(rf'Variance')
+# plt.xlabel('Time (us)')
+# plt.plot(time[120:540]*1e6,data_var)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
 
-plt.ylabel(rf'relative fluctuation')
-plt.xlabel('Time (us)')
-plt.plot(time[120:540]*1e6, np.where(data_mean != 0, data_var / data_mean, 0))
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
 
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'relative_u3.png'))
-
-
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'var_u3.png'))
 
 
 
-data_point = data_mag
+# plt.figure()
 
-plt.figure()
-data_mean = data_point.mean(axis=0)
-plt.ylabel(rf'mean')
-plt.xlabel('Time (us)')
-plt.plot(time[120:540]*1e6,data_mean)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
+# plt.ylabel(rf'relative fluctuation')
+# plt.xlabel('Time (us)')
+# plt.plot(time[120:540]*1e6, np.where(data_mean != 0, data_var / data_mean, 0))
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
 
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'mean_u_mag.png'))
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'relative_u3.png'))
 
 
 
-plt.figure()
-data_var = data_point.var(axis=0)
-plt.ylabel(rf'Variance')
-plt.xlabel('Time (us)')
-plt.plot(time[120:540]*1e6,data_var)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
-
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
-
-plt.savefig(Path(IMAGE_DIR_WIN, fr'var_u_mag.png'))
 
 
+# data_point = data_mag
 
-plt.figure()
+# plt.figure()
+# data_mean = data_point.mean(axis=0)
+# plt.ylabel(rf'mean')
+# plt.xlabel('Time (us)')
+# plt.plot(time[120:540]*1e6,data_mean)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
 
-plt.ylabel(rf'relative fluctuation')
-plt.xlabel('Time (us)')
-plt.plot(time[120:540]*1e6, np.where(data_mean != 0, data_var / data_mean, 0))
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
-plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
 
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
-# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'mean_u_mag.png'))
 
-plt.savefig(Path(IMAGE_DIR_WIN, fr'relative_u_mag.png'))
+
+
+# plt.figure()
+# data_var = data_point.var(axis=0)
+# plt.ylabel(rf'Variance')
+# plt.xlabel('Time (us)')
+# plt.plot(time[120:540]*1e6,data_var)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
+
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'var_u_mag.png'))
+
+
+
+# plt.figure()
+
+# plt.ylabel(rf'relative fluctuation')
+# plt.xlabel('Time (us)')
+# plt.plot(time[120:540]*1e6, np.where(data_mean != 0, data_var / data_mean, 0))
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected-t_idx_trunc]*1e6, color='g', linestyle='--',)
+# plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_2-t_idx_trunc]*1e6, color='r', linestyle='--',)
+
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_3-t_idx_trunc]*1e6, color='black', linestyle='--',)
+# # plt.axvline(x = time[t_idx_trunc:][t_idx_reflected_4-t_idx_trunc]*1e6, color='purple', linestyle='--',)
+
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'relative_u_mag.png'))
 
 
 

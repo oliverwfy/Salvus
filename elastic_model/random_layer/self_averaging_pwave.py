@@ -51,8 +51,8 @@ plt.xlim([0,max_tau])
 plt.ylim([0,0.2])
 plt.savefig(Path(IMAGE_DIR_WIN, fr'W_2.png'))
 
-N = 139
-project_name = fr'layers_20_realization_{N}_angle_30_ref_0_2wavelength_pwave.npy'
+N = 5
+project_name = fr'layers_20_realization_{N}_pwave.npy'
 
 data = np.load(Path(DATA_DIR_WIN, 'p_wave', project_name))
 time = np.load(Path(DATA_DIR_WIN, 'p_wave', 'time.npy'))
