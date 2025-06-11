@@ -89,7 +89,7 @@ for lam_to_l in lam_ls:
     wp_values = [Wp(w, k1, tau, p) for tau in tau_vals]
 
     # Plotting
-    plt.plot(range(len(wp_values)), wp_values, label=rf'$\lambda = {lam_to_l} \ell$')
+    plt.plot(tau_vals* 1e6, wp_values, label=rf'$\lambda = {lam_to_l} \ell$')
     plt.xlabel(rf'$\tau$')
     plt.ylabel(rf'$W^\infty_{p}(w, k1, \tau)$')
     plt.title(rf'$W^\infty_{p}$ vs $\tau$')
@@ -108,7 +108,7 @@ for lam_to_l in lam_ls:
     wp_values = [Wp(w, k1, tau, p) for tau in tau_vals]
 
     # Plotting
-    plt.plot(range(len(wp_values)), wp_values, label=rf'$\lambda = {lam_to_l} \ell$')
+    plt.plot(tau_vals* 1e6, wp_values, label=rf'$\lambda = {lam_to_l} \ell$')
     plt.xlabel(rf'$\tau$')
     plt.ylabel(rf'$W^\infty_{p}(w, k1, \tau)$')
     plt.title(rf'$W^\infty_{p}$ vs $\tau$')
