@@ -29,6 +29,9 @@ DATA_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/anisotropic/data'
 IMAGE_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/anisotropic/image'
 
 
+PROJECT_DIR_WIN = '/mnt/e/project'
+
+
 # create dir if it does not exist
 Path(IMAGE_DIR).mkdir(parents=True, exist_ok=True)
 Path(DATA_DIR).mkdir(parents=True, exist_ok=True)
@@ -68,10 +71,11 @@ seed = None
 
 
 # number of realizations
-N = 5
+N = 300
 
 
 # Project name
+# project_name = fr'layers_20_realization_{N}_pwave'
 project_name = fr'layers_20_realization_{N}_pwave'
 
 
@@ -86,7 +90,7 @@ z_length = ref_layer_bottom + ref_layer_top + L
 # mesh parameters 
 reference_frequency = f_c * 2
 elements_per_wavelength = 3
-model_order = 2
+model_order = 4
 
 
 

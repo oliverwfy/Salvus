@@ -23,6 +23,10 @@ Path(IMAGE_DIR_WIN).mkdir(parents=True, exist_ok=True)
 Path(DATA_DIR_WIN).mkdir(parents=True, exist_ok=True)
 
 
+PROJECT_DIR_WIN = '/mnt/e/project'
+
+
+
 
 matl = Austenite() 
 rho = matl.RHO
@@ -38,7 +42,7 @@ t_prop_1 = (3/4*ref_layer * 2 ) / v_ref
 
 n_rxs = 101
 
-N = 5
+N = 102
 project_name = fr'layers_20_realization_{N}_pwave'
 
 

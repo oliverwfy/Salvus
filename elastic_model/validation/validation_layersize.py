@@ -44,11 +44,12 @@ Parameters Definition
 
 """
 
+
 # Material 
 matl = Austenite()      # load material's elasticity tensor
 
 # Source term parameters
-f_c = 3*1e6 / 2         # centre freuency     
+f_c = 3*1e6 / 2        # centre freuency     
 f_c_src = f_c
 end_time = 30*1e-6      # waveform simulation temporal parameters
 dir = (0, 1, 0)         # (a1, a2, a3) means weights for different directions 
@@ -58,23 +59,26 @@ dir = (0, 1, 0)         # (a1, a2, a3) means weights for different directions
 ref_layer_top = 20 * 1e-3
 
 
+# layer size - wavelength ratio 
+ratio = 2
+
 # Random layer parameters
-n_layer = 10        # number of random layers
-l_mean = 1 *1e-3    # mean thickness of layer
-L = n_layer *1e-3        # total length of random layers
+n_layer = int(5 // ratio )     # number of random layers
+l_mean = 2 *1e-3 * ratio   # mean thickness of layer
+L = n_layer * l_mean        # total length of random layers
 theta_ref = 0
 
 
 # generate random layers with random orientation angles
-seed = 100  
+seed = 258
 
 
 # number of realizations
-N = 5
+N = 1
 
 
 # Project name
-project_name = fr'validation'
+project_name = fr'validation_layersize_{ratio}'
 
 
 
@@ -86,9 +90,9 @@ z_length = ref_layer_top + L
 
 
 # mesh parameters 
-reference_frequency = f_c * 2
+reference_frequency = f_c
 elements_per_wavelength = 3
-model_order = 2
+model_order = 4
 
 
 
@@ -210,14 +214,14 @@ add_events_to_Project(p, events)
 wavelet = sn.simple_config.stf.Ricker(center_frequency=f_c_src)     # wavelet (input source time function) 
 
 
-elements_per_wavelength_ls = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5]
+elements_per_wavelength_ls = [1, 2, 3, 4, 5]
 model_order_ls = [4]
 
 
 computation_time = np.zeros((len(elements_per_wavelength_ls), len(model_order_ls)))
 dofs_nodal_nodes = computation_time.copy()
 
-for i, elements_per_wavelength in enumerate(elements_per_wavelength_ls):
+for i, elements_per_wavelength in enumerate(elements_per_wavelength_ls[::-1]):
     for j, model_order in enumerate(model_order_ls):
 
         # Reference model 
@@ -226,7 +230,7 @@ for i, elements_per_wavelength in enumerate(elements_per_wavelength_ls):
 
         # Define random layers
         layer_ls = []
-        l_ls, theta_ls = generate_random_layer(L, l_mean, n_layer, seed=seed)
+        l_ls, theta_ls = generate_layer(L, l_mean, seed) 
 
         interface_ls = np.cumsum(l_ls[::-1])[::-1] 
 
@@ -337,6 +341,10 @@ for i, elements_per_wavelength in enumerate(elements_per_wavelength_ls):
 
 
 
+        # p.viz.nb.simulation_setup(
+        #     simulation_configuration=simulation_name,
+        #     events=p.events.list(),
+        # )
 
 
 
@@ -395,5 +403,5 @@ for i, elements_per_wavelength in enumerate(elements_per_wavelength_ls):
         computation_time[i,j] = execution_time_seconds
         dofs_nodal_nodes[i,j] = dofs
 
-np.save(Path(DATA_DIR_WIN,'computation_time.npy'), computation_time)
-np.save(Path(DATA_DIR_WIN,'dofs_nodal_nodes.npy'), dofs_nodal_nodes)
+np.save(Path(DATA_DIR_WIN,'computation_time.npy'), computation_time[::-1])
+np.save(Path(DATA_DIR_WIN,'dofs_nodal_nodes.npy'), dofs_nodal_nodes[::-1])

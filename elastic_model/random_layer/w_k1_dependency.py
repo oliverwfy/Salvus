@@ -10,17 +10,28 @@ DATA_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/anisotropic/data'
 IMAGE_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/anisotropic/image'
 
 from pathlib import Path
-# Smoothing function using spline
 
-
+# material constants
 matl = Austenite() 
 rho = matl.RHO
-
 c44 = matl.C44
 c66 = matl.C66
 c13 = matl.C13
 c11 = matl.C11
 c33 = matl.C33
+
+
+# wavelength to thickness ratio
+c_ref = 3000
+L = 0.1
+nlayers = 100
+mean_l = L/nlayers
+realisations = 1000
+
+
+ratio = np.array([1, 1.5, 2, 4])
+wavelength_ls =  ratio * mean_l
+w_ls = c_ref/wavelength_ls
 
 theta = 1
 varrho = c33 + c11 -2*c13 - 4*c66
@@ -41,11 +52,10 @@ def phi(w, k1):
 def gb(w,k1):
     return (k1**2 * varrho * np.sin(2 * theta) * np.cos(2 * theta)) / (k1**2 * c66_bar - rho * w**2)  # Eq. 4.33
 
+
+
 def Upsilon(w, k1):
-    nlayers = 100
-    realisations = 1000
-    l = 0.1
-    dx3 = l / nlayers
+    dx3 = L / nlayers
 
     m = np.random.rand(realisations, nlayers)
     x = np.array([dx3 * i for i in range(nlayers)])
@@ -76,30 +86,37 @@ def Wp_simplified(w,k1,tau,p):
     return 1/(L) * ( 2*p*th**(p-1) / (2+th)**(p+1) )
 
 
-w_ref = 3e6
-lam_ls = [1,1.5, 2, 4]
-plt.figure()
-for lam_to_l in lam_ls:
-    w = w_ref/lam_to_l
+
+
+
+plt.figure(figsize=(8, 6))
+for j, w in enumerate(w_ls):
     k1 =  0
     p = 1
 
     # Tau range
     tau_vals = np.arange(0, 10e-6, 1e-8)
     wp_values = [Wp(w, k1, tau, p) for tau in tau_vals]
-
     # Plotting
-    plt.plot(tau_vals* 1e6, wp_values, label=rf'$\lambda = {lam_to_l} \ell$')
-    plt.xlabel(rf'$\tau$')
-    plt.ylabel(rf'$W^\infty_{p}(w, k1, \tau)$')
-    plt.title(rf'$W^\infty_{p}$ vs $\tau$')
-    plt.legend()
+    rval = ratio[j]
+    if rval.is_integer():
+        label = rf'$R_{{\lambda/\ell}} = {int(rval)}$'
+    else:
+        label = rf'$R_{{\lambda/\ell}} = {rval:.1f}$'
+    # Plotting
+    plt.plot(tau_vals* 1e6, wp_values, label=label)
+    plt.xlabel(rf'$\tau$', fontsize=18)
+    plt.ylabel(rf'$W^\infty_{p}(w, \kappa_1, \tau)$', fontsize=18)
+    plt.legend(fontsize=12)
+    plt.tick_params(labelsize=14)  # for tick labels
+
 
 plt.savefig(Path(IMAGE_DIR_WIN, fr'wavelength_dependence_first_moment.png'))
 
-plt.figure()
-for lam_to_l in lam_ls:
-    w = w_ref/lam_to_l
+plt.figure(figsize=(8, 6))
+
+for j, w in enumerate(w_ls):
+
     k1 =  0
     p = 2
 
@@ -108,14 +125,77 @@ for lam_to_l in lam_ls:
     wp_values = [Wp(w, k1, tau, p) for tau in tau_vals]
 
     # Plotting
-    plt.plot(tau_vals* 1e6, wp_values, label=rf'$\lambda = {lam_to_l} \ell$')
-    plt.xlabel(rf'$\tau$')
-    plt.ylabel(rf'$W^\infty_{p}(w, k1, \tau)$')
-    plt.title(rf'$W^\infty_{p}$ vs $\tau$')
-    plt.legend()
+    rval = ratio[j]
+    if rval.is_integer():
+        label = rf'$R_{{\lambda/\ell}} = {int(rval)}$'
+    else:
+        label = rf'$R_{{\lambda/\ell}} = {rval:.1f}$'
+    
+    plt.plot(tau_vals* 1e6, wp_values, label=label)
+    plt.xlabel(rf'$\tau$', fontsize=18)
+    plt.ylabel(rf'$W^\infty_{p}(w, \kappa_1, \tau)$', fontsize=18)
+    plt.legend(fontsize=12)
+    plt.tick_params(labelsize=14)  # for tick labels
 
 plt.savefig(Path(IMAGE_DIR_WIN, fr'wavelength_dependence_second_moment.png'))
 
+
+
+w = 3e6 / 1.5
+
+k1_rate = np.array([0.1,  0.3, 0.5])
+k1_ls =  k1_rate * w / np.sqrt(c66/rho)
+
+plt.figure(figsize=(8, 6))
+
+for j, k1 in enumerate(k1_ls):
+
+    p = 1
+
+    # Tau range
+    tau_vals = np.arange(0, 10e-6, 1e-8)
+    wp_values = [Wp(w, k1, tau, p) for tau in tau_vals]
+
+    # Plotting
+    rval = k1_rate[j]
+    if rval.is_integer():
+        label = rf'$\alpha = {int(rval)}$'
+    else:
+        label = rf'$\alpha = {rval:.1f}$'
+    
+    plt.plot(tau_vals* 1e6, wp_values, label=label)
+    plt.xlabel(rf'$\tau$', fontsize=18)
+    plt.ylabel(rf'$W^\infty_{p}(w, \kappa_1, \tau)$', fontsize=18)
+    plt.legend(fontsize=12)
+    plt.tick_params(labelsize=14)  # for tick labels
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'k1_dependence_first_moment.png'))
+
+
+plt.figure(figsize=(8, 6))
+
+for j, k1 in enumerate(k1_ls):
+
+    p = 2
+
+    # Tau range
+    tau_vals = np.arange(0, 10e-6, 1e-8)
+    wp_values = [Wp(w, k1, tau, p) for tau in tau_vals]
+
+    # Plotting
+    rval = k1_rate[j]
+    if rval.is_integer():
+        label = rf'$\alpha = {int(rval)}$'
+    else:
+        label = rf'$\alpha = {rval:.1f}$'
+    
+    plt.plot(tau_vals* 1e6, wp_values, label=label)
+    plt.xlabel(rf'$\tau$', fontsize=18)
+    plt.ylabel(rf'$W^\infty_{p}(w, \kappa_1, \tau)$', fontsize=18)
+    plt.legend(fontsize=12)
+    plt.tick_params(labelsize=14)  # for tick labels
+
+plt.savefig(Path(IMAGE_DIR_WIN, fr'k1_dependence_second_moment.png'))
 
 
 

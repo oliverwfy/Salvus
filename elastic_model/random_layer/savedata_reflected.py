@@ -39,8 +39,8 @@ t_prop_2 = (1/4*ref_layer * 2 ) / v_ref
 
 n_rxs = 101
 
-N = 200
-project_name = fr'layers_20_realization_100_angle_30_ref_0_doublewavelength'
+N = 1
+project_name = fr'layers_20_realization_{N}_shwave'
 
 
 simulation_name_ref = 'ref_model'

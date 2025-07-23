@@ -18,18 +18,17 @@ IMAGE_DIR_WIN = '/mnt/d/Salvus_project/elastic_model/anisotropic/image'
 computation_time = np.load(Path(DATA_DIR_WIN,'computation_time.npy'))
 dofs_nodal_nodes = np.load(Path(DATA_DIR_WIN,'dofs_nodal_nodes.npy'))
 
+f_c = 3*1e6         # centre freuency     
 
-elements_per_wavelength_ls = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5]
+elements_per_wavelength_ls = [1, 2, 3, 4, 5]
 model_order_ls = [4]
 
-f_c = 3*1e6             # centre freuency     
-end_time = 40*1e-6      # waveform simulation temporal parameters
 
+ratio = 2
 
-n_rxs = 101
-project_name = fr'validation'
+project_name = fr'validation_layersize_{ratio}'
 
-u_3 = u_3 = np.zeros((len(elements_per_wavelength_ls), len(model_order_ls), 1500))
+u_3 = np.zeros((len(elements_per_wavelength_ls), len(model_order_ls), 1500))
 
 
 
@@ -61,34 +60,37 @@ for i, elements_per_wavelength in enumerate(elements_per_wavelength_ls):
         rmse[i,j] = np.sqrt(np.sum(u_3_ref[i,j,:] **2))
         
 
-np.save(Path(DATA_DIR_WIN,'rmse.npy'), rmse)
+# rmse /= np.linalg.norm(u_3[-1,0,:])
+rmse /= rmse[0,0]
+
+np.save(Path(DATA_DIR_WIN,fr'rmse_layersize_{ratio}.npy'), rmse)
 
 plt.figure()
-plt.plot(time[240:241*3-2,:]*1e6, u_3[3,0,240:241*3-2])
-plt.plot(time[240:241*3-2,:]*1e6, u_3[5,0,240:241*3-2])
-plt.plot(time[240:241*3-2,:]*1e6, u_3[7,0,240:241*3-2])
+plt.plot(time[240:241*3-2,:]*1e6, u_3[1,0,240:241*3-2])
+plt.plot(time[240:241*3-2,:]*1e6, u_3[2,0,240:241*3-2])
+plt.plot(time[240:241*3-2,:]*1e6, u_3[4,0,240:241*3-2])
 
 plt.ylabel(rf'$u_2$')
 plt.xlabel('Time (us)')
-plt.legend(['2', '3', '4'])
-plt.savefig(Path(IMAGE_DIR_WIN, fr'element_per_wavelength.png'))
+plt.legend(['2', '3', '5'])
+plt.savefig(Path(IMAGE_DIR_WIN, fr'element_per_wavelength_layersize_{ratio}.png'))
 
 
 plt.figure()
-plt.plot(elements_per_wavelength_ls, rmse[:9,:])
+plt.plot(elements_per_wavelength_ls, rmse)
 
-plt.ylabel(rf'RMSE')
+plt.ylabel(rf'Normalized RMSE')
 plt.xlabel('element per wavelength')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'RMSE.png'))
+plt.savefig(Path(IMAGE_DIR_WIN, fr'RMSE_layersize_{ratio}.png'))
 
 
 
 plt.figure()
-plt.plot(elements_per_wavelength_ls, computation_time[:9,:])
+plt.plot(elements_per_wavelength_ls, computation_time)
 
 plt.ylabel('computation time (s)')
 plt.xlabel('element per wavelength')
-plt.savefig(Path(IMAGE_DIR_WIN, fr'computation_time.png'))
+plt.savefig(Path(IMAGE_DIR_WIN, fr'computation_time_layersize_{ratio}.png'))
 
 
 
@@ -96,7 +98,7 @@ plt.savefig(Path(IMAGE_DIR_WIN, fr'computation_time.png'))
 fig, ax1 = plt.subplots(figsize=(8, 5))  # Optional: adjust figure size
 
 # Plot RMSE on left y-axis
-line1 = ax1.plot(elements_per_wavelength_ls, rmse[:9, :], label='RMSE', color='tab:blue')
+line1 = ax1.plot(elements_per_wavelength_ls, rmse, label='Relative RMSE', color='tab:blue')
 ax1.set_xlabel('Element per wavelength', fontsize=12)
 ax1.set_ylabel('RMSE', color='tab:blue', fontsize=12)
 ax1.tick_params(axis='both', labelsize=10, colors='tab:blue')
@@ -105,7 +107,7 @@ ax1.tick_params(axis='x', colors='black')
 
 # Create right y-axis
 ax2 = ax1.twinx()
-line2 = ax2.plot(elements_per_wavelength_ls, computation_time[:9, :], label='Computation time', color='tab:red')
+line2 = ax2.plot(elements_per_wavelength_ls, computation_time, label='Computation time', color='tab:red')
 ax2.set_ylabel('Computation time (s)', color='tab:red', fontsize=12)
 ax2.tick_params(axis='y', labelsize=10, colors='tab:red')
 
@@ -116,4 +118,32 @@ ax1.legend(lines, labels, fontsize=10, loc='best')
 
 # Save and show plot
 plt.tight_layout()
-plt.savefig(Path(IMAGE_DIR_WIN, 'RMSE_and_computation_time.png'), dpi=300)
+plt.savefig(Path(IMAGE_DIR_WIN, fr'RMSE_and_computation_time_layersize_{ratio}.png'), dpi=300)
+
+
+
+# ratio_ls = [0.25, 0.5,  1]
+
+
+
+
+
+# u3_ls = []
+# for ratio in ratio_ls:
+
+
+#     u3_ls.append(np.load(Path(DATA_DIR_WIN,fr'rmse_layersize_{ratio}.npy')))
+# plt.figure()
+
+
+# plt.plot(elements_per_wavelength_ls, u3_ls[0], label=fr'ratio={ratio_ls[0]}')
+# plt.plot(elements_per_wavelength_ls, u3_ls[1], label=fr'ratio={ratio_ls[1]}')
+# plt.plot(elements_per_wavelength_ls, u3_ls[2], label=fr'ratio={ratio_ls[2]}')
+# plt.legend()
+
+
+
+# plt.ylabel(rf'Normalized RMSE')
+# plt.xlabel('element per wavelength')
+# plt.savefig(Path(IMAGE_DIR_WIN, fr'RMSE_layersize.png'), dpi=300)
+

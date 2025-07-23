@@ -2,17 +2,25 @@ import re
 import numpy as np
 from pathlib import Path
 from collections import namedtuple
+import dataclasses
+import salvus.namespace as sn
+from salvus.flow.simple_config.source.cartesian import VectorPoint2D, VectorPoint3D,ScalarPoint2D
+from salvus.flow.simple_config.receiver.cartesian import Point2D, Point3D
 
 
 
 
 
 def add_events_to_Project(Project, events):
-    for event in Project.events.list():
-        Project.events.delete(event) 
     for event in events:
         Project.add_to_project(event)
     return None
+
+def add_inversion(Project, inv_config):
+    Project+= inv_config
+    return None
+
+
 
 def reorder_list(lst, order):
     return [lst[i] for i in order]
@@ -182,4 +190,83 @@ def generate_random_layer_v2(L, l_mean, n_layer, seed=None, orientation=np.pi/6)
     theta_ls = [ np.round( np.random.uniform(low=-orientation*w, high=orientation*w), 6) for w in y]
 
     return np.round(l_ls, 6), theta_ls
+
+
+
+@dataclasses.dataclass
+class ArrayTransducer2D:
+    nx: int
+    dx: float
+    x0: float
+    source_y : list[float] = dataclasses.field(
+        default_factory=lambda: [0.001, 0.009]
+    )
+    array_name: str = "array_0"
+    
+    recording_fields: list[str] = dataclasses.field(
+        default_factory=lambda: ["phi"]
+    )
+    
+
+    
+    def test_within_domain(self, domain: sn.domain.Domain) -> bool:
+        x_bounds = domain.bounds.hc["x"]
+        array_x_bounds = (self.x0, self.x0 + (self.nx - 1) * self.dx)
+        return (x_bounds[0] <= array_x_bounds[0] and array_x_bounds[1] <= x_bounds[1])
+    
+    
+    def create_salvus_source_receivers(self, source_index: int, source_y: float, f_source: int = 1):
+        if source_index < 0 or source_index >= self.nx:
+            raise ValueError("Source index out of range.")
+        
+        array_coordinates = np.zeros((self.nx))
+        for i in range(self.nx):
+            array_coordinates[i] = self.x0 + i * self.dx
+            
+        # source position
+        source_x = array_coordinates[source_index]
+        
+        receivers = []
+        source = ScalarPoint2D(x=source_x, y=source_y, f=f_source) 
+        # sn.simple_config.source.cartesian.SideSetScalarPoint2D(
+        # # Note that this 0 for Y is used for starting the projection
+        # # on the side set, it is not the coordinate of the source.
+        # point=(source_x, 0),
+        # f=f_source,
+        # direction="y",
+        # side_set_name=source_side,
+        # )    
+        
+
+        
+                            
+        receivers += [
+            Point2D(x=array_coordinates[i], y= y,
+                station_code = f"{self.array_name}_y{j}_x{i:03d}",
+                fields=self.recording_fields,
+            )
+            for i in range(self.nx)
+            for j,y in enumerate(self.source_y)
+        ]
+            
+            # [
+            # sn.simple_config.receiver.cartesian.SideSetPoint2D(
+            #     direction="y",
+            #     point=(
+            #         array_coordinates[i],
+            #         0,
+            #     ),
+            #     # Note that we're using leading zeros, but if nx/ny is
+            #     # really high this needs to be scaled up.
+            #     station_code = f"{self.array_name}_{side_set}_x{i:03d}",
+            #     fields=self.recording_fields,
+            #     side_set_name=side_set,
+            # )
+            # for i in range(self.nx)
+            # for y in self.source_y
+            # ]
+        
+        return source, receivers
+        
+        
 
