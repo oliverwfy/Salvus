@@ -39,7 +39,7 @@ CENTRAL_FREQUENCY = 1.5e6  # MHz
 
 assert CENTRAL_FREQUENCY >= 1.5e6
 
-PROJECT_NAME = f"tomography_heterogeneous_2"
+PROJECT_NAME = f"tomography_heterogeneous_n"
 
 
 x0, x1 = 0.0, 0.01
@@ -60,12 +60,12 @@ homogeneous_model = lm.LayeredModel(
 
 homogeneous_model_ab = sn.layered_meshing.MeshingProtocol(
     homogeneous_model,
-    # ab=salvus.mesh.simple_mesh.basic_mesh.AbsorbingBoundaryParameters(
-    #     free_surface=['y0','y1'],
-    #     number_of_wavelengths=1.5,
-    #     reference_velocity=5000,
-    #     reference_frequency=CENTRAL_FREQUENCY * 2,
-    # ),
+    ab=salvus.mesh.simple_mesh.basic_mesh.AbsorbingBoundaryParameters(
+        free_surface=['y0','y1'],
+        number_of_wavelengths=1.5,
+        reference_velocity=5000,
+        reference_frequency=CENTRAL_FREQUENCY * 2,
+    ),
 )
 
 mesh_homogeneous = lm.mesh_from_domain(
@@ -218,76 +218,76 @@ p.viz.nb.simulation_setup(
 )
 
 
-p.simulations.launch(
-    simulation_configuration="sc_mesh_homogeneous_scatters",
-    events=p.events.list(),
-    site_name=SITE_NAME,
-    ranks_per_job=RANKS,
-)
+# p.simulations.launch(
+#     simulation_configuration="sc_mesh_homogeneous_scatters",
+#     events=p.events.list(),
+#     site_name=SITE_NAME,
+#     ranks_per_job=RANKS,
+# )
 
 
-p.simulations.query(block=True)
+# p.simulations.query(block=True)
 
 
-# The misfit configuration defines how synthetics are compared to observed data.
-p += sn.MisfitConfiguration(
-    name="L2_misfit_for_homo_model",
-    # Could be observed data. Here we compare to the synthetic target.
-    observed_data="sc_mesh_homogeneous_scatters",
-    # Salvus comes with a variety of misfit functions. You can
-    # also define your own.
-    misfit_function="L2",
-    # This is an acoustic simulation so we'll use recordings of phi.
-    receiver_field="phi",
-)
+# # The misfit configuration defines how synthetics are compared to observed data.
+# p += sn.MisfitConfiguration(
+#     name="L2_misfit_for_homo_model",
+#     # Could be observed data. Here we compare to the synthetic target.
+#     observed_data="sc_mesh_homogeneous_scatters",
+#     # Salvus comes with a variety of misfit functions. You can
+#     # also define your own.
+#     misfit_function="L2",
+#     # This is an acoustic simulation so we'll use recordings of phi.
+#     receiver_field="phi",
+# )
 
 
 
-event_names_imaging = p.events.list()
+# event_names_imaging = p.events.list()
 
 
-invconfig = sn.InverseProblemConfiguration(
-    name="inversion_L2",
-    # Starting model is the model without scatterers.
-    prior_model="sc_mesh_homogeneous",
-    # The events to use.
-    events=event_names_imaging,
-    misfit_configuration="L2_misfit_for_homo_model",
-    # What parameters to invert for.
-    mapping=sn.Mapping(
-        scaling="relative_deviation_from_prior",
-        inversion_parameters=["VP"],
-        region_of_interest=mesh_roi,
-        # postprocess_model_update = tensor_to_orientation
-    ),
-    # The inversion method and its settings.
-    method=sn.TrustRegion(initial_trust_region_linf=1.0),
-    # The misfit configuration we defined above.
+# invconfig = sn.InverseProblemConfiguration(
+#     name="inversion_L2",
+#     # Starting model is the model without scatterers.
+#     prior_model="sc_mesh_homogeneous",
+#     # The events to use.
+#     events=event_names_imaging,
+#     misfit_configuration="L2_misfit_for_homo_model",
+#     # What parameters to invert for.
+#     mapping=sn.Mapping(
+#         scaling="relative_deviation_from_prior",
+#         inversion_parameters=["VP"],
+#         region_of_interest=mesh_roi,
+#         # postprocess_model_update = tensor_to_orientation
+#     ),
+#     # The inversion method and its settings.
+#     method=sn.TrustRegion(initial_trust_region_linf=1.0),
+#     # The misfit configuration we defined above.
     
-    # Compress the forward wavefield by subsampling in time.
-    wavefield_compression=sn.WavefieldCompression(
-        forward_wavefield_sampling_interval=10
-    ),
-    # Job submission settings.
-    job_submission=sn.SiteConfig(site_name=SITE_NAME, ranks_per_job=RANKS),
-)
+#     # Compress the forward wavefield by subsampling in time.
+#     wavefield_compression=sn.WavefieldCompression(
+#         forward_wavefield_sampling_interval=10
+#     ),
+#     # Job submission settings.
+#     job_submission=sn.SiteConfig(site_name=SITE_NAME, ranks_per_job=RANKS),
+# )
 
-add_inversion(p, invconfig)
+# add_inversion(p, invconfig)
 
 
 
-p.inversions.set_job_submission_configuration(
-    "inversion_L2", sn.SiteConfig(site_name=SITE_NAME, ranks_per_job=RANKS)
-)
+# p.inversions.set_job_submission_configuration(
+#     "inversion_L2", sn.SiteConfig(site_name=SITE_NAME, ranks_per_job=RANKS)
+# )
 
-# Lastly we perform two iterations, and have a look at the results.
-for i in range(10):
+# # Lastly we perform two iterations, and have a look at the results.
+# for i in range(10):
     
-    p.inversions.iterate(
-        inverse_problem_configuration="inversion_L2",
-        timeout_in_seconds=360,
-        ping_interval_in_seconds=10,
-        delete_disposable_files="all",
-    )
+#     p.inversions.iterate(
+#         inverse_problem_configuration="inversion_L2",
+#         timeout_in_seconds=360,
+#         ping_interval_in_seconds=10,
+#         delete_disposable_files="all",
+#     )
     
 

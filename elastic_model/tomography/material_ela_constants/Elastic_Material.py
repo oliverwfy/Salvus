@@ -36,14 +36,20 @@ def transformation_T(Q):
     numpy.ndarray: 6x6 transformation matrix.
     """
     T = np.array([
-        [Q[0, 0]**2, Q[0, 1]**2, Q[0, 2]**2, 2*Q[0, 1]*Q[0, 2], 2*Q[0, 0]*Q[0, 2], 2*Q[0, 0]*Q[0, 1]],
-        [Q[1, 0]**2, Q[1, 1]**2, Q[1, 2]**2, 2*Q[1, 1]*Q[1, 2], 2*Q[1, 0]*Q[1, 2], 2*Q[1, 0]*Q[1, 1]],
-        [Q[2, 0]**2, Q[2, 1]**2, Q[2, 2]**2, 2*Q[2, 1]*Q[2, 2], 2*Q[2, 0]*Q[2, 2], 2*Q[2, 0]*Q[2, 1]],
-        [2*Q[1, 0]*Q[2, 0], 2*Q[1, 1]*Q[2, 1], 2*Q[1, 2]*Q[2, 2], Q[1, 1]*Q[2, 2] + Q[1, 2]*Q[2, 1], Q[1, 0]*Q[2, 2] + Q[1, 2]*Q[2, 0], Q[1, 0]*Q[2, 1] + Q[1, 1]*Q[2, 0]],
-        [2*Q[0, 0]*Q[2, 0], 2*Q[0, 1]*Q[2, 1], 2*Q[0, 2]*Q[2, 2], Q[0, 1]*Q[2, 2] + Q[0, 2]*Q[2, 1], Q[0, 0]*Q[2, 2] + Q[0, 2]*Q[2, 0], Q[0, 0]*Q[2, 1] + Q[0, 1]*Q[2, 0]],
-        [2*Q[0, 0]*Q[1, 0], 2*Q[0, 1]*Q[1, 1], 2*Q[0, 2]*Q[1, 2], Q[0, 1]*Q[1, 2] + Q[0, 2]*Q[1, 1], Q[0, 0]*Q[1, 2] + Q[0, 2]*Q[1, 0], Q[0, 0]*Q[1, 1] + Q[0, 1]*Q[1, 0]]
-    ])
-    return T
+        [Q[0,0]**2, Q[0,1]**2, Q[0,2]**2, 2*Q[0,1]*Q[0,2], 2*Q[0,0]*Q[0,2], 2*Q[0,0]*Q[0,1]],
+        [Q[1,0]**2, Q[1,1]**2, Q[1,2]**2, 2*Q[1,1]*Q[1,2], 2*Q[1,0]*Q[1,2], 2*Q[1,0]*Q[1,1]],
+        [Q[2,0]**2, Q[2,1]**2, Q[2,2]**2, 2*Q[2,1]*Q[2,2], 2*Q[2,0]*Q[2,2], 2*Q[2,0]*Q[2,1]],
+        [2*Q[1,0]*Q[2,0], 2*Q[1,1]*Q[2,1], 2*Q[1,2]*Q[2,2],
+         Q[1,1]*Q[2,2] + Q[1,2]*Q[2,1], Q[1,0]*Q[2,2] + Q[1,2]*Q[2,0], Q[1,0]*Q[2,1] + Q[1,1]*Q[2,0]],
+        [2*Q[0,0]*Q[2,0], 2*Q[0,1]*Q[2,1], 2*Q[0,2]*Q[2,2],
+         Q[0,1]*Q[2,2] + Q[0,2]*Q[2,1], Q[0,0]*Q[2,2] + Q[0,2]*Q[2,0], Q[0,0]*Q[2,1] + Q[0,1]*Q[2,0]],
+        [2*Q[0,0]*Q[1,0], 2*Q[0,1]*Q[1,1], 2*Q[0,2]*Q[1,2],
+         Q[0,1]*Q[1,2] + Q[0,2]*Q[1,1], Q[0,0]*Q[1,2] + Q[0,2]*Q[1,0], Q[0,0]*Q[1,1] + Q[0,1]*Q[1,0]],
+    ], dtype=float)
+    
+    S = np.diag([1,1,1,2,2,2])
+    return np.linalg.inv(S) @ T @ S
+
 
 
 def rotated_elasticityTensor(C, theta):
@@ -148,10 +154,13 @@ class Austenite:
         C[2,2] = self.C33
         C[3,3] = self.C44
         C[4,4] = self.C55
-        C[5,5] = (self.C11 - self.C12) / 2
+        C[5,5] = self.C66
         
-        C = (C + C.T) / 2.0
-        return C
+        M = C + C.T                 # sum (not average)
+        di = np.diag_indices_from(M)
+        M[di] *= 0.5                # halve only the diagonal
+        return M    
+    
     
     def rotated_tensor(self, theta):
         return rotated_elasticityTensor(self.tensor(), theta)
@@ -184,6 +193,16 @@ class Austenite:
         }
         return params
 
+    def VTI_parameters(self):
+        return {
+        "rho": self.RHO, 
+        "c11": self.C11,
+        "c12": self.C12,
+        "c13": self.C13,
+        "c33": self.C33,
+        "c44": self.C44,
+        }
+    
     def rotated_parameters(self, theta):
         rotated_C = self.rotated_tensor(theta)
         return {

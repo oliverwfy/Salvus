@@ -184,6 +184,17 @@ class Austenite:
         }
         return params
 
+    def VTI_parameters(self, theta):
+        return {
+        "rho": self.RHO, 
+        "c11": self.C11,
+        "c12": self.C12,
+        "c13": self.C13,
+        "c33": self.C33,
+        "c44": self.C44,
+
+        }
+    
     def rotated_parameters(self, theta):
         rotated_C = self.rotated_tensor(theta)
         return {

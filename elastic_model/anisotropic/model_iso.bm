@@ -1,7 +1,0 @@
-NAME         layered_model
-ELATIC       true
-ANISOTROPIC  false
-UNITS        m
-COLUMNS      depth rho vp vs 
- 0.0    8100    5700.33570594696    3189.4889098682943  
-0.02    8100    5700.33570594696    3189.4889098682943  

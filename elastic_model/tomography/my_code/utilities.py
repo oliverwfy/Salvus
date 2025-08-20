@@ -194,10 +194,50 @@ def generate_random_layer_v2(L, l_mean, n_layer, seed=None, orientation=np.pi/6)
 
 
 @dataclasses.dataclass
+class Transducers_2D:
+    n_tx :  int
+    n_rx :  int
+    edge_gap :  float
+    domain : tuple
+    f_dir : str = "y"
+    recording_fields: list[str] = dataclasses.field(
+        default_factory=lambda: ["displacement"])
+    
+    def create_salvus_source_receivers(self):
+        if self.f_dir == 'y':
+            src_pos = [(np.round(x, 5) , np.round(self.domain[3] * self.edge_gap, 5))
+                       for x in np.linspace(self.domain[0], self.domain[1], self.n_tx+2)[1:-1]]
+            rx_pos = [(np.round(x, 5) , np.round(self.domain[3] * (1-self.edge_gap), 5))
+                       for x in np.linspace(self.domain[0], self.domain[1], self.n_rx+2)[1:-1]]
+            
+            srcs = [VectorPoint2D(x=s[0],y=s[1], fx=0, fy=1e9) for s in src_pos]
+            rxs = [Point2D(x=r[0], y=r[1], station_code=f"REC{i + 1}",
+                           fields=self.recording_fields,) 
+                   for i, r in enumerate(rx_pos)
+                   ]
+        # elif self.f_dir == 'x':
+            # src_pos = [(np.round(x, 5) , np.round(self.domain[3] * self.edge_gap, 5))
+            #            for x in np.linspace(self.domain[0], self.domain[1], self.n_tx+2)[1:-1]]
+            # rx_pos = [(np.round(x, 5) , np.round(self.domain[3] * self.edge_gap, 5))
+            #            for x in np.linspace(self.domain[0], self.domain[1], self.n_rx+2)[1:-1]]
+            # rx_pos += [(np.round(x, 5) , np.round(self.domain[3] * (1-self.edge_gap), 5))
+            #            for x in np.linspace(self.domain[0], self.domain[1], self.n_rx+2)[1:-1]]
+            
+            # srcs = [VectorPoint2D(x=s.x,y=s.y, fx=0, fy=1) for s in src_pos]
+            # rxs = [Point2D(x=r.x, y=r.y, station_code=f"REC{i + 1}",
+            #                fields=self.recording_fields,) 
+            #        for i, r in enumerate(rx_pos)
+            #        ]
+            
+        return srcs, rxs
+
+
+@dataclasses.dataclass
 class ArrayTransducer2D:
     nx: int
     dx: float
     x0: float
+    f_dir: tuple
     source_y : list[float] = dataclasses.field(
         default_factory=lambda: [0.001, 0.009]
     )
@@ -227,7 +267,7 @@ class ArrayTransducer2D:
         source_x = array_coordinates[source_index]
         
         receivers = []
-        source = ScalarPoint2D(x=source_x, y=source_y, f=f_source) 
+        source = VectorPoint2D(x=source_x, y=source_y, fx= self.f_dir[0], fy= self.f_dir[1]) 
         # sn.simple_config.source.cartesian.SideSetScalarPoint2D(
         # # Note that this 0 for Y is used for starting the projection
         # # on the side set, it is not the coordinate of the source.
