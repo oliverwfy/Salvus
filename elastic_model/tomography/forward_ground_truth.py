@@ -187,7 +187,7 @@ Mesh Generation and Simulation
 '''
 
 
-elements_per_wavelength = 4
+elements_per_wavelength = 5
 model_order = 4
 
 
@@ -332,8 +332,8 @@ centroids = mesh_no_grains.get_element_centroid()
 roi = (centroids[:,0] <= domain[1]) & (centroids[:,0] >= domain[0]) & (centroids[:,1] <= domain[3]) & (centroids[:,1] >= domain[2])
 
 mesh_roi = mesh_no_grains.copy()
-fields = [field for field in mesh_roi.elemental_fields]
-for field in fields:
+ele_fields = [field for field in mesh_roi.elemental_fields]
+for field in ele_fields:
     mesh_roi.elemental_fields.pop(field)
 mesh_roi.attach_field(
     "region_of_interest",
@@ -350,21 +350,21 @@ mesh_roi.attach_field(
 
 
 
-"""
-Launch simulations
+# """
+# Launch simulations
 
-"""
+# """
 
-start_time = datetime.now()
+# start_time = datetime.now()
 
 
-p.simulations.launch(
-    ranks_per_job=RANKS_PER_JOB,
-    site_name=SALVUS_FLOW_SITE_NAME,
-    events=p.events.list(),
-    simulation_configuration=simulation_name,
-    delete_conflicting_previous_results=True,
-    )
+# p.simulations.launch(
+#     ranks_per_job=RANKS_PER_JOB,
+#     site_name=SALVUS_FLOW_SITE_NAME,
+#     events=p.events.list(),
+#     simulation_configuration=simulation_name,
+#     delete_conflicting_previous_results=True,
+#     )
 
 
 # # simulation with volume data (full wavefield)
@@ -388,83 +388,83 @@ p.simulations.launch(
 
 
 
-p.simulations.query(block=True)
+# p.simulations.query(block=True)
 
 
-time_end = datetime.now()
+# time_end = datetime.now()
 
 
-execution_time_seconds = (time_end - start_time).total_seconds()
-minutes = int(execution_time_seconds // 60)  # Extract minutes
-seconds = execution_time_seconds % 60  # Extract remaining seconds
+# execution_time_seconds = (time_end - start_time).total_seconds()
+# minutes = int(execution_time_seconds // 60)  # Extract minutes
+# seconds = execution_time_seconds % 60  # Extract remaining seconds
 
-print(f"Execution time: {minutes} minutes and {seconds:.2f} seconds")
-
-
-
-
-misfitname = 'L2_misfit_for_hetero_model'
-
-# The misfit configuration defines how synthetics are compared to observed data.
-p += sn.MisfitConfiguration(
-    name=misfitname,
-    # Could be observed data. Here we compare to the synthetic target.
-    observed_data=simulation_name,
-    # Salvus comes with a variety of misfit functions. You can
-    # also define your own.
-    misfit_function="L2",
-    # This is an acoustic simulation so we'll use recordings of phi.
-    receiver_field=fields[0],
-)
-
-event_names_imaging = p.events.list()
+# print(f"Execution time: {minutes} minutes and {seconds:.2f} seconds")
 
 
 
 
+# misfitname = 'L2_misfit_for_hetero_model'
 
-invconfig = sn.InverseProblemConfiguration(
-    name="inversion_L2",
-    # Starting model is the model without scatterers.
-    prior_model=simulation_name_prior,
-    # The events to use.
-    events=event_names_imaging,
-    misfit_configuration=misfitname,
-    # What parameters to invert for.
-    mapping=sn.Mapping(
-        scaling="absolute",
-        inversion_parameters=["VP", "VS"],
-        region_of_interest=mesh_roi,
-        # postprocess_model_update = tensor_to_orientation
-    ),
-    # preconditioner=sn.ConstantSmoothing({"VP": 0.5e-3}),
+# # The misfit configuration defines how synthetics are compared to observed data.
+# p += sn.MisfitConfiguration(
+#     name=misfitname,
+#     # Could be observed data. Here we compare to the synthetic target.
+#     observed_data=simulation_name,
+#     # Salvus comes with a variety of misfit functions. You can
+#     # also define your own.
+#     misfit_function="L2",
+#     # This is an acoustic simulation so we'll use recordings of phi.
+#     receiver_field=fields[0],
+# )
+
+# event_names_imaging = p.events.list()
+
+
+
+
+
+# invconfig = sn.InverseProblemConfiguration(
+#     name="inversion_L2",
+#     # Starting model is the model without scatterers.
+#     prior_model=simulation_name_prior,
+#     # The events to use.
+#     events=event_names_imaging,
+#     misfit_configuration=misfitname,
+#     # What parameters to invert for.
+#     mapping=sn.Mapping(
+#         scaling="absolute",
+#         inversion_parameters=["VP", "VS"],
+#         region_of_interest=mesh_roi,
+#         # postprocess_model_update = tensor_to_orientation
+#     ),
+#     # preconditioner=sn.ConstantSmoothing({"VP": 0.5e-3}),
     
-    # The inversion method and its settings.
-    method=sn.TrustRegion(initial_trust_region_linf=10.0),
-    # The misfit configuration we defined above.
+#     # The inversion method and its settings.
+#     method=sn.TrustRegion(initial_trust_region_linf=10.0),
+#     # The misfit configuration we defined above.
     
-    # Compress the forward wavefield by subsampling in time.
-    wavefield_compression=sn.WavefieldCompression(
-        forward_wavefield_sampling_interval=10
-    ),
-    # Job submission settings.
-    job_submission=sn.SiteConfig(site_name=SALVUS_FLOW_SITE_NAME, ranks_per_job=RANKS_PER_JOB),
-)
+#     # Compress the forward wavefield by subsampling in time.
+#     wavefield_compression=sn.WavefieldCompression(
+#         forward_wavefield_sampling_interval=10
+#     ),
+#     # Job submission settings.
+#     job_submission=sn.SiteConfig(site_name=SALVUS_FLOW_SITE_NAME, ranks_per_job=RANKS_PER_JOB),
+# )
 
-add_inversion(p, invconfig)
+# add_inversion(p, invconfig)
 
 
-p.inversions.set_job_submission_configuration(
-    "inversion_L2", sn.SiteConfig(site_name=SALVUS_FLOW_SITE_NAME, ranks_per_job=RANKS_PER_JOB)
-)
+# p.inversions.set_job_submission_configuration(
+#     "inversion_L2", sn.SiteConfig(site_name=SALVUS_FLOW_SITE_NAME, ranks_per_job=RANKS_PER_JOB)
+# )
 
-# Lastly we perform two iterations, and have a look at the results.
-for i in range(10):
+# # Lastly we perform two iterations, and have a look at the results.
+# for i in range(10):
     
-    p.inversions.iterate(
-        inverse_problem_configuration="inversion_L2",
-        timeout_in_seconds=360,
-        ping_interval_in_seconds=50,
-        delete_disposable_files="all",
-    )
+#     p.inversions.iterate(
+#         inverse_problem_configuration="inversion_L2",
+#         timeout_in_seconds=360,
+#         ping_interval_in_seconds=50,
+#         delete_disposable_files="all",
+#     )
     

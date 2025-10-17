@@ -1,0 +1,380 @@
+{
+    "XX.000003.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.01748323,
+            "y": 0.01500013,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000003"
+        }
+    },
+    "XX.000004.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.016363963000000002,
+            "y": 0.016363963000000002,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000004"
+        }
+    },
+    "XX.000005.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.01500013,
+            "y": 0.01748323,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000005"
+        }
+    },
+    "XX.000006.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.013444147,
+            "y": 0.01831492,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000006"
+        }
+    },
+    "XX.000007.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.01175581,
+            "y": 0.018827065,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000007"
+        }
+    },
+    "XX.000008.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.01,
+            "y": 0.019,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000008"
+        }
+    },
+    "XX.000009.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.00824419,
+            "y": 0.018827065,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000009"
+        }
+    },
+    "XX.000010.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.006555853,
+            "y": 0.01831492,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000010"
+        }
+    },
+    "XX.000011.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.004999870000000001,
+            "y": 0.01748323,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000011"
+        }
+    },
+    "XX.000012.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.003636037,
+            "y": 0.016363963000000002,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000012"
+        }
+    },
+    "XX.000013.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.0025167700000000006,
+            "y": 0.01500013,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000013"
+        }
+    },
+    "XX.000014.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.0016850800000000003,
+            "y": 0.013444147,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000014"
+        }
+    },
+    "XX.000015.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.001172935,
+            "y": 0.01175581,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000015"
+        }
+    },
+    "XX.000016.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.0010000000000000009,
+            "y": 0.01,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000016"
+        }
+    },
+    "XX.000017.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.001172935,
+            "y": 0.00824419,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000017"
+        }
+    },
+    "XX.000018.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.0016850800000000003,
+            "y": 0.006555853,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000018"
+        }
+    },
+    "XX.000019.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.0025167700000000006,
+            "y": 0.004999870000000001,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000019"
+        }
+    },
+    "XX.000020.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.003636037,
+            "y": 0.003636037,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000020"
+        }
+    },
+    "XX.000021.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.004999870000000001,
+            "y": 0.0025167700000000006,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000021"
+        }
+    },
+    "XX.000022.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.006555853,
+            "y": 0.0016850800000000003,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000022"
+        }
+    },
+    "XX.000023.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.00824419,
+            "y": 0.001172935,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000023"
+        }
+    },
+    "XX.000024.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.01,
+            "y": 0.0010000000000000009,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000024"
+        }
+    },
+    "XX.000025.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.01175581,
+            "y": 0.001172935,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000025"
+        }
+    },
+    "XX.000026.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.013444147,
+            "y": 0.0016850800000000003,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000026"
+        }
+    },
+    "XX.000027.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.01500013,
+            "y": 0.0025167700000000006,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000027"
+        }
+    },
+    "XX.000028.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.016363963000000002,
+            "y": 0.003636037,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000028"
+        }
+    },
+    "XX.000029.": {
+        "class_name": "salvus.flow.simple_config.receiver.cartesian.Point2D",
+        "salvus_version": "2025.1.2",
+        "arguments": {
+            "network_code": "XX",
+            "location_code": "",
+            "x": 0.01748323,
+            "y": 0.004999870000000001,
+            "fields": [
+                "displacement"
+            ],
+            "station_code": "000029"
+        }
+    }
+}

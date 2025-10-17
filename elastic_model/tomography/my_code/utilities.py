@@ -6,8 +6,34 @@ import dataclasses
 import salvus.namespace as sn
 from salvus.flow.simple_config.source.cartesian import VectorPoint2D, VectorPoint3D,ScalarPoint2D
 from salvus.flow.simple_config.receiver.cartesian import Point2D, Point3D
+from dataclasses import dataclass
+from pathlib import Path
+from collections import Counter
+from typing import Optional, Tuple
 
+import pandas as pd
+import cv2
+from PIL import Image
+import matplotlib.pyplot as plt
 
+import sys
+
+def get_script_dir() -> Path:
+    # PyInstaller / frozen exe
+    if getattr(sys, "frozen", False):
+        # directory of the executable
+        exe_dir = Path(sys.executable).resolve().parent
+        # if you bundled data with PyInstaller, they live under sys._MEIPASS
+        meipass = getattr(sys, "_MEIPASS", None)
+        return Path(meipass) if meipass else exe_dir
+
+    # Path of the top-level script being executed (works with `python script.py` and `python -m pkg.module`)
+    main = sys.modules.get("__main__")
+    if main and hasattr(main, "__file__"):
+        return Path(main.__file__).resolve().parent
+
+    # Fallback: inside a module file (use this if calling from that module)
+    return Path(__file__).resolve().parent
 
 
 
@@ -309,4 +335,183 @@ class ArrayTransducer2D:
         return source, receivers
         
         
+
+
+
+
+
+
+@dataclass
+class VoronoiGrainIndexer:
+    """
+    Index Voronoi regions from a color PNG and query the grain ID for a point.
+
+    - Coordinates are normalized: (x, y) in [0,1] x [0,1], origin at bottom-left.
+    - Grain IDs are assigned ONLY to regions that pass the percentage threshold,
+      and are sorted by area descending: gid=0 is the largest kept region.
+    - Pixels not belonging to a kept region are labelled -1.
+    """
+    image_path: str
+    min_percent: float = 0.1       # keep regions with area >= this percent
+    dilate_iters: int = 1          # boundary dilation iterations for robust edge detection
+
+    # Internal state (populated by process())
+    img_array: Optional[np.ndarray] = None
+    H: Optional[int] = None
+    W: Optional[int] = None
+    areas_df: Optional[pd.DataFrame] = None
+    kept_colors_sorted: Optional[np.ndarray] = None
+    color_to_gid: Optional[dict] = None
+    seg_labels: Optional[np.ndarray] = None
+    boundary_mask_dilated: Optional[np.ndarray] = None
+
+    def process(self) -> None:
+        """Load image, segment colors, compute areas, build grain labels and boundaries."""
+        # ---- Load image ----
+        img = Image.open(self.image_path).convert("RGB")
+        self.img_array = np.array(img)
+        self.H, self.W, _ = self.img_array.shape
+
+        # ---- Unique colors & counts ----
+        unique_colors, counts = np.unique(
+            self.img_array.reshape(-1, 3), axis=0, return_counts=True
+        )
+        total_pixels = self.H * self.W
+        percentages = counts / total_pixels * 100.0
+
+        # ---- Keep regions by percentage threshold ----
+        keep_mask = percentages >= self.min_percent
+        kept_colors = unique_colors[keep_mask]
+        kept_counts = counts[keep_mask]
+        kept_percentages = percentages[keep_mask]
+
+        # ---- Area table (unsorted) ----
+        areas_df = pd.DataFrame({
+            "Color (RGB)": [tuple(c) for c in kept_colors],
+            "Pixel Count": kept_counts,
+            "Percentage (%)": kept_percentages
+        })
+
+        # ---- Sort by area (descending) and build color->gid map ----
+        order = np.argsort(-kept_counts)  # largest first
+        self.kept_colors_sorted = kept_colors[order]
+        kept_counts_sorted = kept_counts[order]
+        kept_percentages_sorted = kept_percentages[order]
+
+        self.areas_df = areas_df.iloc[order].reset_index(drop=True)
+        self.color_to_gid = {tuple(color): idx for idx, color in enumerate(self.kept_colors_sorted)}
+
+        # ---- Build seg_labels restricted to kept regions (others = -1) ----
+        self.seg_labels = np.full((self.H, self.W), fill_value=-1, dtype=int)
+        for color, gid in self.color_to_gid.items():
+            mask = np.all(self.img_array == color, axis=-1)
+            self.seg_labels[mask] = gid
+
+        # ---- Build boundary mask from seg_labels ----
+        boundary_mask = np.zeros((self.H, self.W), dtype=bool)
+        # vertical boundaries (row-wise change)
+        boundary_mask[1:, :] |= (self.seg_labels[1:, :] != self.seg_labels[:-1, :])
+        # horizontal boundaries (col-wise change)
+        boundary_mask[:, 1:] |= (self.seg_labels[:, 1:] != self.seg_labels[:, :-1])
+
+        # Dilate (optional) to make boundary robust
+        kernel = np.ones((3, 3), np.uint8)
+        self.boundary_mask_dilated = cv2.dilate(
+            boundary_mask.astype(np.uint8) * 255, kernel, iterations=self.dilate_iters
+        ).astype(bool)
+
+    # ---------- Queries & utilities ----------
+
+    def point_to_grain_id(self, x: float, y: float) -> int:
+        """
+        Return the grain ID for normalized (x,y) in [0,1]x[0,1], origin at bottom-left.
+        Grain IDs are sorted by area (0 = largest). Returns -1 if outside kept regions.
+        """
+        if self.seg_labels is None:
+            raise RuntimeError("Call .process() before querying.")
+
+        if not (0.0 <= x <= 1.0 and 0.0 <= y <= 1.0):
+            raise ValueError(f"coords must be in [0,1], got ({x},{y})")
+
+        col = int(round(x * (self.W - 1)))
+        row = int(round((1 - y) * (self.H - 1)))  # flip y to image coords
+
+        gid = int(self.seg_labels[row, col])
+
+        # Handle boundary/unknown by local voting for stability
+        if gid == -1 or self.boundary_mask_dilated[row, col]:
+            neigh_ids = []
+            for dr, dc in [(-1,0),(1,0),(0,-1),(0,1),(-1,-1),(-1,1),(1,-1),(1,1)]:
+                rr, cc = row + dr, col + dc
+                if 0 <= rr < self.H and 0 <= cc < self.W and self.seg_labels[rr, cc] != -1:
+                    neigh_ids.append(int(self.seg_labels[rr, cc]))
+            if neigh_ids:
+                gid = Counter(neigh_ids).most_common(1)[0][0]
+
+        return gid
+
+    def show_boundary_overlay(self, save_path: str | Path = None) -> None:
+        """Show or save an image with boundaries overlaid in black."""
+        if self.img_array is None or self.boundary_mask_dilated is None:
+            raise RuntimeError("Call .process() before saving overlays.")
+
+        overlay = self.img_array.copy()
+        overlay[self.boundary_mask_dilated] = (0, 0, 0)
+
+        if save_path:
+            Image.fromarray(overlay).save(str(save_path))
+        else:
+            plt.figure(figsize=(6,6))
+            plt.title("Image with Boundaries")
+            plt.imshow(overlay)
+            plt.axis("off")
+            plt.show()
+
+    def plot_bar_chart(self, save_path: str | Path = None,
+                    title: str = "Equivalent Circle Radius of Regions") -> None:
+        """
+        Show or save bar chart of equivalent radii (normalized true area=1).
+        """
+        if self.areas_df is None or self.kept_colors_sorted is None:
+            raise RuntimeError("Call .process() before plotting.")
+
+        true_area = 1.0
+        pct = self.areas_df["Percentage (%)"].to_numpy() / 100.0
+        equi_r = np.sqrt(pct * true_area / np.pi)
+
+        labels = list(range(len(equi_r)))
+        colors = (self.kept_colors_sorted / 255.0)
+
+        plt.figure(figsize=(8, 6))
+        plt.bar(labels, equi_r, color=colors)
+        plt.ylabel("Equivalent Radius (normalized units)")
+        plt.xlabel("Region Index (sorted by area)")
+        plt.title(title)
+        plt.xticks(labels)
+        plt.tight_layout()
+
+        if save_path:
+            plt.savefig(str(save_path))
+            plt.close()
+        else:
+            plt.show()
+
+    def get_areas_table(self) -> pd.DataFrame:
+        """
+        Return a copy of the areas table (sorted by area).
+        Columns: 'Color (RGB)', 'Pixel Count', 'Percentage (%)'
+        """
+        if self.areas_df is None:
+            raise RuntimeError("Call .process() before accessing areas.")
+        return self.areas_df.copy()
+
+    def color_for_gid(self, gid: int) -> Tuple[int, int, int]:
+        """Return the RGB tuple for a given grain id (sorted by area)."""
+        if self.kept_colors_sorted is None:
+            raise RuntimeError("Call .process() first.")
+        if not (0 <= gid < len(self.kept_colors_sorted)):
+            raise ValueError(f"gid {gid} out of range [0, {len(self.kept_colors_sorted)-1}]")
+        c = self.kept_colors_sorted[gid]
+        return (int(c[0]), int(c[1]), int(c[2]))
+    
 

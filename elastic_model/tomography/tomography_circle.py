@@ -134,234 +134,234 @@ mesh_roi.attach_field(
 
 
 
-stf = sn.simple_config.stf.Ricker(center_frequency=CENTRAL_FREQUENCY)
+# stf = sn.simple_config.stf.Ricker(center_frequency=CENTRAL_FREQUENCY)
 
-end_time = 4e-6
-
-
-sim_config = sn.UnstructuredMeshSimulationConfiguration(
-    unstructured_mesh=mesh_homogeneous,
-    name="sc_mesh_homogeneous",
-    # Event specific configuration.
-    event_configuration=sn.EventConfiguration(
-        # Source wavelet.
-        wavelet=stf,
-        waveform_simulation_configuration=sn.WaveformSimulationConfiguration(
-            end_time_in_seconds=end_time
-        ),
-    ),
-)
-
-# add simulation configuration to Project
-p.add_to_project(
-    sim_config, overwrite=True
-    )
+# end_time = 4e-6
 
 
+# sim_config = sn.UnstructuredMeshSimulationConfiguration(
+#     unstructured_mesh=mesh_homogeneous,
+#     name="sc_mesh_homogeneous",
+#     # Event specific configuration.
+#     event_configuration=sn.EventConfiguration(
+#         # Source wavelet.
+#         wavelet=stf,
+#         waveform_simulation_configuration=sn.WaveformSimulationConfiguration(
+#             end_time_in_seconds=end_time
+#         ),
+#     ),
+# )
 
-sim_config = sn.UnstructuredMeshSimulationConfiguration(
-    unstructured_mesh=mesh_homogeneous_scatterers,
-    name="sc_mesh_homogeneous_scatters",
-    # Event specific configuration.
-    event_configuration=sn.EventConfiguration(
-        # Source wavelet.
-        wavelet=stf,
-        waveform_simulation_configuration=sn.WaveformSimulationConfiguration(
-            end_time_in_seconds=end_time
-        ),
-    ),
-)
-
-# add simulation configuration to Project
-p.add_to_project(
-    sim_config, overwrite=True
-    )
-
-
-# def locate_source_in_mesh(n_txs):
-#     angles_deg = np.linspace(0, 360, n_txs + 1)[:-1]  
-#     angles_rad = np.deg2rad(angles_deg)
-#     x = np.cos(angles_rad)
-#     y = np.sin(angles_rad)
-#     nomal_vec = np.round(np.stack((x, y), axis=1), 6)
-#     tx_coordinates = nomal_vec * radius
-
-#     mesh_nodes = mesh_homogeneous.get_element_nodes().reshape(-1, 2)
-#     unique_mesh_nodes = np.unique(mesh_nodes, axis=0)
-
-#     closest_node = np.array([
-#         unique_mesh_nodes[np.argmin(np.linalg.norm(unique_mesh_nodes - tx, axis=1))]
-#         for tx in tx_coordinates
-#     ])
-#     return tx_coordinates, nomal_vec
-
-# # Generate txs and txs
-# # number of sources
-# n_txs = 8
-# tx_coordinates, nomal_vec = locate_source_in_mesh(n_txs=n_txs)
-# sources = [sn.simple_config.source.cartesian.VectorPoint2D(x=tx[0], y=tx[1], fx=nomal_vec[_i,0], fy=nomal_vec[_i,1]) for _i,tx in enumerate(tx_coordinates)] 
-
-
-# n_rxs = 32
-
-# rx_coordinates, _ = locate_source_in_mesh(n_txs=n_rxs)
-# fileds = ["displacement"]
-
-# receivers = [
-#     sn.simple_config.receiver.seismology.SideSetPoint2D(
-#         longitude= l, depth_in_m= 0, radius_of_sphere_in_m =radius ,
-#         side_set_name = ['r1'],
-#         fields=fileds,
-#         station_code=f"{_i:06d}",
+# # add simulation configuration to Project
+# p.add_to_project(
+#     sim_config, overwrite=True
 #     )
-#     for _i, l in enumerate(np.linspace(0, 360, n_txs + 1)[:-1]  )
-# ]
 
-n_txs = 8
-angles_deg_tx = np.linspace(0, 360, n_txs + 1)[:-1]  
+
+
+# sim_config = sn.UnstructuredMeshSimulationConfiguration(
+#     unstructured_mesh=mesh_homogeneous_scatterers,
+#     name="sc_mesh_homogeneous_scatters",
+#     # Event specific configuration.
+#     event_configuration=sn.EventConfiguration(
+#         # Source wavelet.
+#         wavelet=stf,
+#         waveform_simulation_configuration=sn.WaveformSimulationConfiguration(
+#             end_time_in_seconds=end_time
+#         ),
+#     ),
+# )
+
+# # add simulation configuration to Project
+# p.add_to_project(
+#     sim_config, overwrite=True
+#     )
+
+
+# # def locate_source_in_mesh(n_txs):
+# #     angles_deg = np.linspace(0, 360, n_txs + 1)[:-1]  
+# #     angles_rad = np.deg2rad(angles_deg)
+# #     x = np.cos(angles_rad)
+# #     y = np.sin(angles_rad)
+# #     nomal_vec = np.round(np.stack((x, y), axis=1), 6)
+# #     tx_coordinates = nomal_vec * radius
+
+# #     mesh_nodes = mesh_homogeneous.get_element_nodes().reshape(-1, 2)
+# #     unique_mesh_nodes = np.unique(mesh_nodes, axis=0)
+
+# #     closest_node = np.array([
+# #         unique_mesh_nodes[np.argmin(np.linalg.norm(unique_mesh_nodes - tx, axis=1))]
+# #         for tx in tx_coordinates
+# #     ])
+# #     return tx_coordinates, nomal_vec
+
+# # # Generate txs and txs
+# # # number of sources
+# # n_txs = 8
+# # tx_coordinates, nomal_vec = locate_source_in_mesh(n_txs=n_txs)
+# # sources = [sn.simple_config.source.cartesian.VectorPoint2D(x=tx[0], y=tx[1], fx=nomal_vec[_i,0], fy=nomal_vec[_i,1]) for _i,tx in enumerate(tx_coordinates)] 
+
+
+# # n_rxs = 32
+
+# # rx_coordinates, _ = locate_source_in_mesh(n_txs=n_rxs)
+# # fileds = ["displacement"]
+
+# # receivers = [
+# #     sn.simple_config.receiver.seismology.SideSetPoint2D(
+# #         longitude= l, depth_in_m= 0, radius_of_sphere_in_m =radius ,
+# #         side_set_name = ['r1'],
+# #         fields=fileds,
+# #         station_code=f"{_i:06d}",
+# #     )
+# #     for _i, l in enumerate(np.linspace(0, 360, n_txs + 1)[:-1]  )
+# # ]
+
+# n_txs = 8
+# angles_deg_tx = np.linspace(0, 360, n_txs + 1)[:-1]  
+# # sources = [
+# #     sn.simple_config.source.seismology.SideSetVectorPoint2D(
+# #         longitude=l,
+# #         depth_in_m=0.001,
+# #         radius_of_sphere_in_m=radius,
+# #         fr=1,  # radial force
+# #         fp=0,  # polar force
+# #         side_set_name="r1"
+# #     )
+# #     for l in angles_deg_tx
+# # ]
+
 # sources = [
-#     sn.simple_config.source.seismology.SideSetVectorPoint2D(
+#     sn.simple_config.source.seismology.SideSetScalarPoint2D(
 #         longitude=l,
 #         depth_in_m=0.001,
 #         radius_of_sphere_in_m=radius,
-#         fr=1,  # radial force
-#         fp=0,  # polar force
+#         f=1,
 #         side_set_name="r1"
 #     )
 #     for l in angles_deg_tx
 # ]
 
-sources = [
-    sn.simple_config.source.seismology.SideSetScalarPoint2D(
-        longitude=l,
-        depth_in_m=0.001,
-        radius_of_sphere_in_m=radius,
-        f=1,
-        side_set_name="r1"
-    )
-    for l in angles_deg_tx
-]
+# n_rxs = 32
+# angles_deg_rx = np.linspace(0, 360, n_rxs + 1)[:-1]  
+# fileds = ["phi"]
 
-n_rxs = 32
-angles_deg_rx = np.linspace(0, 360, n_rxs + 1)[:-1]  
-fileds = ["phi"]
-
-receivers = [
-    sn.simple_config.receiver.seismology.SideSetPoint2D(
-        longitude=l,
-        depth_in_m=0.001,
-        radius_of_sphere_in_m=radius,
-        side_set_name="r1",
-        fields=fileds,
-        station_code=f"{_i:06d}",
-    )
-    for _i,l in enumerate(angles_deg_rx)
-]
+# receivers = [
+#     sn.simple_config.receiver.seismology.SideSetPoint2D(
+#         longitude=l,
+#         depth_in_m=0.001,
+#         radius_of_sphere_in_m=radius,
+#         side_set_name="r1",
+#         fields=fileds,
+#         station_code=f"{_i:06d}",
+#     )
+#     for _i,l in enumerate(angles_deg_rx)
+# ]
  
-events = [sn.Event(event_name=f"event_{i}", sources=s, receivers=receivers) for i,s in enumerate(sources)]
+# events = [sn.Event(event_name=f"event_{i}", sources=s, receivers=receivers) for i,s in enumerate(sources)]
 
-add_events_to_Project(p, events)
-
-
+# add_events_to_Project(p, events)
 
 
 
 
-p.viz.nb.simulation_setup(
-    simulation_configuration='sc_mesh_homogeneous_scatters',
-    events=p.events.list(),
-)
 
 
-# simulation with volume data (full wavefield)
-p.simulations.launch(
-    ranks_per_job=RANKS,
-    site_name=SITE_NAME,
-    events=p.events.list(),
-    simulation_configuration="sc_mesh_homogeneous_scatters",
-    extra_output_configuration={
-        "volume_data": {
-            "sampling_interval_in_time_steps": 20,
-            "fields": ["phi"],
-        },
-    },
-    # We have previously simulated the same event but without
-    # extra output. We have to thus overwrite the existing
-    # simulation.
-    delete_conflicting_previous_results=True,
-)
-
-
-# p.simulations.launch(
-#     simulation_configuration="sc_mesh_homogeneous_scatters",
+# p.viz.nb.simulation_setup(
+#     simulation_configuration='sc_mesh_homogeneous_scatters',
 #     events=p.events.list(),
-#     site_name=SITE_NAME,
-#     ranks_per_job=RANKS,
 # )
 
 
-p.simulations.query(block=True)
+# # simulation with volume data (full wavefield)
+# p.simulations.launch(
+#     ranks_per_job=RANKS,
+#     site_name=SITE_NAME,
+#     events=p.events.list(),
+#     simulation_configuration="sc_mesh_homogeneous_scatters",
+#     extra_output_configuration={
+#         "volume_data": {
+#             "sampling_interval_in_time_steps": 20,
+#             "fields": ["phi"],
+#         },
+#     },
+#     # We have previously simulated the same event but without
+#     # extra output. We have to thus overwrite the existing
+#     # simulation.
+#     delete_conflicting_previous_results=True,
+# )
 
 
-# The misfit configuration defines how synthetics are compared to observed data.
-p += sn.MisfitConfiguration(
-    name="L2_misfit_for_homo_model",
-    # Could be observed data. Here we compare to the synthetic target.
-    observed_data="sc_mesh_homogeneous_scatters",
-    # Salvus comes with a variety of misfit functions. You can
-    # also define your own.
-    misfit_function="L2",
-    # This is an acoustic simulation so we'll use recordings of phi.
-    receiver_field=fileds[0],
-)
+# # p.simulations.launch(
+# #     simulation_configuration="sc_mesh_homogeneous_scatters",
+# #     events=p.events.list(),
+# #     site_name=SITE_NAME,
+# #     ranks_per_job=RANKS,
+# # )
+
+
+# p.simulations.query(block=True)
+
+
+# # The misfit configuration defines how synthetics are compared to observed data.
+# p += sn.MisfitConfiguration(
+#     name="L2_misfit_for_homo_model",
+#     # Could be observed data. Here we compare to the synthetic target.
+#     observed_data="sc_mesh_homogeneous_scatters",
+#     # Salvus comes with a variety of misfit functions. You can
+#     # also define your own.
+#     misfit_function="L2",
+#     # This is an acoustic simulation so we'll use recordings of phi.
+#     receiver_field=fileds[0],
+# )
 
 
 
-event_names_imaging = p.events.list()
+# event_names_imaging = p.events.list()
 
 
-invconfig = sn.InverseProblemConfiguration(
-    name="inversion_L2",
-    # Starting model is the model without scatterers.
-    prior_model="sc_mesh_homogeneous",
-    # The events to use.
-    events=event_names_imaging,
-    misfit_configuration="L2_misfit_for_homo_model",
-    # What parameters to invert for.
-    mapping=sn.Mapping(
-        scaling="relative_deviation_from_prior",
-        inversion_parameters=["VP"],
-        region_of_interest=mesh_roi,
-        # postprocess_model_update = tensor_to_orientation
-    ),
-    # preconditioner=sn.ConstantSmoothing({"VP": 1e-3, "VS": 1e-3}),
-    # The inversion method and its settings.
-    method=sn.TrustRegion(initial_trust_region_linf= 0.1),
-    # The misfit configuration we defined above.
+# invconfig = sn.InverseProblemConfiguration(
+#     name="inversion_L2",
+#     # Starting model is the model without scatterers.
+#     prior_model="sc_mesh_homogeneous",
+#     # The events to use.
+#     events=event_names_imaging,
+#     misfit_configuration="L2_misfit_for_homo_model",
+#     # What parameters to invert for.
+#     mapping=sn.Mapping(
+#         scaling="relative_deviation_from_prior",
+#         inversion_parameters=["VP"],
+#         region_of_interest=mesh_roi,
+#         # postprocess_model_update = tensor_to_orientation
+#     ),
+#     # preconditioner=sn.ConstantSmoothing({"VP": 1e-3, "VS": 1e-3}),
+#     # The inversion method and its settings.
+#     method=sn.TrustRegion(initial_trust_region_linf= 0.1),
+#     # The misfit configuration we defined above.
     
-    # Compress the forward wavefield by subsampling in time.
-    wavefield_compression=sn.WavefieldCompression(
-        forward_wavefield_sampling_interval=10
-    ),
-    # Job submission settings.
-    job_submission=sn.SiteConfig(site_name=SITE_NAME, ranks_per_job=RANKS),
-)
+#     # Compress the forward wavefield by subsampling in time.
+#     wavefield_compression=sn.WavefieldCompression(
+#         forward_wavefield_sampling_interval=10
+#     ),
+#     # Job submission settings.
+#     job_submission=sn.SiteConfig(site_name=SITE_NAME, ranks_per_job=RANKS),
+# )
 
-add_inversion(p, invconfig)
-
-
-
-p.inversions.set_job_submission_configuration(
-    "inversion_L2", sn.SiteConfig(site_name=SITE_NAME, ranks_per_job=RANKS)
-)
+# add_inversion(p, invconfig)
 
 
-for i in range(10):
+
+# p.inversions.set_job_submission_configuration(
+#     "inversion_L2", sn.SiteConfig(site_name=SITE_NAME, ranks_per_job=RANKS)
+# )
+
+
+# for i in range(10):
     
-    p.inversions.iterate(
-        inverse_problem_configuration="inversion_L2",
-        timeout_in_seconds=360,
-        ping_interval_in_seconds=50,
-        delete_disposable_files="all",
-    )
+#     p.inversions.iterate(
+#         inverse_problem_configuration="inversion_L2",
+#         timeout_in_seconds=360,
+#         ping_interval_in_seconds=50,
+#         delete_disposable_files="all",
+#     )
     

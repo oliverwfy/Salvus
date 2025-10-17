@@ -1,0 +1,226 @@
+{
+    "event_0": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.019,
+                "y": 0.01,
+                "fx": 1000000000000.0,
+                "fy": 0.0
+            }
+        }
+    ],
+    "event_1": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.01831492,
+                "y": 0.013444147,
+                "fx": 923880000000.0,
+                "fy": 382683000000.0
+            }
+        }
+    ],
+    "event_2": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.016363963000000002,
+                "y": 0.016363963000000002,
+                "fx": 707107000000.0,
+                "fy": 707107000000.0
+            }
+        }
+    ],
+    "event_3": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.013444147,
+                "y": 0.01831492,
+                "fx": 382683000000.0,
+                "fy": 923880000000.0
+            }
+        }
+    ],
+    "event_4": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.01,
+                "y": 0.019,
+                "fx": 0.0,
+                "fy": 1000000000000.0
+            }
+        }
+    ],
+    "event_5": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.006555853,
+                "y": 0.01831492,
+                "fx": -382683000000.0,
+                "fy": 923880000000.0
+            }
+        }
+    ],
+    "event_6": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.003636037,
+                "y": 0.016363963000000002,
+                "fx": -707107000000.0,
+                "fy": 707107000000.0
+            }
+        }
+    ],
+    "event_7": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.0016850800000000003,
+                "y": 0.013444147,
+                "fx": -923880000000.0,
+                "fy": 382683000000.0
+            }
+        }
+    ],
+    "event_8": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.0010000000000000009,
+                "y": 0.01,
+                "fx": -1000000000000.0,
+                "fy": 0.0
+            }
+        }
+    ],
+    "event_9": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.0016850800000000003,
+                "y": 0.006555853,
+                "fx": -923880000000.0,
+                "fy": -382683000000.0
+            }
+        }
+    ],
+    "event_10": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.003636037,
+                "y": 0.003636037,
+                "fx": -707107000000.0,
+                "fy": -707107000000.0
+            }
+        }
+    ],
+    "event_11": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.006555853,
+                "y": 0.0016850800000000003,
+                "fx": -382683000000.0,
+                "fy": -923880000000.0
+            }
+        }
+    ],
+    "event_12": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.01,
+                "y": 0.0010000000000000009,
+                "fx": -0.0,
+                "fy": -1000000000000.0
+            }
+        }
+    ],
+    "event_13": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.013444147,
+                "y": 0.0016850800000000003,
+                "fx": 382683000000.0,
+                "fy": -923880000000.0
+            }
+        }
+    ],
+    "event_14": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.016363963000000002,
+                "y": 0.003636037,
+                "fx": 707107000000.0,
+                "fy": -707107000000.0
+            }
+        }
+    ],
+    "event_15": [
+        {
+            "class_name": "salvus.flow.simple_config.source.cartesian.VectorPoint2D",
+            "salvus_version": "2025.1.2",
+            "arguments": {
+                "source_time_function": null,
+                "rotation_on_input": null,
+                "x": 0.01831492,
+                "y": 0.006555853,
+                "fx": 923880000000.0,
+                "fy": -382683000000.0
+            }
+        }
+    ]
+}

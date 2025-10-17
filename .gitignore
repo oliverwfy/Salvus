@@ -3,6 +3,8 @@
 
 
 # ignore files and dirs
-data
-Project
+**/data/
+**/[Pp]roject/
+
+
 .DS_Store

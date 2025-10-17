@@ -1,0 +1,5 @@
+{
+    "receiver_file_format": "hdf5",
+    "model_precision": "float32",
+    "mesh_file_mode": "minimal_fast"
+}

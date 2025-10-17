@@ -4,55 +4,55 @@ import numpy as np
 
 
 
-def rotation_matrix_y(theta):
-    """
-    Computes the 3D rotation matrix about the y-axis for a given angle theta.
+# def rotation_matrix_y(theta):
+#     """
+#     Computes the 3D rotation matrix about the y-axis for a given angle theta.
 
-    Parameters:
-    theta (float): Rotation angle in radians.
+#     Parameters:
+#     theta (float): Rotation angle in radians.
 
-    Returns:
-    numpy.ndarray: 3x3 rotation matrix.
-    """
-    cos_theta = np.cos(theta)
-    sin_theta = np.sin(theta)
+#     Returns:
+#     numpy.ndarray: 3x3 rotation matrix.
+#     """
+#     cos_theta = np.cos(theta)
+#     sin_theta = np.sin(theta)
 
-    return np.array([
-        [cos_theta,  0, sin_theta],
-        [0,          1, 0],
-        [-sin_theta, 0, cos_theta]
-    ])
+#     return np.array([
+#         [cos_theta,  0, sin_theta],
+#         [0,          1, 0],
+#         [-sin_theta, 0, cos_theta]
+#     ])
 
 
-def transformation_T(Q):
-    """
-    Computes the transformation matrix T (6x6) in Voigt notation
-    from a 3D rotation matrix Q.
+# def transformation_T(Q):
+#     """
+#     Computes the transformation matrix T (6x6) in Voigt notation
+#     from a 3D rotation matrix Q.
 
-    Parameters:
-    Q (numpy.ndarray): 3x3 rotation matrix.
+#     Parameters:
+#     Q (numpy.ndarray): 3x3 rotation matrix.
 
-    Returns:
-    numpy.ndarray: 6x6 transformation matrix.
-    """
-    T = np.array([
-        [Q[0,0]**2, Q[0,1]**2, Q[0,2]**2, 2*Q[0,1]*Q[0,2], 2*Q[0,0]*Q[0,2], 2*Q[0,0]*Q[0,1]],
-        [Q[1,0]**2, Q[1,1]**2, Q[1,2]**2, 2*Q[1,1]*Q[1,2], 2*Q[1,0]*Q[1,2], 2*Q[1,0]*Q[1,1]],
-        [Q[2,0]**2, Q[2,1]**2, Q[2,2]**2, 2*Q[2,1]*Q[2,2], 2*Q[2,0]*Q[2,2], 2*Q[2,0]*Q[2,1]],
-        [2*Q[1,0]*Q[2,0], 2*Q[1,1]*Q[2,1], 2*Q[1,2]*Q[2,2],
-         Q[1,1]*Q[2,2] + Q[1,2]*Q[2,1], Q[1,0]*Q[2,2] + Q[1,2]*Q[2,0], Q[1,0]*Q[2,1] + Q[1,1]*Q[2,0]],
-        [2*Q[0,0]*Q[2,0], 2*Q[0,1]*Q[2,1], 2*Q[0,2]*Q[2,2],
-         Q[0,1]*Q[2,2] + Q[0,2]*Q[2,1], Q[0,0]*Q[2,2] + Q[0,2]*Q[2,0], Q[0,0]*Q[2,1] + Q[0,1]*Q[2,0]],
-        [2*Q[0,0]*Q[1,0], 2*Q[0,1]*Q[1,1], 2*Q[0,2]*Q[1,2],
-         Q[0,1]*Q[1,2] + Q[0,2]*Q[1,1], Q[0,0]*Q[1,2] + Q[0,2]*Q[1,0], Q[0,0]*Q[1,1] + Q[0,1]*Q[1,0]],
-    ], dtype=float)
+#     Returns:
+#     numpy.ndarray: 6x6 transformation matrix.
+#     """
+#     T = np.array([
+#         [Q[0,0]**2, Q[0,1]**2, Q[0,2]**2, 2*Q[0,1]*Q[0,2], 2*Q[0,0]*Q[0,2], 2*Q[0,0]*Q[0,1]],
+#         [Q[1,0]**2, Q[1,1]**2, Q[1,2]**2, 2*Q[1,1]*Q[1,2], 2*Q[1,0]*Q[1,2], 2*Q[1,0]*Q[1,1]],
+#         [Q[2,0]**2, Q[2,1]**2, Q[2,2]**2, 2*Q[2,1]*Q[2,2], 2*Q[2,0]*Q[2,2], 2*Q[2,0]*Q[2,1]],
+#         [2*Q[1,0]*Q[2,0], 2*Q[1,1]*Q[2,1], 2*Q[1,2]*Q[2,2],
+#          Q[1,1]*Q[2,2] + Q[1,2]*Q[2,1], Q[1,0]*Q[2,2] + Q[1,2]*Q[2,0], Q[1,0]*Q[2,1] + Q[1,1]*Q[2,0]],
+#         [2*Q[0,0]*Q[2,0], 2*Q[0,1]*Q[2,1], 2*Q[0,2]*Q[2,2],
+#          Q[0,1]*Q[2,2] + Q[0,2]*Q[2,1], Q[0,0]*Q[2,2] + Q[0,2]*Q[2,0], Q[0,0]*Q[2,1] + Q[0,1]*Q[2,0]],
+#         [2*Q[0,0]*Q[1,0], 2*Q[0,1]*Q[1,1], 2*Q[0,2]*Q[1,2],
+#          Q[0,1]*Q[1,2] + Q[0,2]*Q[1,1], Q[0,0]*Q[1,2] + Q[0,2]*Q[1,0], Q[0,0]*Q[1,1] + Q[0,1]*Q[1,0]],
+#     ], dtype=float)
     
-    S = np.diag([1,1,1,2,2,2])
-    return np.linalg.inv(S) @ T @ S
+#     S = np.diag([1,1,1,2,2,2])
+#     return np.linalg.inv(S) @ T @ S
 
 
 
-def rotated_elasticityTensor(C, theta):
+def rotated_elasticityTensor(C, theta, dim=3):
     """
     Rotates the elasticity tensor C (6x6 in Voigt notation) by angle theta
     about the y-axis.
@@ -64,10 +64,25 @@ def rotated_elasticityTensor(C, theta):
     Returns:
     numpy.ndarray: Rotated 6x6 elasticity tensor in Voigt notation.
     """
-    Q = rotation_matrix_y(theta)  # Compute the rotation matrix
-    T = transformation_T(Q)      # Compute the transformation matrix (6x6)
-    C_rotated = T @ C @ T.T       # Perform the tensor rotation in Voigt notation
-    return np.rint(C_rotated)
+    c = np.cos(theta); s = np.sin(theta)
+
+    L = np.array([
+        [c*c, 0,   s*s, 0,     2*c*s, 0],
+        [0,   1,   0,   0,     0,     0],
+        [s*s, 0,   c*c, 0,    -2*c*s, 0],
+        [0,   0,   0,   c,     0,    -s],
+        [-c*s,0,   c*s, 0,  c*c - s*s, 0],
+        [0,   0,   0,   s,     0,     c]
+    ], dtype=float)
+
+    C_rot = L.dot(C).dot(L.T)   # rotated stiffness in global axes
+
+    # Extract 2D xz plane (Voigt indices 0->xx, 2->zz, 4->xz)
+    idx = [0, 2, 4]
+    C2D = C_rot[np.ix_(idx, idx)]
+    if dim == 2:
+        return np.rint(C2D)
+    return np.rint(C_rot)
 
 
   
@@ -162,8 +177,8 @@ class Austenite:
         return M    
     
     
-    def rotated_tensor(self, theta):
-        return rotated_elasticityTensor(self.tensor(), theta)
+    def rotated_tensor(self, theta, dim=3):
+        return rotated_elasticityTensor(self.tensor(), theta, dim=dim)
         
     def rotated_VTI_approx(self, theta):
         rotated_C = self.rotated_tensor(theta)
