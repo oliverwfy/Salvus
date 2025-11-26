@@ -15,6 +15,8 @@ import pandas as pd
 import cv2
 from PIL import Image
 import matplotlib.pyplot as plt
+import numpy.typing as npt
+
 
 import sys
 
@@ -514,4 +516,67 @@ class VoronoiGrainIndexer:
         c = self.kept_colors_sorted[gid]
         return (int(c[0]), int(c[1]), int(c[2]))
     
+
+
+
+
+# convert nodel field to elemental field 
+def nodal_to_elemental_field(
+    nodal_field: npt.NDArray, 
+    mesh: sn.UnstructuredMesh
+) -> npt.NDArray:
+    
+    elemental_nodal_field = nodal_field[mesh.connectivity]  # convert nodal field to elemental nodel field 
+    
+    # mass matrix with the same shape as elemental nodal field
+    mass_mat = mesh.get_mass_matrix()
+    weighted_sum = (mass_mat[:, :, None, None] * elemental_nodal_field).sum(axis=1)
+    normalization = mass_mat.sum(axis=1)[:, None, None]
+    return weighted_sum / normalization
+
+
+
+
+
+
+def elemental_nodal_to_nodal_field(
+    elemental_nodal_field: npt.NDArray,
+    connectivity: npt.NDArray
+) -> npt.NDArray:
+    
+    """
+    Convert elemental nodal field -> global nodal field by averaging
+    overlapping element contributions.
+
+    Parameters
+    ----------
+    elemental_nodal_field : (n_elements, n_nodes_per_element, ...)
+        Field values defined at each element node.
+    connectivity : (n_elements, n_nodes_per_element)
+        Global node indices of each element.
+
+    Returns
+    -------
+    nodal_field : (n_global_nodes, ...)
+        Averaged nodal field.
+    """
+
+    n_elements, n_nodes_per_element = connectivity.shape
+    n_global_nodes = connectivity.max() + 1
+
+    # Prepare arrays for accumulation
+    nodal_sum = np.zeros((n_global_nodes,) + elemental_nodal_field.shape[2:], dtype=float)
+    nodal_count = np.zeros(n_global_nodes, dtype=int)
+
+    # Loop over elements
+    for e in range(n_elements):
+        nodes = connectivity[e]
+        nodal_sum[nodes] += elemental_nodal_field[e]
+        nodal_count[nodes] += 1
+
+    # Avoid division by zero
+    nodal_count[nodal_count == 0] = 1
+
+    return nodal_sum / nodal_count[:, None] if elemental_nodal_field.ndim > 2 else nodal_sum / nodal_count
+
 

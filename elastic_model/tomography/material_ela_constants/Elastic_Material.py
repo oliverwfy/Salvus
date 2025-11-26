@@ -249,40 +249,24 @@ class Austenite:
 
 
 
-
-  
 class Titanium:
     def __init__(self):
         # Define parameters
-        self.RHO = 4506  # Density in kg/m^3
-        self.C11 = 162e9  # Stiffness in Pa
-        self.C13 = 69e9  # Stiffness in Pa
-        self.C33 = 180e9  # Stiffness in Pa
-        self.C44 = 47e9   # Stiffness in Pa
-        self.C66 = 35e9  # Stiffness in Pa
+        self.RHO = 4500  # Density in kg/m^3
+        self.C11 = 162.4e9  # Stiffness in Pa
+        self.C12 = 92.9e9
+        self.C13 = 69.0e9  # Stiffness in Pa
+        self.C33 = 180.7e9  # Stiffness in Pa
+        self.C44 = 46.7e9   # Stiffness in Pa
+        self.C66 = (self.C11 - self.C12) / 2
 
         # Derived parameters
-        self.C12 = self.C11 - 2 * self.C66  # Derived from the relationship
         self.C22 = self.C11                # Symmetry in TTI media
         self.C23 = self.C13                # Symmetry in TTI media
         self.C55 = self.C44                # Symmetry in TTI media
-        self.ETA = self.calculate_eta()
         
         self.C = self.tensor()  
-        self.params = self.parameters()
 
-
-    def calculate_eta(self):
-
-        # Calculate epsilon
-        epsilon = (self.C11 - self.C33) / (2 * self.C33)
-
-        # Calculate delta
-        delta = ((self.C13 + self.C44) ** 2 - (self.C33 - self.C44) ** 2) / (2 * self.C33 * (self.C33 - self.C44))
-
-        # Calculate eta
-        eta = (epsilon - delta) / (1 + 2 * delta)
-        return eta
     
 
     def density(self):
@@ -298,52 +282,81 @@ class Titanium:
         C[2,2] = self.C33
         C[3,3] = self.C44
         C[4,4] = self.C55
-        C[5,5] = (self.C11 - self.C12) / 2
+        C[5,5] = self.C66
         
-        C = (C + C.T) / 2.0
-        return C
+        M = C + C.T                 # sum (not average)
+        di = np.diag_indices_from(M)
+        M[di] *= 0.5                # halve only the diagonal
+        return M    
     
-    def rotated_tensor(self, theta):
-        return rotated_elasticityTensor(self.tensor(), theta)
+    
+    def rotated_tensor(self, theta, dim=3):
+        return rotated_elasticityTensor(self.tensor(), theta, dim=dim)
         
-    def parameters(self, theta=None):
-        if not theta:
-            return {
-            'RHO': self.RHO,
-            'VPV': np.sqrt(self.C33/self.RHO),
-            'VPH': np.sqrt(self.C11/self.RHO),
-            'VSV': np.sqrt(self.C55/self.RHO),
-            'VSH': np.sqrt(self.C66/self.RHO),
-            'ETA': self.ETA}
+    def rotated_VTI_approx(self, theta):
+        rotated_C = self.rotated_tensor(theta)
+        params = {
+            "rho": self.RHO, 
+            "c11": rotated_C[0, 0],
+            "c12": rotated_C[0, 0] - 2 * rotated_C[5, 5],
+            "c13": rotated_C[0, 2],
+            "c14": 0,
+            "c15": 0,
+            "c16": 0,
+            "c22": rotated_C[0, 0],
+            "c23": rotated_C[0, 2],
+            "c24": 0,
+            "c25": 0,
+            "c26": 0,
+            "c33": rotated_C[2, 2],
+            "c34": 0,
+            "c35": 0,
+            "c36": 0,
+            "c44": rotated_C[3, 3],
+            "c45": 0,
+            "c46": 0.0,
+            "c55": rotated_C[3, 3],
+            "c56": 0,
+            "c66": rotated_C[5, 5],
+        }
+        return params
 
-        else:
-            return TTI_velocity_from_tensor(self.rotated_tensor(theta), self.RHO)
-        
+    def VTI_parameters(self):
+        return {
+        "rho": self.RHO, 
+        "c11": self.C11,
+        "c12": self.C12,
+        "c13": self.C13,
+        "c33": self.C33,
+        "c44": self.C44,
+        }
+    
     def rotated_parameters(self, theta):
         rotated_C = self.rotated_tensor(theta)
         return {
-        "C11": rotated_C[0, 0],
-        "C12": rotated_C[0, 1],
-        "C13": rotated_C[0, 2],
-        "C14": rotated_C[0, 3],
-        "C15": rotated_C[0, 4],
-        "C16": rotated_C[0, 5],
-        "C22": rotated_C[1, 1],
-        "C23": rotated_C[1, 2],
-        "C24": rotated_C[1, 3],
-        "C25": rotated_C[1, 4],
-        "C26": rotated_C[1, 5],
-        "C33": rotated_C[2, 2],
-        "C34": rotated_C[2, 3],
-        "C35": rotated_C[2, 4],
-        "C36": rotated_C[2, 5],
-        "C44": rotated_C[3, 3],
-        "C45": rotated_C[3, 4],
-        "C46": rotated_C[3, 5],
-        "C55": rotated_C[4, 4],
-        "C56": rotated_C[4, 5],
-        "C66": rotated_C[5, 5],
-        "RHO": self.RHO,  # Density remains unchanged
+        "rho": self.RHO, 
+        "c11": rotated_C[0, 0],
+        "c12": rotated_C[0, 1],
+        "c13": rotated_C[0, 2],
+        "c14": rotated_C[0, 3],
+        "c15": rotated_C[0, 4],
+        "c16": rotated_C[0, 5],
+        "c22": rotated_C[1, 1],
+        "c23": rotated_C[1, 2],
+        "c24": rotated_C[1, 3],
+        "c25": rotated_C[1, 4],
+        "c26": rotated_C[1, 5],
+        "c33": rotated_C[2, 2],
+        "c34": rotated_C[2, 3],
+        "c35": rotated_C[2, 4],
+        "c36": rotated_C[2, 5],
+        "c44": rotated_C[3, 3],
+        "c45": rotated_C[3, 4],
+        "c46": rotated_C[3, 5],
+        "c55": rotated_C[4, 4],
+        "c56": rotated_C[4, 5],
+        "c66": rotated_C[5, 5],
         }
+
 
 

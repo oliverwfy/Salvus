@@ -38,13 +38,13 @@ RANKS = 8
 N_GRAIN = 5
 
 # center frequency 
-CENTRAL_FREQUENCY = 5e5  # MHz
+CENTRAL_FREQUENCY = 1e6  # MHz
 
 # CENTRAL_FREQUENCY = 1e6  # MHz
 # CENTRAL_FREQUENCY = 3e6  # MHz
 
 
-roi_radius = 9e-3
+roi_radius = 7e-3
 
 n_txs =16
 
@@ -121,7 +121,7 @@ mesh_homogeneous = lm.mesh_from_domain(
     domain=domain,
     model=homogeneous_model_ab,
     mesh_resolution=sn.MeshResolution(
-        reference_frequency=CENTRAL_FREQUENCY * 2, elements_per_wavelength=3
+        reference_frequency=CENTRAL_FREQUENCY * 2, elements_per_wavelength=3, model_order=4
     ),
 )
 
@@ -181,7 +181,7 @@ mesh_homogeneous = lm.mesh_from_domain(
 
 
 
-orientation_of_grains = sn.material.orientation.ClockwiseAngle.from_params(angle_in_degrees=np.rad2deg(np.pi/4))
+orientation_of_grains = sn.material.orientation.ClockwiseAngle.from_params(angle_in_degrees=np.rad2deg(np.pi/6))
 material_oriented = md.to_solver_form(material_unoriented.with_orientation(orientation_of_grains), ndim=2)
 
 
@@ -358,23 +358,23 @@ p.add_to_project(
 
 
 
-# # # simulation with volume data (full wavefield)
-# # p.simulations.launch(
-# #     ranks_per_job=RANKS,
-# #     site_name=SITE_NAME,
-# #     events=p.events.list(),
-# #     simulation_configuration="mesh_heterogeneous",
-# #     extra_output_configuration={
-# #         "volume_data": {
-# #             "sampling_interval_in_time_steps": 20,
-# #             "fields": ["phi"],
-# #         },
-# #     },
-# #     # We have previously simulated the same event but without
-# #     # extra output. We have to thus overwrite the existing
-# #     # simulation.
-# #     delete_conflicting_previous_results=True,
-# # )
+# # simulation with volume data (full wavefield)
+# p.simulations.launch(
+#     ranks_per_job=RANKS,
+#     site_name=SITE_NAME,
+#     events=p.events.list(),
+#     simulation_configuration="mesh_heterogeneous",
+#     extra_output_configuration={
+#         "volume_data": {
+#             "sampling_interval_in_time_steps": 20,
+#             "fields": ["phi"],
+#         },
+#     },
+#     # We have previously simulated the same event but without
+#     # extra output. We have to thus overwrite the existing
+#     # simulation.
+#     delete_conflicting_previous_results=True,
+# )
 
 
 
@@ -423,8 +423,8 @@ invconfig = sn.InverseProblemConfiguration(
         scaling="absolute",
         inversion_parameters=["C11", "C12","C13", "C22","C23", "C33"],
         region_of_interest=mesh_roi,
-        # source_cutout_radius_in_meters=3.5e-3,
-        # receiver_cutout_radius_in_meters=3.5e-3
+        source_cutout_radius_in_meters=3e-3,
+        receiver_cutout_radius_in_meters=3e-3
         # postprocess_model_update = tensor_to_orientation
     ),
     # preconditioner=sn.ConstantSmoothing({"VP": 0.5e-3}),
